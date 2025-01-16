@@ -1,4 +1,6 @@
-body, html, #root {
+body,
+html,
+#root {
   width: 100%;
   height: 100%;
   top: 0;
@@ -6,4 +8,13 @@ body, html, #root {
   position: fixed;
   margin: 0;
   padding: 0;
+}
+
+#view-3d {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
