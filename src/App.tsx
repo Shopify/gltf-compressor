@@ -1,13 +1,12 @@
 import { Suspense, useCallback, useState } from "react";
 import "./App.css";
 import { Dropzone } from "./components/Dropzone";
-import ModelStats from "./components/ModelStats";
 import ModelView from "./components/ModelView";
+import TextureView from "./components/TextureView";
 
 function App() {
   const [modelUrl, setModelUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [loadedModel, setLoadedModel] = useState(null);
 
   const handleDrop = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -17,10 +16,6 @@ function App() {
       const url = URL.createObjectURL(file);
       setModelUrl(url);
     }
-  }, []);
-
-  const handleModelLoaded = useCallback((model: any) => {
-    setLoadedModel(model);
   }, []);
 
   return (
@@ -40,8 +35,16 @@ function App() {
     >
       {modelUrl ? (
         <>
-          {loadedModel && <ModelStats model={loadedModel} />}
-          <ModelView url={modelUrl} onModelLoaded={handleModelLoaded} />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              height: "100vh",
+            }}
+          >
+            <ModelView url={modelUrl} />
+            <TextureView />
+          </div>
         </>
       ) : (
         <>

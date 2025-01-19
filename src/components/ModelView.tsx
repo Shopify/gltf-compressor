@@ -1,20 +1,20 @@
 import { Environment, OrbitControls, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useEffect } from "react";
-import { GLTF } from "three-stdlib";
+import { useModelStore } from "../stores/useModelStore";
 
 interface ModelViewProps {
   url: string;
-  onModelLoaded?: (gltf: GLTF) => void;
 }
 
-export default function ModelView({ url, onModelLoaded }: ModelViewProps) {
+export default function ModelView({ url }: ModelViewProps) {
   console.log("Loading glTF model...", url);
   const gltf = useGLTF(url);
+  const setModel = useModelStore((state) => state.setModel);
 
   useEffect(() => {
-    onModelLoaded?.(gltf);
-  }, [gltf, onModelLoaded]);
+    setModel(gltf);
+  }, [gltf, setModel]);
 
   return (
     <div id="view-3d">
