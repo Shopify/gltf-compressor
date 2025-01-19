@@ -25,7 +25,6 @@ export const useModelStore = create<ModelStore>((set, get) => ({
         textureName = getFirstAvailableTextureName(material);
       }
     }
-    console.log("setting model", materialName, textureName);
     set({
       model,
       selectedMaterial: materialName,
