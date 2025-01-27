@@ -1,4 +1,4 @@
-import { Environment, OrbitControls, useGLTF } from "@react-three/drei";
+import { Bounds, Environment, OrbitControls, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useEffect } from "react";
 import { useModelStore } from "../stores/useModelStore";
@@ -20,8 +20,10 @@ export default function ModelView({ url }: ModelViewProps) {
     <div id="view-3d">
       <Canvas>
         <Environment preset="studio" />
-        <primitive object={gltf.scene} />
-        <OrbitControls />
+        <Bounds fit clip>
+          <primitive object={gltf.scene} />
+        </Bounds>
+        <OrbitControls makeDefault />
       </Canvas>
     </div>
   );
