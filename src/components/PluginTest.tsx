@@ -1,13 +1,18 @@
-import { folder, useControls } from "leva";
-import { bezier } from "../plugins/plugin-bezier/index";
-import { date } from "../plugins/plugin-dates/index";
+import { tree } from "@/plugins/plugin-tree";
+import { useControls } from "leva";
+import { Group } from "three";
 
-export default function PluginTest() {
+interface PluginTestProps {
+  scene: Group;
+}
+
+export default function PluginTest({ scene }: PluginTestProps) {
   useControls(
     "Plugins",
     {
-      Curve: folder({ curve: bezier() }),
-      Date: folder({ birthday: date({ date: new Date() }) }),
+      // Curve: folder({ curve: bezier() }),
+      // Date: folder({ birthday: date({ date: new Date() }) }),
+      sceneTree: tree(scene),
     },
     { collapsed: true }
   );
