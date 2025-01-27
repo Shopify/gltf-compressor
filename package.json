@@ -12,7 +12,6 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
-    "@leva-ui/plugin-bezier": "^0.10.0",
     "@react-three/drei": "^9.121.2",
     "@react-three/fiber": "^8.17.12",
     "leva": "^0.10.0",
