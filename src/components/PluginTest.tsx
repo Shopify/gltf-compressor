@@ -1,5 +1,5 @@
-import { bezier } from "@leva-ui/plugin-bezier";
 import { folder, useControls } from "leva";
+import { bezier } from "../plugins/plugin-bezier/index";
 
 export default function PluginTest() {
   useControls(
