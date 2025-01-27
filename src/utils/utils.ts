@@ -1,6 +1,6 @@
+import { defaultTextureQuality, textureMapNames } from "@/constants";
+import { TextureCompressionSettings } from "@/types";
 import { Material, Texture } from "three";
-import { defaultTextureQuality, textureMapNames } from "../constants";
-import { TextureCompressionSettings } from "../types";
 
 /**
  * Given a hash map of materials, returns an array of material names that have textures set

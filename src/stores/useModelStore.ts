@@ -1,7 +1,7 @@
+import { TextureCompressionSettings } from "@/types";
+import { getFirstAvailableTextureName } from "@/utils/utils";
 import { Texture } from "three";
 import { create } from "zustand";
-import { TextureCompressionSettings } from "../types";
-import { getFirstAvailableTextureName } from "../utils/utils";
 
 interface ModelStore {
   model: any | null;

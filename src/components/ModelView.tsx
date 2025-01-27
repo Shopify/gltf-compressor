@@ -1,7 +1,7 @@
+import { useModelStore } from "@/stores/useModelStore";
 import { Bounds, Environment, OrbitControls, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useEffect } from "react";
-import { useModelStore } from "../stores/useModelStore";
 
 interface ModelViewProps {
   url: string;

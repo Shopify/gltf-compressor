@@ -1,11 +1,11 @@
-import { useControls } from "leva";
-import { useEffect, useRef } from "react";
-import { useModelStore } from "../stores/useModelStore";
-import { TextureCompressionSettings } from "../types";
+import { useModelStore } from "@/stores/useModelStore";
+import { TextureCompressionSettings } from "@/types";
 import {
   filterMaterialNamesWithTextures,
   getAvailableTextureNames,
-} from "../utils/utils";
+} from "@/utils/utils";
+import { useControls } from "leva";
+import { useEffect, useRef } from "react";
 
 export default function TextureView() {
   const {
