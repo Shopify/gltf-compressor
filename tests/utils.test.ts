@@ -1,6 +1,8 @@
 import { MeshStandardMaterial, Texture } from "three";
 import { describe, expect, test } from "vitest";
+import { defaultTextureQuality } from "../src/constants";
 import {
+  buildTextureCompressionSettings,
   filterMaterialNamesWithTextures,
   getAvailableTextureNames,
   getFirstAvailableTextureName,
@@ -75,5 +77,42 @@ describe("Utils", () => {
     const texture = getFirstAvailableTextureName(material);
 
     expect(texture).toBe("map");
+  });
+
+  test("buildTextureCompressionSettings returns empty object when no materials have textures", () => {
+    const material1 = new MeshStandardMaterial();
+    const material2 = new MeshStandardMaterial();
+
+    const materials = {
+      material1: material1,
+      material2: material2,
+    };
+
+    const compressionSettings = buildTextureCompressionSettings(materials);
+
+    expect(compressionSettings).toEqual({});
+  });
+
+  test("buildTextureCompressionSettings returns compression settings for each material and texture", () => {
+    const material1 = new MeshStandardMaterial();
+    material1.map = new Texture();
+
+    const materials = {
+      material1: material1,
+    };
+
+    const compressionSettings = buildTextureCompressionSettings(materials);
+
+    expect(compressionSettings).toEqual({
+      material1: {
+        map: {
+          original: material1.map,
+          compressed: null,
+          type: "map",
+          quality: defaultTextureQuality,
+          compressionEnabled: false,
+        },
+      },
+    });
   });
 });

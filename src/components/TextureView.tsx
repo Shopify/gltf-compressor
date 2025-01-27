@@ -1,6 +1,7 @@
 import { useControls } from "leva";
 import { useEffect, useRef } from "react";
 import { useModelStore } from "../stores/useModelStore";
+import { TextureCompressionSettings } from "../types";
 import {
   filterMaterialNamesWithTextures,
   getAvailableTextureNames,
@@ -9,6 +10,8 @@ import {
 export default function TextureView() {
   const {
     model,
+    compressionSettings,
+    updateTextureCompressionSettings,
     selectedTexture,
     selectedMaterial,
     setSelectedMaterial,
@@ -44,13 +47,40 @@ export default function TextureView() {
           }
         },
       },
+      compressionEnabled: {
+        value:
+          selectedMaterial && selectedTexture
+            ? compressionSettings[selectedMaterial]?.[selectedTexture]
+                ?.compressionEnabled ?? false
+            : false,
+        onChange: (value) => {
+          if (selectedMaterial && selectedTexture) {
+            console.log("UPDATING", selectedMaterial, selectedTexture, value);
+            updateTextureCompressionSettings(
+              selectedMaterial,
+              selectedTexture,
+              {
+                compressionEnabled: value,
+              } as TextureCompressionSettings
+            );
+          }
+        },
+      },
     }),
-    [selectedMaterial, selectedTexture, model]
+    [selectedMaterial, selectedTexture, model, compressionSettings]
   );
 
   useEffect(() => {
-    set({ materialName: selectedMaterial, textureName: selectedTexture });
-  }, [selectedMaterial, selectedTexture, model]);
+    set({
+      materialName: selectedMaterial,
+      textureName: selectedTexture,
+      compressionEnabled:
+        selectedMaterial && selectedTexture
+          ? compressionSettings[selectedMaterial]?.[selectedTexture]
+              ?.compressionEnabled ?? false
+          : false,
+    });
+  }, [selectedMaterial, selectedTexture, model, compressionSettings]);
 
   useEffect(() => {
     if (!texture) return;

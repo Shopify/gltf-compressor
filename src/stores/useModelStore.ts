@@ -1,18 +1,28 @@
 import { Texture } from "three";
 import { create } from "zustand";
+import { TextureCompressionSettings } from "../types";
 import { getFirstAvailableTextureName } from "../utils/utils";
 
 interface ModelStore {
   model: any | null;
+  compressionSettings: {
+    [key: string]: { [key: string]: TextureCompressionSettings };
+  };
   selectedTexture: string | null;
   selectedMaterial: string | null;
   setModel: (model: any) => void;
   setSelectedTexture: (textureName: string | null) => void;
   setSelectedMaterial: (materialName: string | null) => void;
+  updateTextureCompressionSettings: (
+    materialName: string,
+    textureName: string,
+    settings: TextureCompressionSettings
+  ) => void;
 }
 
 export const useModelStore = create<ModelStore>((set, get) => ({
   model: null,
+  compressionSettings: {},
   selectedTexture: null,
   selectedMaterial: null,
   setModel: (model) => {
@@ -52,5 +62,22 @@ export const useModelStore = create<ModelStore>((set, get) => ({
     }
 
     set({ selectedMaterial: materialName, selectedTexture: textureName });
+  },
+  updateTextureCompressionSettings: (
+    materialName: string,
+    textureName: string,
+    settings: TextureCompressionSettings
+  ) => {
+    const { compressionSettings } = get();
+
+    set({
+      compressionSettings: {
+        ...compressionSettings,
+        [materialName]: {
+          ...compressionSettings[materialName],
+          [textureName]: settings,
+        },
+      },
+    });
   },
 }));

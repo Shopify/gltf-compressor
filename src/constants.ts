@@ -18,3 +18,5 @@ export const textureMapNames = [
   "specularIntensityMap",
   "specularColorMap",
 ];
+
+export const defaultTextureQuality = 80;

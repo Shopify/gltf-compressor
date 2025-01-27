@@ -1,5 +1,6 @@
 import { Material, Texture } from "three";
-import { textureMapNames } from "../constants";
+import { defaultTextureQuality, textureMapNames } from "../constants";
+import { TextureCompressionSettings } from "../types";
 
 /**
  * Given a hash map of materials, returns an array of material names that have textures set
@@ -48,4 +49,34 @@ export function getFirstAvailableTextureName(
   });
 
   return name ?? null;
+}
+
+export function buildTextureCompressionSettings(
+  materials: Record<string, Material>
+): { [key: string]: { [key: string]: TextureCompressionSettings } } {
+  const compressionSettings: {
+    [key: string]: { [key: string]: TextureCompressionSettings };
+  } = {};
+
+  Object.entries(materials).forEach(([materialName, material]) => {
+    const availableTextures = getAvailableTextureNames(material);
+
+    if (Object.keys(availableTextures).length > 0) {
+      const textureSettings: { [key: string]: TextureCompressionSettings } = {};
+
+      Object.keys(availableTextures).forEach((textureProp) => {
+        textureSettings[textureProp] = {
+          original: (material as any)[textureProp],
+          compressed: null,
+          type: textureProp,
+          quality: defaultTextureQuality,
+          compressionEnabled: false,
+        };
+      });
+
+      compressionSettings[materialName] = textureSettings;
+    }
+  });
+
+  return compressionSettings;
 }
