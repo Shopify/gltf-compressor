@@ -1,6 +1,7 @@
 import { TextureCompressionSettings } from "@/types";
 import {
   buildTextureCompressionSettings,
+  filterMaterialNamesWithTextures,
   getFirstAvailableTextureName,
 } from "@/utils/utils";
 import { Texture } from "three";
@@ -32,7 +33,7 @@ export const useModelStore = create<ModelStore>((set, get) => ({
     let materialName, textureName;
     const { materials } = model;
     if (materials) {
-      materialName = Object.keys(materials)[0];
+      materialName = filterMaterialNamesWithTextures(materials)[0];
       if (materialName) {
         const material = materials[materialName];
         textureName = getFirstAvailableTextureName(material);
