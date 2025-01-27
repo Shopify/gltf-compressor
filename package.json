@@ -16,7 +16,9 @@
     "@react-three/fiber": "^8.17.12",
     "leva": "^0.10.0",
     "react": "^18.3.1",
+    "react-datepicker": "^7.6.0",
     "react-dom": "^18.3.1",
+    "react-use-measure": "^2.1.1",
     "three": "^0.172.0",
     "vitest": "^3.0.2",
     "zustand": "^5.0.3"
