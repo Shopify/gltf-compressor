@@ -1,5 +1,8 @@
 import { TextureCompressionSettings } from "@/types";
-import { getFirstAvailableTextureName } from "@/utils/utils";
+import {
+  buildTextureCompressionSettings,
+  getFirstAvailableTextureName,
+} from "@/utils/utils";
 import { Texture } from "three";
 import { create } from "zustand";
 
@@ -39,6 +42,7 @@ export const useModelStore = create<ModelStore>((set, get) => ({
       model,
       selectedMaterial: materialName,
       selectedTexture: textureName,
+      compressionSettings: buildTextureCompressionSettings(materials),
     });
   },
   setSelectedTexture: (textureName) => set({ selectedTexture: textureName }),

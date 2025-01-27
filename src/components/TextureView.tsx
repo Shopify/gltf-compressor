@@ -60,6 +60,7 @@ export default function TextureView() {
               selectedMaterial,
               selectedTexture,
               {
+                ...compressionSettings[selectedMaterial][selectedTexture],
                 compressionEnabled: value,
               } as TextureCompressionSettings
             );

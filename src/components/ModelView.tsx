@@ -8,13 +8,34 @@ interface ModelViewProps {
 }
 
 export default function ModelView({ url }: ModelViewProps) {
-  console.log("Loading glTF model...", url);
   const gltf = useGLTF(url);
   const setModel = useModelStore((state) => state.setModel);
+
+  const { model, compressionSettings } = useModelStore();
+  const { materials } = model || {};
+
+  useEffect(() => {
+    console.log("Loading glTF model...", url);
+  }, [url]);
 
   useEffect(() => {
     setModel(gltf);
   }, [gltf, setModel]);
+
+  useEffect(() => {
+    if (compressionSettings) {
+      Object.entries(compressionSettings).forEach(
+        ([materialName, textures]) => {
+          Object.entries(textures).forEach(([textureName, settings]) => {
+            materials[materialName][textureName] = settings.compressionEnabled
+              ? ""
+              : compressionSettings[materialName][textureName].original;
+            materials[materialName].needsUpdate = true;
+          });
+        }
+      );
+    }
+  }, [compressionSettings]);
 
   return (
     <div id="view-3d">
