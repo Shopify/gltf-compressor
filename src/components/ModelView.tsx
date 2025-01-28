@@ -36,7 +36,7 @@ export default function ModelView({ url }: ModelViewProps) {
             intensity={1}
             shadows={"contact"}
             adjustCamera
-            environment={"studio"}
+            environment={"city"}
           >
             <primitive object={gltf.scene} />
           </Stage>
