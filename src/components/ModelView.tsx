@@ -24,6 +24,7 @@ function analyzeGLTFAssest(gltf) {
   // Calculate geometry size
   json.meshes.forEach((mesh) => {
     mesh.primitives.forEach((primitive) => {
+      // Get size of attributes
       if (primitive.attributes) {
         Object.values(primitive.attributes).forEach((attribute) => {
           const accessor = json.accessors[attribute];
@@ -31,6 +32,13 @@ function analyzeGLTFAssest(gltf) {
             accessor.count * getBytesPerComponent(accessor.componentType);
           geometrySize += accessorSize;
         });
+      }
+      // Get size of indices
+      if (primitive.indices !== undefined) {
+        const accessor = json.accessors[primitive.indices];
+        const accessorSize =
+          accessor.count * getBytesPerComponent(accessor.componentType);
+        geometrySize += accessorSize;
       }
     });
   });
