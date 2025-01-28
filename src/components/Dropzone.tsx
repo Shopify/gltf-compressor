@@ -1,49 +1,42 @@
-import { useState } from "react";
+import type { DropEvent, FileRejection } from "react-dropzone";
+import { useDropzone } from "react-dropzone";
 
 interface DropzoneProps {
-  onDrop: (event: React.DragEvent) => void;
+  onDrop: <T extends File>(
+    acceptedFiles: T[],
+    fileRejections: FileRejection[],
+    event: DropEvent
+  ) => void;
 }
 
 export function Dropzone({ onDrop }: DropzoneProps) {
-  const [isDragging, setIsDragging] = useState(false);
+  const { getRootProps, getInputProps, isDragActive, fileRejections } =
+    useDropzone({
+      onDrop,
+    });
 
   return (
     <div
-      onDragOver={(e) => {
-        e.preventDefault();
-        setIsDragging(true);
-      }}
-      onDragLeave={() => setIsDragging(false)}
-      onDrop={(e) => {
-        onDrop(e);
-        setIsDragging(false);
-      }}
-      style={{
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        position: "absolute",
-        top: 0,
-        left: 0,
-        backgroundColor: isDragging ? "rgba(0, 0, 0, 0.1)" : "transparent",
-        transition: "background-color 0.2s ease",
-        zIndex: 10,
-      }}
+      className="h-full w-screen flex flex-col items-center justify-center text-center"
+      {...getRootProps()}
     >
-      {isDragging && (
-        <div
-          style={{
-            padding: "2rem",
-            borderRadius: "1rem",
-            backgroundColor: "white",
-            boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-          }}
-        >
-          Drop your file here
-        </div>
+      <input {...getInputProps()} />
+
+      {isDragActive ? (
+        <p className="text-4xl font-bold text-blue-600">
+          Drop the files here...
+        </p>
+      ) : (
+        <p className="text-4xl font-bold">
+          Drag {"'"}n{"'"} drop your GLTF file{" "}
+          <button className="text-blue-600">here</button>
+        </p>
       )}
+      {fileRejections.length ? (
+        <p className="block text-center text-xl pt-4 text-red-300">
+          Only .gltf or .glb files are accepted
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 body,
 html,
 #root {
@@ -18,13 +20,6 @@ html,
   align-items: center;
   text-align: center;
   background: #444;
-}
-
-#drop-message {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
 
 #model-stats {

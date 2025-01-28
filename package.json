@@ -14,11 +14,14 @@
   "dependencies": {
     "@react-three/drei": "^9.121.2",
     "@react-three/fiber": "^8.17.12",
+    "@tailwindcss/vite": "^4.0.0",
     "leva": "^0.10.0",
     "react": "^18.3.1",
     "react-datepicker": "^7.6.0",
     "react-dom": "^18.3.1",
+    "react-dropzone": "^14.3.5",
     "react-use-measure": "^2.1.1",
+    "tailwindcss": "^4.0.0",
     "three": "^0.172.0",
     "vitest": "^3.0.2",
     "zustand": "^5.0.3"
