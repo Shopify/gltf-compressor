@@ -9,9 +9,102 @@ interface ModelViewProps {
   url: string;
 }
 
+function analyzeGLTFAssest(gltf) {
+  const json = gltf.parser.json; // Access the JSON part of the GLTF
+  const buffer = gltf.parser.extensions.KHR_binary_glTF; // Access the Binary part
+
+  console.log(json);
+  console.log(buffer);
+
+  let geometrySize = 0,
+    textureSize = 0,
+    animationSize = 0,
+    otherSize = 0;
+
+  // Calculate geometry size
+  json.meshes.forEach((mesh) => {
+    mesh.primitives.forEach((primitive) => {
+      if (primitive.attributes) {
+        Object.values(primitive.attributes).forEach((attribute) => {
+          const accessor = json.accessors[attribute];
+          const accessorSize =
+            accessor.count * getBytesPerComponent(accessor.componentType);
+          geometrySize += accessorSize;
+        });
+      }
+    });
+  });
+
+  // Calculate texture size
+  json.images.forEach((image) => {
+    if (image.bufferView !== undefined) {
+      const bufferView = json.bufferViews[image.bufferView];
+      textureSize += bufferView.byteLength;
+    }
+  });
+
+  // Calculate animation size
+  if (json.animations) {
+    json.animations.forEach((animation) => {
+      animation.channels.forEach((channel) => {
+        const accessor = json.accessors[channel.sampler];
+        const samplerSize =
+          accessor.count * getBytesPerComponent(accessor.componentType);
+        animationSize += samplerSize;
+      });
+    });
+  }
+
+  console.log(buffer);
+  console.log("geometrySize", geometrySize);
+  console.log("textureSize", textureSize);
+  console.log("animationSize", animationSize);
+
+  // Determine "other" size as the remaining buffer size
+  const totalSize = buffer.header.length;
+  otherSize = totalSize - geometrySize - textureSize - animationSize;
+
+  const geometryPercent = (geometrySize / totalSize) * 100;
+  const texturePercent = (textureSize / totalSize) * 100;
+  const animationPercent = (animationSize / totalSize) * 100;
+  // const otherPercent = (otherSize / totalSize) * 100;
+  const otherPercent =
+    100 - geometryPercent - texturePercent - animationPercent;
+
+  console.log(`Geometry: ${geometryPercent}%`);
+  console.log(`Textures: ${texturePercent}%`);
+  console.log(`Animations: ${animationPercent}%`);
+  console.log(`Other: ${otherPercent}%`);
+  console.log(
+    `Total percentage: ${(
+      geometryPercent +
+      texturePercent +
+      animationPercent +
+      otherPercent
+    ).toFixed(2)}%`
+  ); // Should be 100%
+}
+
+function getBytesPerComponent(componentType) {
+  switch (componentType) {
+    case 5120: // BYTE
+    case 5121: // UNSIGNED_BYTE
+      return 1;
+    case 5122: // SHORT
+    case 5123: // UNSIGNED_SHORT
+      return 2;
+    case 5125: // UNSIGNED_INT
+    case 5126: // FLOAT
+      return 4;
+    default:
+      return 1;
+  }
+}
+
 export default function ModelView({ url }: ModelViewProps) {
   const orbitControlsRef = useRef<OrbitControlsImpl>(null);
   const gltf = useGLTF(url);
+  analyzeGLTFAssest(gltf);
   const { model, compressionSettings } = useModelStore();
   const setModel = useModelStore((state) => state.setModel);
 
