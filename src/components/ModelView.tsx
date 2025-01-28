@@ -22,34 +22,38 @@ function analyzeGLTFAssest(gltf) {
     otherSize = 0;
 
   // Calculate geometry size
-  json.meshes.forEach((mesh) => {
-    mesh.primitives.forEach((primitive) => {
-      // Get size of attributes
-      if (primitive.attributes) {
-        Object.values(primitive.attributes).forEach((attribute) => {
-          const accessor = json.accessors[attribute];
+  if (json.meshes) {
+    json.meshes.forEach((mesh) => {
+      mesh.primitives.forEach((primitive) => {
+        // Get size of attributes
+        if (primitive.attributes) {
+          Object.values(primitive.attributes).forEach((attribute) => {
+            const accessor = json.accessors[attribute];
+            const accessorSize =
+              accessor.count * getBytesPerComponent(accessor.componentType);
+            geometrySize += accessorSize;
+          });
+        }
+        // Get size of indices
+        if (primitive.indices !== undefined) {
+          const accessor = json.accessors[primitive.indices];
           const accessorSize =
             accessor.count * getBytesPerComponent(accessor.componentType);
           geometrySize += accessorSize;
-        });
-      }
-      // Get size of indices
-      if (primitive.indices !== undefined) {
-        const accessor = json.accessors[primitive.indices];
-        const accessorSize =
-          accessor.count * getBytesPerComponent(accessor.componentType);
-        geometrySize += accessorSize;
-      }
+        }
+      });
     });
-  });
+  }
 
   // Calculate texture size
-  json.images.forEach((image) => {
-    if (image.bufferView !== undefined) {
-      const bufferView = json.bufferViews[image.bufferView];
-      textureSize += bufferView.byteLength;
-    }
-  });
+  if (json.images) {
+    json.images.forEach((image) => {
+      if (image.bufferView !== undefined) {
+        const bufferView = json.bufferViews[image.bufferView];
+        textureSize += bufferView.byteLength;
+      }
+    });
+  }
 
   // Calculate animation size
   if (json.animations) {
