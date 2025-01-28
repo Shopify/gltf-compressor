@@ -7,3 +7,11 @@ export interface TextureCompressionSettings {
   quality: number;
   compressionEnabled: boolean;
 }
+
+export interface MaterialCompressionSettings {
+  [mapName: string]: TextureCompressionSettings;
+}
+
+export interface ModelCompressionSettings {
+  materials: { [materialName: string]: MaterialCompressionSettings };
+}

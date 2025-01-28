@@ -1,4 +1,5 @@
 import { useModelStore } from "@/stores/useModelStore";
+import { updateModel } from "@/utils/utils";
 import { Bounds, Environment, OrbitControls, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useEffect } from "react";
@@ -12,7 +13,6 @@ export default function ModelView({ url }: ModelViewProps) {
   const setModel = useModelStore((state) => state.setModel);
 
   const { model, compressionSettings } = useModelStore();
-  const { materials } = model || {};
 
   useEffect(() => {
     console.log("Loading glTF model...", url);
@@ -24,16 +24,7 @@ export default function ModelView({ url }: ModelViewProps) {
 
   useEffect(() => {
     if (compressionSettings) {
-      Object.entries(compressionSettings).forEach(
-        ([materialName, textures]) => {
-          Object.entries(textures).forEach(([textureName, settings]) => {
-            materials[materialName][textureName] = settings.compressionEnabled
-              ? ""
-              : compressionSettings[materialName][textureName].original;
-            materials[materialName].needsUpdate = true;
-          });
-        }
-      );
+      updateModel(model, compressionSettings, true);
     }
   }, [compressionSettings]);
 

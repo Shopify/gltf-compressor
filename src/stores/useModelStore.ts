@@ -1,4 +1,4 @@
-import { TextureCompressionSettings } from "@/types";
+import { ModelCompressionSettings, TextureCompressionSettings } from "@/types";
 import {
   buildTextureCompressionSettings,
   filterMaterialNamesWithTextures,
@@ -9,9 +9,7 @@ import { create } from "zustand";
 
 interface ModelStore {
   model: any | null;
-  compressionSettings: {
-    [key: string]: { [key: string]: TextureCompressionSettings };
-  };
+  compressionSettings: ModelCompressionSettings | null;
   selectedTexture: string | null;
   selectedMaterial: string | null;
   setModel: (model: any) => void;
@@ -26,7 +24,7 @@ interface ModelStore {
 
 export const useModelStore = create<ModelStore>((set, get) => ({
   model: null,
-  compressionSettings: {},
+  compressionSettings: null,
   selectedTexture: null,
   selectedMaterial: null,
   setModel: (model) => {
@@ -70,17 +68,22 @@ export const useModelStore = create<ModelStore>((set, get) => ({
   },
   updateTextureCompressionSettings: (
     materialName: string,
-    textureName: string,
+    mapName: string,
     settings: TextureCompressionSettings
   ) => {
     const { compressionSettings } = get();
 
+    if (!compressionSettings) return;
+
     set({
       compressionSettings: {
         ...compressionSettings,
-        [materialName]: {
-          ...compressionSettings[materialName],
-          [textureName]: settings,
+        materials: {
+          ...compressionSettings.materials,
+          [materialName]: {
+            ...compressionSettings.materials[materialName],
+            [mapName]: settings,
+          },
         },
       },
     });

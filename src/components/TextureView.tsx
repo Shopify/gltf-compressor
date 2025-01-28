@@ -50,8 +50,9 @@ export default function TextureView() {
       compressionEnabled: {
         value:
           selectedMaterial && selectedTexture
-            ? compressionSettings[selectedMaterial]?.[selectedTexture]
-                ?.compressionEnabled ?? false
+            ? compressionSettings?.materials[selectedMaterial]?.[
+                selectedTexture
+              ]?.compressionEnabled ?? false
             : false,
         onChange: (value) => {
           if (selectedMaterial && selectedTexture) {
@@ -60,7 +61,9 @@ export default function TextureView() {
               selectedMaterial,
               selectedTexture,
               {
-                ...compressionSettings[selectedMaterial][selectedTexture],
+                ...compressionSettings?.materials[selectedMaterial]?.[
+                  selectedTexture
+                ],
                 compressionEnabled: value,
               } as TextureCompressionSettings
             );
@@ -77,7 +80,7 @@ export default function TextureView() {
       textureName: selectedTexture,
       compressionEnabled:
         selectedMaterial && selectedTexture
-          ? compressionSettings[selectedMaterial]?.[selectedTexture]
+          ? compressionSettings?.materials[selectedMaterial]?.[selectedTexture]
               ?.compressionEnabled ?? false
           : false,
     });

@@ -1,6 +1,12 @@
 import { defaultTextureQuality, textureMapNames } from "@/constants";
-import { TextureCompressionSettings } from "@/types";
+import {
+  MaterialCompressionSettings,
+  ModelCompressionSettings,
+  TextureCompressionSettings,
+} from "@/types";
+import { ObjectMap } from "@react-three/fiber";
 import { Material, Texture } from "three";
+import { GLTF } from "three-stdlib";
 
 /**
  * Given a hash map of materials, returns an array of material names that have textures set
@@ -53,10 +59,10 @@ export function getFirstAvailableTextureName(
 
 export function buildTextureCompressionSettings(
   materials: Record<string, Material>
-): { [key: string]: { [key: string]: TextureCompressionSettings } } {
-  const compressionSettings: {
-    [key: string]: { [key: string]: TextureCompressionSettings };
-  } = {};
+): ModelCompressionSettings {
+  const compressionSettings: ModelCompressionSettings = {
+    materials: {},
+  };
 
   Object.entries(materials).forEach(([materialName, material]) => {
     const availableTextures = getAvailableTextureNames(material);
@@ -74,9 +80,33 @@ export function buildTextureCompressionSettings(
         };
       });
 
-      compressionSettings[materialName] = textureSettings;
+      compressionSettings.materials[materialName] = textureSettings;
     }
   });
 
   return compressionSettings;
+}
+
+export function updateModel(
+  model: GLTF & ObjectMap,
+  compressionSettings: ModelCompressionSettings,
+  showCompressed: boolean
+) {
+  const { materials } = model;
+
+  Object.entries(compressionSettings.materials).forEach(
+    ([materialName, maps]) => {
+      const material = materials[materialName];
+
+      Object.entries(maps as MaterialCompressionSettings).forEach(
+        ([mapName, settings]) => {
+          (material as any)[mapName] =
+            showCompressed && settings.compressionEnabled
+              ? settings.compressed
+              : settings.original;
+          material.needsUpdate = true;
+        }
+      );
+    }
+  );
 }
