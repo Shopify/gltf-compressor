@@ -12,6 +12,9 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
+    "@gltf-transform/core": "^4.1.1",
+    "@gltf-transform/extensions": "^4.1.1",
+    "@gltf-transform/functions": "^4.1.1",
     "@react-three/drei": "^9.121.2",
     "@react-three/fiber": "^8.17.12",
     "@tailwindcss/vite": "^4.0.0",

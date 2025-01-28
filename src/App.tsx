@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import "./App.css";
 import { Dropzone } from "./components/Dropzone";
 import ModelView from "./components/ModelView";
+import StatsView from "./components/StatsView";
 import TextureView from "./components/TextureView";
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <div className="grid grid-cols-2 h-full">
             <ModelView url={modelUrl} />
             <TextureView />
+            <StatsView url={modelUrl} />
           </div>
         </>
       ) : (
