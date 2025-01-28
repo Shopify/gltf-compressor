@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import "./App.css";
 import { Dropzone } from "./components/Dropzone";
 import ModelView from "./components/ModelView";
@@ -15,20 +15,7 @@ function App() {
   }, []);
 
   return (
-    <Suspense
-      fallback={
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh",
-          }}
-        >
-          Loading...
-        </div>
-      }
-    >
+    <>
       {modelUrl ? (
         <>
           <div
@@ -47,7 +34,7 @@ function App() {
           <Dropzone onDrop={onDrop} />
         </>
       )}
-    </Suspense>
+    </>
   );
 }
 
