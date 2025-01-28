@@ -4,11 +4,13 @@ import {
   filterMaterialNamesWithTextures,
   getFirstAvailableTextureName,
 } from "@/utils/utils";
-import { Texture } from "three";
+import { ObjectMap } from "@react-three/fiber";
+import { Material, Texture } from "three";
+import { GLTF } from "three-stdlib";
 import { create } from "zustand";
 
 interface ModelStore {
-  model: any | null;
+  model: (GLTF & ObjectMap) | null;
   compressionSettings: ModelCompressionSettings | null;
   selectedTexture: string | null;
   selectedMaterial: string | null;
@@ -27,28 +29,33 @@ export const useModelStore = create<ModelStore>((set, get) => ({
   compressionSettings: null,
   selectedTexture: null,
   selectedMaterial: null,
-  setModel: (model) => {
+  setModel: (model: GLTF & ObjectMap) => {
     let materialName, textureName;
     const { materials } = model;
+
+    const compressionSettings = buildTextureCompressionSettings(materials);
     if (materials) {
-      materialName = filterMaterialNamesWithTextures(materials)[0];
+      materialName = filterMaterialNamesWithTextures(compressionSettings)[0];
       if (materialName) {
-        const material = materials[materialName];
-        textureName = getFirstAvailableTextureName(material);
+        textureName = getFirstAvailableTextureName(
+          compressionSettings.materials[materialName]
+        );
       }
     }
     set({
       model,
       selectedMaterial: materialName,
       selectedTexture: textureName,
-      compressionSettings: buildTextureCompressionSettings(materials),
+      compressionSettings: compressionSettings,
     });
   },
   setSelectedTexture: (textureName) => set({ selectedTexture: textureName }),
   setSelectedMaterial: (materialName) => {
     if (!materialName) return;
 
-    const { model, selectedTexture } = get();
+    const { model, selectedTexture, compressionSettings } = get();
+    if (!model) return;
+
     const { materials } = model;
 
     const material = materials[materialName];
@@ -56,12 +63,17 @@ export const useModelStore = create<ModelStore>((set, get) => ({
 
     let textureName = selectedTexture;
 
-    if (textureName && !(material[textureName] instanceof Texture)) {
+    if (
+      textureName &&
+      !(material[textureName as keyof Material] instanceof Texture)
+    ) {
       textureName = null;
     }
 
-    if (!textureName) {
-      textureName = getFirstAvailableTextureName(material);
+    if (!textureName && compressionSettings) {
+      textureName = getFirstAvailableTextureName(
+        compressionSettings.materials[materialName]
+      );
     }
 
     set({ selectedMaterial: materialName, selectedTexture: textureName });

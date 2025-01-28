@@ -23,10 +23,10 @@ export default function ModelView({ url }: ModelViewProps) {
   }, [gltf, setModel]);
 
   useEffect(() => {
-    if (compressionSettings) {
+    if (compressionSettings && model) {
       updateModel(model, compressionSettings, true);
     }
-  }, [compressionSettings]);
+  }, [compressionSettings, model]);
 
   return (
     <div id="view-3d">

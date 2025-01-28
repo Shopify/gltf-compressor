@@ -1,11 +1,12 @@
 import { useModelStore } from "@/stores/useModelStore";
 import { TextureCompressionSettings } from "@/types";
 import {
+  filterMapNamesWithTextures,
   filterMaterialNamesWithTextures,
-  getAvailableTextureNames,
 } from "@/utils/utils";
 import { useControls } from "leva";
 import { useEffect, useRef } from "react";
+import { Texture } from "three";
 
 export default function TextureView() {
   const {
@@ -31,7 +32,9 @@ export default function TextureView() {
     () => ({
       materialName: {
         value: selectedMaterial,
-        options: filterMaterialNamesWithTextures(materials),
+        options: compressionSettings
+          ? filterMaterialNamesWithTextures(compressionSettings)
+          : [],
         onChange: (value) => {
           if (value) {
             setSelectedMaterial(value);
@@ -40,7 +43,12 @@ export default function TextureView() {
       },
       textureName: {
         value: selectedTexture,
-        options: material ? getAvailableTextureNames(material) : [],
+        options:
+          selectedMaterial && compressionSettings
+            ? filterMapNamesWithTextures(
+                compressionSettings.materials[selectedMaterial]
+              )
+            : [],
         onChange: (value) => {
           if (value) {
             setSelectedTexture(value);
@@ -92,12 +100,12 @@ export default function TextureView() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    canvas.width = texture.image.width;
-    canvas.height = texture.image.height;
+    canvas.width = (texture as Texture).image.width;
+    canvas.height = (texture as Texture).image.height;
     const ctx = canvas.getContext("2d");
 
     if (ctx) {
-      ctx.drawImage(texture.image, 0, 0);
+      ctx.drawImage((texture as Texture).image, 0, 0);
     }
   }, [selectedTexture, selectedMaterial]);
 

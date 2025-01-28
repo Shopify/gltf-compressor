@@ -9,16 +9,30 @@ import { Material, Texture } from "three";
 import { GLTF } from "three-stdlib";
 
 /**
- * Given a hash map of materials, returns an array of material names that have textures set
- * @param materials The materials to filter
+ * Given model compression settings, returns an array of material names that have textures set
+ * @param modelCompressionSettings The model compression settings to filter
  * @returns An array of material names that have textures set
  */
 export function filterMaterialNamesWithTextures(
-  materials: Record<string, Material>
+  modelCompressionSettings: ModelCompressionSettings
 ): string[] {
-  return Object.keys(materials).filter((materialName) =>
-    getFirstAvailableTextureName(materials[materialName])
+  return Object.keys(modelCompressionSettings.materials).filter(
+    (materialName) =>
+      getFirstAvailableTextureName(
+        modelCompressionSettings.materials[materialName]
+      )
   );
+}
+
+/**
+ * Filters the material compression settings to only include maps that have textures
+ * @param materialCompressionSettings The material compression settings to filter
+ * @returns An object containing the maps that have textures
+ */
+export function filterMapNamesWithTextures(
+  materialCompressionSettings: MaterialCompressionSettings
+): string[] {
+  return Object.keys(materialCompressionSettings);
 }
 
 /**
@@ -26,7 +40,7 @@ export function filterMaterialNamesWithTextures(
  * @param material The Three.js material to extract textures from
  * @returns An object containing all texture map names with their property names as keys
  */
-export function getAvailableTextureNames(
+export function getAvailableTextureNamesFromMaterial(
   material: Material
 ): Record<string, string> {
   const textureMaps: Record<string, string> = {};
@@ -43,15 +57,15 @@ export function getAvailableTextureNames(
 
 /**
  * Returns the first available texture according to the order in constants.ts
- * @param material The Three.js material to extract textures from
+ * @param materialCompressionSettings The material compression settings to extract textures from
  * @returns The first available texture or null if no texture is found
  */
 export function getFirstAvailableTextureName(
-  material: Material
+  materialCompressionSettings: MaterialCompressionSettings
 ): string | null {
   const name = textureMapNames.find((prop) => {
-    const value = (material as any)[prop];
-    return value instanceof Texture;
+    const value = (materialCompressionSettings as any)[prop];
+    return value?.original instanceof Texture;
   });
 
   return name ?? null;
@@ -65,7 +79,7 @@ export function buildTextureCompressionSettings(
   };
 
   Object.entries(materials).forEach(([materialName, material]) => {
-    const availableTextures = getAvailableTextureNames(material);
+    const availableTextures = getAvailableTextureNamesFromMaterial(material);
 
     if (Object.keys(availableTextures).length > 0) {
       const textureSettings: { [key: string]: TextureCompressionSettings } = {};

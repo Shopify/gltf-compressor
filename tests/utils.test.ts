@@ -7,42 +7,60 @@ import { ModelCompressionSettings } from "../src/types";
 import { ObjectMap } from "@react-three/fiber";
 import {
   buildTextureCompressionSettings,
+  filterMapNamesWithTextures,
   filterMaterialNamesWithTextures,
-  getAvailableTextureNames,
+  getAvailableTextureNamesFromMaterial,
   getFirstAvailableTextureName,
   updateModel,
 } from "../src/utils/utils";
 
 describe("Utils", () => {
   test("filterMaterialNamesWithTextures is empty when no materials have textures", () => {
-    const materials = {
-      material1: new MeshStandardMaterial(),
-      material2: new MeshStandardMaterial(),
+    const compressionSettings = {
+      materials: {
+        material1: {
+          map: {
+            original: null,
+          },
+        },
+        material2: {
+          map: {
+            original: null,
+          },
+        },
+      },
     };
 
-    const filteredMaterials = filterMaterialNamesWithTextures(materials);
+    const filteredMaterials =
+      filterMaterialNamesWithTextures(compressionSettings);
 
     expect(filteredMaterials).toHaveLength(0);
   });
 
   test("filterMaterialNamesWithTextures returns all materials when all materials have textures", () => {
-    const materialWithTexture = new MeshStandardMaterial();
-    materialWithTexture.map = new Texture();
-
-    const materialWithoutTexture = new MeshStandardMaterial();
-
-    const materials = {
-      materialWithTexture: materialWithTexture,
-      materialWithoutTexture: materialWithoutTexture,
+    const compressionSettings = {
+      materials: {
+        materialWithTexture: {
+          map: {
+            original: new Texture(),
+          },
+        },
+        materialWithoutTexture: {
+          map: {
+            original: null,
+          },
+        },
+      },
     };
 
-    const filteredMaterials = filterMaterialNamesWithTextures(materials);
+    const filteredMaterials =
+      filterMaterialNamesWithTextures(compressionSettings);
 
     expect(filteredMaterials).toHaveLength(1);
     expect(filteredMaterials).toEqual(["materialWithTexture"]);
   });
 
-  test("getAvailableTextureNames should return only the texture maps that are available", () => {
+  test("getAvailableTextureNamesFromMaterial should return only the texture maps that are available", () => {
     const material = new MeshStandardMaterial();
     const baseTexture = new Texture();
     const normalTexture = new Texture();
@@ -52,7 +70,7 @@ describe("Utils", () => {
     material.normalMap = normalTexture;
     material.roughnessMap = roughnessTexture;
 
-    const textures = getAvailableTextureNames(material);
+    const textures = getAvailableTextureNamesFromMaterial(material);
 
     expect(textures).toBeDefined();
     expect(Object.keys(textures)).toHaveLength(3);
@@ -63,12 +81,28 @@ describe("Utils", () => {
     ]);
   });
 
-  test("getAvailableTextureNames should return empty object when no textures are set", () => {
+  test("getAvailableTextureNamesFromMaterial should return empty object when no textures are set", () => {
     const material = new MeshStandardMaterial();
-    const textures = getAvailableTextureNames(material);
+    const textures = getAvailableTextureNamesFromMaterial(material);
 
     expect(textures).toBeDefined();
     expect(Object.keys(textures)).toHaveLength(0);
+  });
+
+  test("filterMapNamesWithTextures should return all map names when all maps have textures", () => {
+    const materialCompressionSettings = {
+      map: {
+        original: new Texture(),
+      },
+      normalMap: {
+        original: new Texture(),
+      },
+    };
+
+    const mapNames = filterMapNamesWithTextures(materialCompressionSettings);
+
+    expect(mapNames).toHaveLength(2);
+    expect(mapNames).toEqual(expect.arrayContaining(["map", "normalMap"]));
   });
 
   test("getFirstAvailableTextureName should return the first available texture according to the order in constants.ts", () => {
@@ -76,10 +110,16 @@ describe("Utils", () => {
     const normalTexture = new Texture();
     const baseTexture = new Texture();
 
-    material.map = baseTexture;
-    material.normalMap = normalTexture;
+    const materialCompressionSettings = {
+      map: {
+        original: baseTexture,
+      },
+      normalMap: {
+        original: normalTexture,
+      },
+    };
 
-    const texture = getFirstAvailableTextureName(material);
+    const texture = getFirstAvailableTextureName(materialCompressionSettings);
 
     expect(texture).toBe("map");
   });
