@@ -43,6 +43,7 @@ export default function ModelView({ url }: ModelViewProps) {
     exporter.parse(
       sceneRef.current.children,
       async (gltf) => {
+        let blob;
         if (useDracoCompressionRef.current) {
           const io = new WebIO()
             .registerExtensions(KHRONOS_EXTENSIONS)
@@ -55,6 +56,9 @@ export default function ModelView({ url }: ModelViewProps) {
 
           const doc = await io.readBinary(new Uint8Array(gltf as ArrayBuffer));
 
+          // Resample animation clips, losslessly deduplicating keyframes to reduce file size
+          // await doc.transform(resample());
+
           doc
             .createExtension(KHRDracoMeshCompression)
             .setRequired(true)
@@ -64,29 +68,22 @@ export default function ModelView({ url }: ModelViewProps) {
             });
 
           const compressedArrayBuffer = await io.writeBinary(doc);
-          const blob = new Blob([compressedArrayBuffer], {
+          blob = new Blob([compressedArrayBuffer], {
             type: "application/octet-stream",
           });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.style.display = "none";
-          a.href = url;
-          a.download = "scene-compressed.glb";
-          document.body.appendChild(a);
-          a.click();
-          URL.revokeObjectURL(url);
         } else {
           // @ts-ignore
-          const blob = new Blob([gltf], { type: "application/octet-stream" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.style.display = "none";
-          a.href = url;
-          a.download = "scene.glb";
-          document.body.appendChild(a);
-          a.click();
-          URL.revokeObjectURL(url);
+          blob = new Blob([gltf], { type: "application/octet-stream" });
         }
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = "scene.glb";
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(url);
       },
       (error) => {
         console.error("An error occurred while exporting the file", error);
