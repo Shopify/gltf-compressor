@@ -10,7 +10,6 @@ import { Canvas } from "@react-three/fiber";
 import { button, useControls } from "leva";
 import { Suspense, useCallback, useEffect, useRef } from "react";
 import { Group } from "three";
-import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js";
 import { Stage } from "../drei_stuff/Stage";
 
@@ -20,7 +19,6 @@ interface ModelViewProps {
 
 export default function ModelView({ url }: ModelViewProps) {
   const sceneRef = useRef<Group>(null);
-  const orbitControlsRef = useRef<OrbitControlsImpl>(null);
   const gltf = useGLTF(url);
   const { model, compressionSettings } = useModelStore();
   const setModel = useModelStore((state) => state.setModel);
@@ -117,8 +115,6 @@ export default function ModelView({ url }: ModelViewProps) {
       <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
         <Suspense fallback={null}>
           <Stage
-            // @ts-ignore
-            controls={orbitControlsRef}
             preset={"rembrandt"}
             intensity={1}
             shadows={"contact"}
@@ -129,7 +125,7 @@ export default function ModelView({ url }: ModelViewProps) {
           </Stage>
         </Suspense>
         <axesHelper></axesHelper>
-        <OrbitControls ref={orbitControlsRef} />
+        <OrbitControls makeDefault />
       </Canvas>
     </div>
   );
