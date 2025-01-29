@@ -1,10 +1,13 @@
 import _extends from "@babel/runtime/helpers/esm/extends";
+import {
+  AccumulativeShadows,
+  Center,
+  ContactShadows,
+  Environment,
+  RandomizedLight,
+} from "@react-three/drei";
 import * as React from "react";
-import { AccumulativeShadows, RandomizedLight } from "./AccumulativeShadows.js";
 import { Bounds, useBounds } from "./Bounds.js";
-import { Center } from "./Center.js";
-import { ContactShadows } from "./ContactShadows.js";
-import { Environment } from "./Environment.js";
 
 const presets = {
   rembrandt: {
