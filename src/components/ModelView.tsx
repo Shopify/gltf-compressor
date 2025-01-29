@@ -112,7 +112,7 @@ export default function ModelView({ url }: ModelViewProps) {
 
   return (
     <div id="view-3d">
-      <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
+      <Canvas camera={{ position: [0, 0, 150], fov: 50 }}>
         <Suspense fallback={null}>
           <Stage
             preset={"rembrandt"}
@@ -124,7 +124,6 @@ export default function ModelView({ url }: ModelViewProps) {
             <primitive ref={sceneRef} object={gltf.scene} />
           </Stage>
         </Suspense>
-        <axesHelper></axesHelper>
         <OrbitControls makeDefault />
       </Canvas>
     </div>
