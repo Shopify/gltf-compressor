@@ -5,13 +5,14 @@ import {
   KHRDracoMeshCompression,
   KHRONOS_EXTENSIONS,
 } from "@gltf-transform/extensions";
-import { OrbitControls, Stage, useGLTF } from "@react-three/drei";
+import { OrbitControls, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { button, useControls } from "leva";
 import { Suspense, useCallback, useEffect, useRef } from "react";
 import { Group } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js";
+import { Stage } from "../drei_stuff/Stage";
 
 interface ModelViewProps {
   url: string;
@@ -113,7 +114,7 @@ export default function ModelView({ url }: ModelViewProps) {
 
   return (
     <div id="view-3d">
-      <Canvas camera={{ position: [0, 0, 150], fov: 50 }}>
+      <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
         <Suspense fallback={null}>
           <Stage
             // @ts-ignore
