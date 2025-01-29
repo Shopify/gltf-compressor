@@ -1,20 +1,20 @@
-import * as React from 'react';
-import * as THREE from 'three';
-import { useThree, useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from "@react-three/fiber";
+import * as React from "react";
+import * as THREE from "three";
 
-var AnimationState = /*#__PURE__*/function (AnimationState) {
-  AnimationState[AnimationState["NONE"] = 0] = "NONE";
-  AnimationState[AnimationState["START"] = 1] = "START";
-  AnimationState[AnimationState["ACTIVE"] = 2] = "ACTIVE";
+var AnimationState = /*#__PURE__*/ (function (AnimationState) {
+  AnimationState[(AnimationState["NONE"] = 0)] = "NONE";
+  AnimationState[(AnimationState["START"] = 1)] = "START";
+  AnimationState[(AnimationState["ACTIVE"] = 2)] = "ACTIVE";
   return AnimationState;
-}(AnimationState || {});
-const isOrthographic = def => def && def.isOrthographicCamera;
-const isBox3 = def => def && def.isBox3;
-const interpolateFuncDefault = t => {
+})(AnimationState || {});
+const isOrthographic = (def) => def && def.isOrthographicCamera;
+const isBox3 = (def) => def && def.isBox3;
+const interpolateFuncDefault = (t) => {
   // Imitates the previously used THREE.MathUtils.damp
   return 1 - Math.exp(-5 * t) + 0.007 * t;
 };
-const context = /*#__PURE__*/React.createContext(null);
+const context = /*#__PURE__*/ React.createContext(null);
 function Bounds({
   children,
   maxDuration = 1.0,
@@ -23,28 +23,24 @@ function Bounds({
   fit,
   clip,
   interpolateFunc = interpolateFuncDefault,
-  onFit
+  onFit,
 }) {
   const ref = React.useRef(null);
-  const {
-    camera,
-    size,
-    invalidate
-  } = useThree();
-  const controls = useThree(state => state.controls);
+  const { camera, size, invalidate } = useThree();
+  const controls = useThree((state) => state.controls);
   const onFitRef = React.useRef(onFit);
   onFitRef.current = onFit;
   const origin = React.useRef({
     camPos: new THREE.Vector3(),
     camRot: new THREE.Quaternion(),
-    camZoom: 1
+    camZoom: 1,
   });
   const goal = React.useRef({
     camPos: undefined,
     camRot: undefined,
     camZoom: undefined,
     camUp: undefined,
-    target: undefined
+    target: undefined,
   });
   const animationState = React.useRef(AnimationState.NONE);
   const t = React.useRef(0); // represent animation state from 0 to 1
@@ -55,20 +51,25 @@ function Bounds({
       const boxSize = box.getSize(new THREE.Vector3());
       const center = box.getCenter(new THREE.Vector3());
       const maxSize = Math.max(boxSize.x, boxSize.y, boxSize.z);
-      const fitHeightDistance = isOrthographic(camera) ? maxSize * 4 : maxSize / (2 * Math.atan(Math.PI * camera.fov / 360));
-      const fitWidthDistance = isOrthographic(camera) ? maxSize * 4 : fitHeightDistance / camera.aspect;
+      const fitHeightDistance = isOrthographic(camera)
+        ? maxSize * 4
+        : maxSize / (2 * Math.atan((Math.PI * camera.fov) / 360));
+      const fitWidthDistance = isOrthographic(camera)
+        ? maxSize * 4
+        : fitHeightDistance / camera.aspect;
       const distance = margin * Math.max(fitHeightDistance, fitWidthDistance);
       return {
         box,
         size: boxSize,
         center,
-        distance
+        distance,
       };
     }
     return {
       getSize,
       refresh(object) {
-        if (isBox3(object)) box.copy(object);else {
+        if (isBox3(object)) box.copy(object);
+        else {
           const target = object || ref.current;
           if (!target) return this;
           target.updateWorldMatrix(true, true);
@@ -76,7 +77,10 @@ function Bounds({
         }
         if (box.isEmpty()) {
           const max = camera.position.length() || 10;
-          box.setFromCenterAndSize(new THREE.Vector3(), new THREE.Vector3(max, max, max));
+          box.setFromCenterAndSize(
+            new THREE.Vector3(),
+            new THREE.Vector3(max, max, max)
+          );
         }
         origin.current.camPos.copy(camera.position);
         origin.current.camRot.copy(camera.quaternion);
@@ -89,37 +93,51 @@ function Bounds({
         return this;
       },
       reset() {
-        const {
-          center,
-          distance
-        } = getSize();
+        const { center, distance } = getSize();
         const direction = camera.position.clone().sub(center).normalize();
-        goal.current.camPos = center.clone().addScaledVector(direction, distance);
+        goal.current.camPos = center
+          .clone()
+          .addScaledVector(direction, distance);
         goal.current.target = center.clone();
-        const mCamRot = new THREE.Matrix4().lookAt(goal.current.camPos, goal.current.target, camera.up);
-        goal.current.camRot = new THREE.Quaternion().setFromRotationMatrix(mCamRot);
+        const mCamRot = new THREE.Matrix4().lookAt(
+          goal.current.camPos,
+          goal.current.target,
+          camera.up
+        );
+        goal.current.camRot = new THREE.Quaternion().setFromRotationMatrix(
+          mCamRot
+        );
         animationState.current = AnimationState.START;
         t.current = 0;
         return this;
       },
       moveTo(position) {
-        goal.current.camPos = Array.isArray(position) ? new THREE.Vector3(...position) : position.clone();
+        goal.current.camPos = Array.isArray(position)
+          ? new THREE.Vector3(...position)
+          : position.clone();
         animationState.current = AnimationState.START;
         t.current = 0;
         return this;
       },
-      lookAt({
-        target,
-        up
-      }) {
-        goal.current.target = Array.isArray(target) ? new THREE.Vector3(...target) : target.clone();
+      lookAt({ target, up }) {
+        goal.current.target = Array.isArray(target)
+          ? new THREE.Vector3(...target)
+          : target.clone();
         if (up) {
-          goal.current.camUp = Array.isArray(up) ? new THREE.Vector3(...up) : up.clone();
+          goal.current.camUp = Array.isArray(up)
+            ? new THREE.Vector3(...up)
+            : up.clone();
         } else {
           goal.current.camUp = camera.up.clone();
         }
-        const mCamRot = new THREE.Matrix4().lookAt(goal.current.camPos || camera.position, goal.current.target, goal.current.camUp);
-        goal.current.camRot = new THREE.Quaternion().setFromRotationMatrix(mCamRot);
+        const mCamRot = new THREE.Matrix4().lookAt(
+          goal.current.camPos || camera.position,
+          goal.current.target,
+          goal.current.camUp
+        );
+        goal.current.camRot = new THREE.Quaternion().setFromRotationMatrix(
+          mCamRot
+        );
         animationState.current = AnimationState.START;
         t.current = 0;
         return this;
@@ -127,12 +145,9 @@ function Bounds({
       /**
        * @deprecated Use moveTo and lookAt instead
        */
-      to({
-        position,
-        target
-      }) {
+      to({ position, target }) {
         return this.moveTo(position).lookAt({
-          target
+          target,
         });
       },
       fit() {
@@ -144,13 +159,28 @@ function Bounds({
         // For orthographic cameras, fit should only modify the zoom value
         let maxHeight = 0,
           maxWidth = 0;
-        const vertices = [new THREE.Vector3(box.min.x, box.min.y, box.min.z), new THREE.Vector3(box.min.x, box.max.y, box.min.z), new THREE.Vector3(box.min.x, box.min.y, box.max.z), new THREE.Vector3(box.min.x, box.max.y, box.max.z), new THREE.Vector3(box.max.x, box.max.y, box.max.z), new THREE.Vector3(box.max.x, box.max.y, box.min.z), new THREE.Vector3(box.max.x, box.min.y, box.max.z), new THREE.Vector3(box.max.x, box.min.y, box.min.z)];
+        const vertices = [
+          new THREE.Vector3(box.min.x, box.min.y, box.min.z),
+          new THREE.Vector3(box.min.x, box.max.y, box.min.z),
+          new THREE.Vector3(box.min.x, box.min.y, box.max.z),
+          new THREE.Vector3(box.min.x, box.max.y, box.max.z),
+          new THREE.Vector3(box.max.x, box.max.y, box.max.z),
+          new THREE.Vector3(box.max.x, box.max.y, box.min.z),
+          new THREE.Vector3(box.max.x, box.min.y, box.max.z),
+          new THREE.Vector3(box.max.x, box.min.y, box.min.z),
+        ];
 
         // Transform the center and each corner to camera space
         const pos = goal.current.camPos || camera.position;
-        const target = goal.current.target || (controls == null ? void 0 : controls.target);
+        const target =
+          goal.current.target || (controls == null ? void 0 : controls.target);
         const up = goal.current.camUp || camera.up;
-        const mCamWInv = target ? new THREE.Matrix4().lookAt(pos, target, up).setPosition(pos).invert() : camera.matrixWorldInverse;
+        const mCamWInv = target
+          ? new THREE.Matrix4()
+              .lookAt(pos, target, up)
+              .setPosition(pos)
+              .invert()
+          : camera.matrixWorldInverse;
         for (const v of vertices) {
           v.applyMatrix4(mCamWInv);
           maxHeight = Math.max(maxHeight, Math.abs(v.y));
@@ -167,9 +197,7 @@ function Bounds({
         return this;
       },
       clip() {
-        const {
-          distance
-        } = getSize();
+        const { distance } = getSize();
         camera.near = distance / 100;
         camera.far = distance * 100;
         camera.updateProjectionMatrix();
@@ -179,25 +207,34 @@ function Bounds({
         }
         invalidate();
         return this;
-      }
+      },
     };
   }, [box, camera, controls, margin, invalidate]);
   React.useLayoutEffect(() => {
     if (controls) {
       // Try to prevent drag hijacking
       const callback = () => {
-        if (controls && goal.current.target && animationState.current !== AnimationState.NONE) {
-          const front = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 2);
+        if (
+          controls &&
+          goal.current.target &&
+          animationState.current !== AnimationState.NONE
+        ) {
+          const front = new THREE.Vector3().setFromMatrixColumn(
+            camera.matrix,
+            2
+          );
           const d0 = origin.current.camPos.distanceTo(controls.target);
-          const d1 = (goal.current.camPos || origin.current.camPos).distanceTo(goal.current.target);
+          const d1 = (goal.current.camPos || origin.current.camPos).distanceTo(
+            goal.current.target
+          );
           const d = (1 - t.current) * d0 + t.current * d1;
           controls.target.copy(camera.position).addScaledVector(front, -d);
           controls.update();
         }
         animationState.current = AnimationState.NONE;
       };
-      controls.addEventListener('start', callback);
-      return () => controls.removeEventListener('start', callback);
+      controls.addEventListener("start", callback);
+      return () => controls.removeEventListener("start", callback);
     }
   }, [controls]);
 
@@ -221,7 +258,9 @@ function Bounds({
         goal.current.camPos && camera.position.copy(goal.current.camPos);
         goal.current.camRot && camera.quaternion.copy(goal.current.camRot);
         goal.current.camUp && camera.up.copy(goal.current.camUp);
-        goal.current.camZoom && isOrthographic(camera) && (camera.zoom = goal.current.camZoom);
+        goal.current.camZoom &&
+          isOrthographic(camera) &&
+          (camera.zoom = goal.current.camZoom);
         camera.updateMatrixWorld();
         camera.updateProjectionMatrix();
         if (controls && goal.current.target) {
@@ -231,21 +270,43 @@ function Bounds({
         animationState.current = AnimationState.NONE;
       } else {
         const k = interpolateFunc(t.current);
-        goal.current.camPos && camera.position.lerpVectors(origin.current.camPos, goal.current.camPos, k);
-        goal.current.camRot && camera.quaternion.slerpQuaternions(origin.current.camRot, goal.current.camRot, k);
-        goal.current.camUp && camera.up.set(0, 1, 0).applyQuaternion(camera.quaternion);
-        goal.current.camZoom && isOrthographic(camera) && (camera.zoom = (1 - k) * origin.current.camZoom + k * goal.current.camZoom);
+        goal.current.camPos &&
+          camera.position.lerpVectors(
+            origin.current.camPos,
+            goal.current.camPos,
+            k
+          );
+        goal.current.camRot &&
+          camera.quaternion.slerpQuaternions(
+            origin.current.camRot,
+            goal.current.camRot,
+            k
+          );
+        goal.current.camUp &&
+          camera.up.set(0, 1, 0).applyQuaternion(camera.quaternion);
+        goal.current.camZoom &&
+          isOrthographic(camera) &&
+          (camera.zoom =
+            (1 - k) * origin.current.camZoom + k * goal.current.camZoom);
         camera.updateMatrixWorld();
         camera.updateProjectionMatrix();
       }
       invalidate();
     }
   });
-  return /*#__PURE__*/React.createElement("group", {
-    ref: ref
-  }, /*#__PURE__*/React.createElement(context.Provider, {
-    value: api
-  }, children));
+  return /*#__PURE__*/ React.createElement(
+    "group",
+    {
+      ref: ref,
+    },
+    /*#__PURE__*/ React.createElement(
+      context.Provider,
+      {
+        value: api,
+      },
+      children
+    )
+  );
 }
 function useBounds() {
   return React.useContext(context);
