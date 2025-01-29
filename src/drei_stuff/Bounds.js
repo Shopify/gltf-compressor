@@ -27,7 +27,7 @@ function Bounds({
   onFit,
 }) {
   const ref = React.useRef(null);
-  const { camera, size, invalidate } = useThree();
+  const { camera, size } = useThree();
   const controls = useThree((state) => state.controls);
   const onFitRef = React.useRef(onFit);
   onFitRef.current = onFit;
@@ -207,11 +207,10 @@ function Bounds({
           controls.maxDistance = distance * 10;
           controls.update();
         }
-        invalidate();
         return this;
       },
     };
-  }, [box, camera, controls, margin, invalidate]);
+  }, [box, camera, controls, margin]);
 
   React.useLayoutEffect(() => {
     if (controls) {
@@ -255,7 +254,6 @@ function Bounds({
     // This [additional animation step START] is needed to guarantee that delta used in animation isn't absurdly high (2-3 seconds) which is actually possible if rendering happens on demand...
     if (animationState.current === AnimationState.START) {
       animationState.current = AnimationState.ACTIVE;
-      invalidate();
     } else if (animationState.current === AnimationState.ACTIVE) {
       t.current += delta / maxDuration;
       if (t.current >= 1) {
@@ -295,7 +293,6 @@ function Bounds({
         camera.updateMatrixWorld();
         camera.updateProjectionMatrix();
       }
-      invalidate();
     }
   });
 
