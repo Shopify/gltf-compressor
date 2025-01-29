@@ -109,37 +109,6 @@ function Bounds({
         t.current = 0;
         return this;
       },
-      moveTo(position) {
-        goal.current.camPos = Array.isArray(position)
-          ? new THREE.Vector3(...position)
-          : position.clone();
-        animationState.current = AnimationState.START;
-        t.current = 0;
-        return this;
-      },
-      lookAt({ target, up }) {
-        goal.current.target = Array.isArray(target)
-          ? new THREE.Vector3(...target)
-          : target.clone();
-        if (up) {
-          goal.current.camUp = Array.isArray(up)
-            ? new THREE.Vector3(...up)
-            : up.clone();
-        } else {
-          goal.current.camUp = camera.up.clone();
-        }
-        const mCamRot = new THREE.Matrix4().lookAt(
-          goal.current.camPos || camera.position,
-          goal.current.target,
-          goal.current.camUp
-        );
-        goal.current.camRot = new THREE.Quaternion().setFromRotationMatrix(
-          mCamRot
-        );
-        animationState.current = AnimationState.START;
-        t.current = 0;
-        return this;
-      },
       fit() {
         if (!isOrthographic(camera)) {
           // For non-orthographic cameras, fit should behave exactly like reset
@@ -200,7 +169,6 @@ function Bounds({
   }, [box, camera, controls, margin]);
 
   useFrame((state, delta) => {
-    // This [additional animation step START] is needed to guarantee that delta used in animation isn't absurdly high (2-3 seconds) which is actually possible if rendering happens on demand...
     if (animationState.current === AnimationState.START) {
       animationState.current = AnimationState.ACTIVE;
     } else if (animationState.current === AnimationState.ACTIVE) {
