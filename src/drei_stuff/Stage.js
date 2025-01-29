@@ -1,8 +1,7 @@
 import _extends from "@babel/runtime/helpers/esm/extends";
-import { Environment } from "@react-three/drei";
+import { Center, Environment } from "@react-three/drei";
 import * as React from "react";
 import { Bounds, useBounds } from "./Bounds.js";
-import { Center } from "./Center.js";
 
 const presets = {
   rembrandt: {
