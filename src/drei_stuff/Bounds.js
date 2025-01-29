@@ -29,14 +29,11 @@ function Bounds({
   const controls = useThree((state) => state.controls);
   const origin = React.useRef({
     camPos: new THREE.Vector3(),
-    camRot: new THREE.Quaternion(),
     camZoom: 1,
   });
   const goal = React.useRef({
     camPos: undefined,
-    camRot: undefined,
     camZoom: undefined,
-    camUp: undefined,
     target: undefined,
   });
   const animationState = React.useRef(AnimationState.NONE);
@@ -82,12 +79,9 @@ function Bounds({
           );
         }
         origin.current.camPos.copy(camera.position);
-        origin.current.camRot.copy(camera.quaternion);
         isOrthographic(camera) && (origin.current.camZoom = camera.zoom);
         goal.current.camPos = undefined;
-        goal.current.camRot = undefined;
         goal.current.camZoom = undefined;
-        goal.current.camUp = undefined;
         goal.current.target = undefined;
         return this;
       },
@@ -98,14 +92,6 @@ function Bounds({
           .clone()
           .addScaledVector(direction, distance);
         goal.current.target = center.clone();
-        const mCamRot = new THREE.Matrix4().lookAt(
-          goal.current.camPos,
-          goal.current.target,
-          camera.up
-        );
-        goal.current.camRot = new THREE.Quaternion().setFromRotationMatrix(
-          mCamRot
-        );
         animationState.current = AnimationState.START;
         t.current = 0;
         return this;
@@ -134,7 +120,7 @@ function Bounds({
         const pos = goal.current.camPos || camera.position;
         const target =
           goal.current.target || (controls == null ? void 0 : controls.target);
-        const up = goal.current.camUp || camera.up;
+        const up = camera.up;
         const mCamWInv = target
           ? new THREE.Matrix4()
               .lookAt(pos, target, up)
@@ -176,8 +162,6 @@ function Bounds({
       t.current += delta / maxDuration;
       if (t.current >= 1) {
         goal.current.camPos && camera.position.copy(goal.current.camPos);
-        goal.current.camRot && camera.quaternion.copy(goal.current.camRot);
-        goal.current.camUp && camera.up.copy(goal.current.camUp);
         goal.current.camZoom &&
           isOrthographic(camera) &&
           (camera.zoom = goal.current.camZoom);
@@ -193,14 +177,6 @@ function Bounds({
             goal.current.camPos,
             k
           );
-        goal.current.camRot &&
-          camera.quaternion.slerpQuaternions(
-            origin.current.camRot,
-            goal.current.camRot,
-            k
-          );
-        goal.current.camUp &&
-          camera.up.set(0, 1, 0).applyQuaternion(camera.quaternion);
         goal.current.camZoom &&
           isOrthographic(camera) &&
           (camera.zoom =
