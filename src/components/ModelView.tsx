@@ -128,6 +128,7 @@ export default function ModelView({ url }: ModelViewProps) {
             <primitive ref={sceneRef} object={gltf.scene} />
           </Stage>
         </Suspense>
+        <axesHelper></axesHelper>
         <OrbitControls ref={orbitControlsRef} />
       </Canvas>
     </div>

@@ -1,10 +1,5 @@
 import _extends from "@babel/runtime/helpers/esm/extends";
-import {
-  AccumulativeShadows,
-  ContactShadows,
-  Environment,
-  RandomizedLight,
-} from "@react-three/drei";
+import { Environment } from "@react-three/drei";
 import * as React from "react";
 import { Bounds, useBounds } from "./Bounds.js";
 import { Center } from "./Center.js";
@@ -44,57 +39,13 @@ function Stage({
   preset = "rembrandt",
   ...props
 }) {
-  var _bias,
-    _normalBias,
-    _size,
-    _offset,
-    _amount,
-    _radius,
-    _ambient,
-    _intensity;
-  const config = typeof preset === "string" ? presets[preset] : preset;
   const [{ radius, height }, set] = React.useState({
     radius: 0,
     width: 0,
     height: 0,
     depth: 0,
   });
-  const shadowBias =
-    (_bias = shadows == null ? void 0 : shadows.bias) !== null &&
-    _bias !== void 0
-      ? _bias
-      : -0.0001;
-  const normalBias =
-    (_normalBias = shadows == null ? void 0 : shadows.normalBias) !== null &&
-    _normalBias !== void 0
-      ? _normalBias
-      : 0;
-  const shadowSize =
-    (_size = shadows == null ? void 0 : shadows.size) !== null &&
-    _size !== void 0
-      ? _size
-      : 1024;
-  const shadowOffset =
-    (_offset = shadows == null ? void 0 : shadows.offset) !== null &&
-    _offset !== void 0
-      ? _offset
-      : 0;
-  const contactShadow =
-    shadows === "contact" ||
-    (shadows == null ? void 0 : shadows.type) === "contact";
-  const accumulativeShadow =
-    shadows === "accumulative" ||
-    (shadows == null ? void 0 : shadows.type) === "accumulative";
-  const shadowSpread = {
-    ...(typeof shadows === "object" ? shadows : {}),
-  };
-  const environmentProps = !environment
-    ? null
-    : typeof environment === "string"
-    ? {
-        preset: environment,
-      }
-    : environment;
+
   const onCentered = React.useCallback((props) => {
     const { width, height, depth, boundingSphere } = props;
     set({
@@ -105,33 +56,10 @@ function Stage({
     });
     if (center != null && center.onCentered) center.onCentered(props);
   }, []);
+
   return /*#__PURE__*/ React.createElement(
     React.Fragment,
     null,
-    /*#__PURE__*/ React.createElement("ambientLight", {
-      intensity: intensity / 3,
-    }),
-    /*#__PURE__*/ React.createElement("spotLight", {
-      penumbra: 1,
-      position: [
-        config.main[0] * radius,
-        config.main[1] * radius,
-        config.main[2] * radius,
-      ],
-      intensity: intensity * 2,
-      castShadow: !!shadows,
-      "shadow-bias": shadowBias,
-      "shadow-normalBias": normalBias,
-      "shadow-mapSize": shadowSize,
-    }),
-    /*#__PURE__*/ React.createElement("pointLight", {
-      position: [
-        config.fill[0] * radius,
-        config.fill[1] * radius,
-        config.fill[2] * radius,
-      ],
-      intensity: intensity,
-    }),
     /*#__PURE__*/ React.createElement(
       Bounds,
       _extends(
@@ -150,73 +78,16 @@ function Stage({
       /*#__PURE__*/ React.createElement(
         Center,
         _extends({}, center, {
-          position: [0, shadowOffset / 2, 0],
+          position: [0, 0, 0],
           onCentered: onCentered,
         }),
         children
       )
     ),
-    /*#__PURE__*/ React.createElement(
-      "group",
-      {
-        position: [0, -height / 2 - shadowOffset / 2, 0],
-      },
-      contactShadow &&
-        /*#__PURE__*/ React.createElement(
-          ContactShadows,
-          _extends(
-            {
-              scale: radius * 4,
-              far: radius,
-              blur: 2,
-            },
-            shadowSpread
-          )
-        ),
-      accumulativeShadow &&
-        /*#__PURE__*/ React.createElement(
-          AccumulativeShadows,
-          _extends(
-            {
-              temporal: true,
-              frames: 100,
-              alphaTest: 0.9,
-              toneMapped: true,
-              scale: radius * 4,
-            },
-            shadowSpread
-          ),
-          /*#__PURE__*/ React.createElement(RandomizedLight, {
-            amount:
-              (_amount = shadowSpread.amount) !== null && _amount !== void 0
-                ? _amount
-                : 8,
-            radius:
-              (_radius = shadowSpread.radius) !== null && _radius !== void 0
-                ? _radius
-                : radius,
-            ambient:
-              (_ambient = shadowSpread.ambient) !== null && _ambient !== void 0
-                ? _ambient
-                : 0.5,
-            intensity:
-              (_intensity = shadowSpread.intensity) !== null &&
-              _intensity !== void 0
-                ? _intensity
-                : 1,
-            position: [
-              config.main[0] * radius,
-              config.main[1] * radius,
-              config.main[2] * radius,
-            ],
-            size: radius * 4,
-            bias: -shadowBias,
-            mapSize: shadowSize,
-          })
-        )
-    ),
     environment &&
-      /*#__PURE__*/ React.createElement(Environment, environmentProps)
+      /*#__PURE__*/ React.createElement(Environment, {
+        preset: environment,
+      })
   );
 }
 
