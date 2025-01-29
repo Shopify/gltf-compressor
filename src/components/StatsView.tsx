@@ -1,5 +1,5 @@
 import { WebIO } from "@gltf-transform/core";
-import { KHRONOS_EXTENSIONS } from "@gltf-transform/extensions";
+import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { inspect } from "@gltf-transform/functions";
 import { useEffect, useState } from "react";
 
@@ -26,7 +26,7 @@ export default function StatsView({ url }: StatsViewProps) {
   useEffect(() => {
     const analyzeWithGLTFTransform = async () => {
       const io = new WebIO()
-        .registerExtensions(KHRONOS_EXTENSIONS)
+        .registerExtensions(ALL_EXTENSIONS)
         .registerDependencies({
           // @ts-ignore
           "draco3d.encoder": await new DracoEncoderModule(),
