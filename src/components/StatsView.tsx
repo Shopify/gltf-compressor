@@ -82,7 +82,7 @@ export default function StatsView({ url }: StatsViewProps) {
   if (!stats) return null;
 
   return (
-    <div className="absolute top-4 left-4 p-4 text-white font-mono text-xs">
+    <div className="absolute top-4 left-4 p-4 text-white font-mono text-xs select-none pointer-events-none">
       <div>Number of Meshes: {stats.numMeshes}</div>
       <div>Number of Vertices: {stats.numVertices}</div>
       <div>Number of Textures: {stats.numTextures}</div>
