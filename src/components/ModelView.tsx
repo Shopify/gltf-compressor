@@ -1,5 +1,10 @@
 import { useModelStore } from "@/stores/useModelStore";
 import { updateModel } from "@/utils/utils";
+import { WebIO } from "@gltf-transform/core";
+import {
+  KHRDracoMeshCompression,
+  KHRONOS_EXTENSIONS,
+} from "@gltf-transform/extensions";
 import { OrbitControls, Stage, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { button, useControls } from "leva";
@@ -29,29 +34,66 @@ export default function ModelView({ url }: ModelViewProps) {
     }
   }, [compressionSettings, model]);
 
+  const useDracoCompressionRef = useRef(false);
+
   const exportGLTF = useCallback(() => {
     if (!sceneRef.current || !sceneRef.current.children) return;
 
     const exporter = new GLTFExporter();
     exporter.parse(
       sceneRef.current.children,
-      (gltf) => {
-        // @ts-ignore
-        const blob = new Blob([gltf], { type: "application/octet-stream" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.style.display = "none";
-        a.href = url;
-        a.download = "scene.glb";
-        document.body.appendChild(a);
-        a.click();
-        URL.revokeObjectURL(url);
+      async (gltf) => {
+        if (useDracoCompressionRef.current) {
+          const io = new WebIO()
+            .registerExtensions(KHRONOS_EXTENSIONS)
+            .registerDependencies({
+              // @ts-ignore
+              "draco3d.encoder": await new DracoEncoderModule(),
+              // @ts-ignore
+              "draco3d.decoder": await new DracoDecoderModule(),
+            });
+
+          const doc = await io.readBinary(new Uint8Array(gltf as ArrayBuffer));
+
+          doc
+            .createExtension(KHRDracoMeshCompression)
+            .setRequired(true)
+            .setEncoderOptions({
+              method: KHRDracoMeshCompression.EncoderMethod.EDGEBREAKER,
+              encodeSpeed: 5,
+            });
+
+          const compressedArrayBuffer = await io.writeBinary(doc);
+          const blob = new Blob([compressedArrayBuffer], {
+            type: "application/octet-stream",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.style.display = "none";
+          a.href = url;
+          a.download = "scene-compressed.glb";
+          document.body.appendChild(a);
+          a.click();
+          URL.revokeObjectURL(url);
+        } else {
+          // @ts-ignore
+          const blob = new Blob([gltf], { type: "application/octet-stream" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.style.display = "none";
+          a.href = url;
+          a.download = "scene.glb";
+          document.body.appendChild(a);
+          a.click();
+          URL.revokeObjectURL(url);
+        }
       },
       (error) => {
         console.error("An error occurred while exporting the file", error);
       },
       {
         binary: true,
+        animations: gltf.animations,
       }
     );
   }, []);
@@ -59,6 +101,12 @@ export default function ModelView({ url }: ModelViewProps) {
   useControls(
     "Export",
     {
+      "Use Draco Compression": {
+        value: false,
+        onChange: (value) => {
+          useDracoCompressionRef.current = value;
+        },
+      },
       Export: button(() => {
         exportGLTF();
       }),
