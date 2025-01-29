@@ -140,14 +140,6 @@ function Bounds({
         t.current = 0;
         return this;
       },
-      /**
-       * @deprecated Use moveTo and lookAt instead
-       */
-      to({ position, target }) {
-        return this.moveTo(position).lookAt({
-          target,
-        });
-      },
       fit() {
         if (!isOrthographic(camera)) {
           // For non-orthographic cameras, fit should behave exactly like reset
@@ -206,34 +198,6 @@ function Bounds({
       },
     };
   }, [box, camera, controls, margin]);
-
-  React.useLayoutEffect(() => {
-    if (controls) {
-      // Try to prevent drag hijacking
-      const callback = () => {
-        if (
-          controls &&
-          goal.current.target &&
-          animationState.current !== AnimationState.NONE
-        ) {
-          const front = new THREE.Vector3().setFromMatrixColumn(
-            camera.matrix,
-            2
-          );
-          const d0 = origin.current.camPos.distanceTo(controls.target);
-          const d1 = (goal.current.camPos || origin.current.camPos).distanceTo(
-            goal.current.target
-          );
-          const d = (1 - t.current) * d0 + t.current * d1;
-          controls.target.copy(camera.position).addScaledVector(front, -d);
-          controls.update();
-        }
-        animationState.current = AnimationState.NONE;
-      };
-      controls.addEventListener("start", callback);
-      return () => controls.removeEventListener("start", callback);
-    }
-  }, [controls]);
 
   useFrame((state, delta) => {
     // This [additional animation step START] is needed to guarantee that delta used in animation isn't absurdly high (2-3 seconds) which is actually possible if rendering happens on demand...
