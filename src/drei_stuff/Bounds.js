@@ -24,13 +24,10 @@ function Bounds({
   fit,
   clip,
   interpolateFunc = interpolateFuncDefault,
-  onFit,
 }) {
   const ref = React.useRef(null);
   const { camera, size } = useThree();
   const controls = useThree((state) => state.controls);
-  const onFitRef = React.useRef(onFit);
-  onFitRef.current = onFit;
   const origin = React.useRef({
     camPos: new THREE.Vector3(),
     camRot: new THREE.Quaternion(),
@@ -195,7 +192,6 @@ function Bounds({
         goal.current.camZoom = Math.min(zoomForHeight, zoomForWidth) / margin;
         animationState.current = AnimationState.START;
         t.current = 0;
-        onFitRef.current && onFitRef.current(this.getSize());
         return this;
       },
       clip() {
