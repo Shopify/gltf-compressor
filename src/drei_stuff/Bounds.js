@@ -20,13 +20,12 @@ function Bounds({
   children,
   maxDuration = 1.0,
   margin = 1.2,
-  observe,
   fit,
   clip,
   interpolateFunc = interpolateFuncDefault,
 }) {
   const ref = React.useRef(null);
-  const { camera, size } = useThree();
+  const { camera } = useThree();
   const controls = useThree((state) => state.controls);
   const origin = React.useRef({
     camPos: new THREE.Vector3(),
@@ -235,16 +234,6 @@ function Bounds({
       return () => controls.removeEventListener("start", callback);
     }
   }, [controls]);
-
-  // Scale pointer on window resize
-  const count = React.useRef(0);
-  React.useLayoutEffect(() => {
-    if (observe || count.current++ === 0) {
-      api.refresh();
-      if (fit) api.reset().fit();
-      if (clip) api.clip();
-    }
-  }, [size, clip, fit, observe, camera, controls]);
 
   useFrame((state, delta) => {
     // This [additional animation step START] is needed to guarantee that delta used in animation isn't absurdly high (2-3 seconds) which is actually possible if rendering happens on demand...
