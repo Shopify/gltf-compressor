@@ -3,7 +3,8 @@ import { updateModel } from "@/utils/utils";
 import { OrbitControls, Stage, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { button, useControls } from "leva";
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useCallback, useEffect, useRef } from "react";
+import { Group } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js";
 
@@ -12,7 +13,7 @@ interface ModelViewProps {
 }
 
 export default function ModelView({ url }: ModelViewProps) {
-  const sceneRef = useRef();
+  const sceneRef = useRef<Group>(null);
   const orbitControlsRef = useRef<OrbitControlsImpl>(null);
   const gltf = useGLTF(url);
   const { model, compressionSettings } = useModelStore();
@@ -28,12 +29,12 @@ export default function ModelView({ url }: ModelViewProps) {
     }
   }, [compressionSettings, model]);
 
-  const exportGLTF = () => {
-    if (!sceneRef.current) return;
+  const exportGLTF = useCallback(() => {
+    if (!sceneRef.current || !sceneRef.current.children) return;
 
     const exporter = new GLTFExporter();
     exporter.parse(
-      sceneRef.current,
+      sceneRef.current.children,
       (gltf) => {
         // @ts-ignore
         const blob = new Blob([gltf], { type: "application/octet-stream" });
@@ -53,7 +54,7 @@ export default function ModelView({ url }: ModelViewProps) {
         binary: true,
       }
     );
-  };
+  }, []);
 
   useControls(
     "Export",
