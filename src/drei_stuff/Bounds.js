@@ -15,6 +15,7 @@ const interpolateFuncDefault = (t) => {
   return 1 - Math.exp(-5 * t) + 0.007 * t;
 };
 const context = /*#__PURE__*/ React.createContext(null);
+
 function Bounds({
   children,
   maxDuration = 1.0,
@@ -46,6 +47,7 @@ function Bounds({
   const t = React.useRef(0); // represent animation state from 0 to 1
 
   const [box] = React.useState(() => new THREE.Box3());
+
   const api = React.useMemo(() => {
     function getSize() {
       const boxSize = box.getSize(new THREE.Vector3());
@@ -210,6 +212,7 @@ function Bounds({
       },
     };
   }, [box, camera, controls, margin, invalidate]);
+
   React.useLayoutEffect(() => {
     if (controls) {
       // Try to prevent drag hijacking
@@ -247,6 +250,7 @@ function Bounds({
       if (clip) api.clip();
     }
   }, [size, clip, fit, observe, camera, controls]);
+
   useFrame((state, delta) => {
     // This [additional animation step START] is needed to guarantee that delta used in animation isn't absurdly high (2-3 seconds) which is actually possible if rendering happens on demand...
     if (animationState.current === AnimationState.START) {
@@ -294,6 +298,7 @@ function Bounds({
       invalidate();
     }
   });
+
   return /*#__PURE__*/ React.createElement(
     "group",
     {
