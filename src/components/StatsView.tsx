@@ -18,7 +18,14 @@ export default function StatsView({ url }: StatsViewProps) {
 
   useEffect(() => {
     const analyzeWithGLTFTransform = async () => {
-      const io = new WebIO().registerExtensions(KHRONOS_EXTENSIONS);
+      const io = new WebIO()
+        .registerExtensions(KHRONOS_EXTENSIONS)
+        .registerDependencies({
+          // @ts-ignore
+          "draco3d.encoder": await new DracoEncoderModule(),
+          // @ts-ignore
+          "draco3d.decoder": await new DracoDecoderModule(),
+        });
       const document = await io.read(url);
       const report = inspect(document);
 
