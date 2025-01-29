@@ -63,6 +63,7 @@ function Bounds({
         distance,
       };
     }
+
     return {
       getSize,
       refresh(object) {
@@ -180,12 +181,9 @@ function Bounds({
         goal.current.camZoom &&
           isOrthographic(camera) &&
           (camera.zoom = goal.current.camZoom);
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
         camera.updateMatrixWorld();
         camera.updateProjectionMatrix();
-        if (controls && goal.current.target) {
-          controls.target.copy(goal.current.target);
-          controls.update();
-        }
         animationState.current = AnimationState.NONE;
       } else {
         const k = interpolateFunc(t.current);
@@ -207,6 +205,7 @@ function Bounds({
           isOrthographic(camera) &&
           (camera.zoom =
             (1 - k) * origin.current.camZoom + k * goal.current.camZoom);
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
         camera.updateMatrixWorld();
         camera.updateProjectionMatrix();
       }
