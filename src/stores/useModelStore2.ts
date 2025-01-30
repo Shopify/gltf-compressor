@@ -4,12 +4,20 @@ import {
   filterMaterialNamesWithTextures,
   getFirstAvailableTextureName,
 } from "@/utils/utils";
+import { Document } from "@gltf-transform/core";
 import { ObjectMap } from "@react-three/fiber";
 import { Material, Texture } from "three";
 import { GLTF } from "three-stdlib";
 import { create } from "zustand";
 
 interface ModelStore2 {
+  originalDocument: Document | null;
+  modifiedDocument: Document | null;
+  setDocuments: (
+    originalDocument: Document,
+    modifiedDocument: Document
+  ) => void;
+
   model: (GLTF & ObjectMap) | null;
   compressionSettings: ModelCompressionSettings | null;
   selectedTexture: string | null;
@@ -25,6 +33,12 @@ interface ModelStore2 {
 }
 
 export const useModelStore2 = create<ModelStore2>((set, get) => ({
+  originalDocument: null,
+  modifiedDocument: null,
+  setDocuments: (originalDocument, modifiedDocument) => {
+    set({ originalDocument, modifiedDocument });
+  },
+
   model: null,
   compressionSettings: null,
   selectedTexture: null,

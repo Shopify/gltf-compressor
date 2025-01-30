@@ -1,7 +1,8 @@
 import { EXPORT_FOLDER_ORDER } from "@/constants";
 import { useModelStore } from "@/stores/useModelStore";
+import { useModelStore2 } from "@/stores/useModelStore2";
 import { updateModel } from "@/utils/utils";
-import { WebIO } from "@gltf-transform/core";
+import { Document, WebIO } from "@gltf-transform/core";
 import {
   ALL_EXTENSIONS,
   KHRDracoMeshCompression,
@@ -23,6 +24,7 @@ export default function ModelView({ url }: ModelViewProps) {
   const gltf = useGLTF(url);
   const { model, compressionSettings } = useModelStore();
   const setModel = useModelStore((state) => state.setModel);
+  const setDocuments = useModelStore2((state) => state.setDocuments);
 
   useEffect(() => {
     setModel(gltf);
@@ -36,8 +38,8 @@ export default function ModelView({ url }: ModelViewProps) {
 
   const [modelData, setModelData] = useState<{
     originalDocument: Document;
-    editedDocument: Document;
-    editedDocumentView: DocumentView;
+    modifiedDocument: Document;
+    modifiedDocumentView: DocumentView;
     scene: Group;
   } | null>(null);
 
@@ -52,10 +54,10 @@ export default function ModelView({ url }: ModelViewProps) {
           "draco3d.decoder": await new DracoDecoderModule(),
         });
       const originalDocument = await io.read(url);
-      const editedDocument = cloneDocument(originalDocument);
-      const editedDocumentView = new DocumentView(editedDocument);
-      const sceneDef = editedDocument.getRoot().getDefaultScene()!;
-      const group = editedDocumentView.view(sceneDef);
+      const modifiedDocument = cloneDocument(originalDocument);
+      const modifiedDocumentView = new DocumentView(modifiedDocument);
+      const sceneDef = modifiedDocument.getRoot().getDefaultScene()!;
+      const group = modifiedDocumentView.view(sceneDef);
 
       /*
       const materials = originalDocument.getRoot().listMaterials();
@@ -91,12 +93,12 @@ export default function ModelView({ url }: ModelViewProps) {
       });
       */
 
+      setDocuments(originalDocument, modifiedDocument);
+
       setModelData({
-        // @ts-ignore
         originalDocument: originalDocument,
-        // @ts-ignore
-        editedDocument: editedDocument,
-        editedDocumentView: editedDocumentView,
+        modifiedDocument: modifiedDocument,
+        modifiedDocumentView: modifiedDocumentView,
         scene: group,
       });
     };
@@ -109,6 +111,8 @@ export default function ModelView({ url }: ModelViewProps) {
   const useDracoCompressionRef = useRef(false);
 
   const exportGLTF = useCallback(async () => {
+    if (!modelData) return;
+
     const io = new WebIO()
       .registerExtensions(ALL_EXTENSIONS)
       .registerDependencies({
@@ -119,7 +123,7 @@ export default function ModelView({ url }: ModelViewProps) {
       });
 
     if (useDracoCompressionRef.current) {
-      modelData.editedDocument
+      modelData.modifiedDocument
         .createExtension(KHRDracoMeshCompression)
         .setRequired(true)
         .setEncoderOptions({
@@ -132,7 +136,7 @@ export default function ModelView({ url }: ModelViewProps) {
     }
 
     const compressedArrayBuffer = await io.writeBinary(
-      modelData.editedDocument
+      modelData.modifiedDocument
     );
 
     const blob = new Blob([compressedArrayBuffer], {
@@ -155,17 +159,19 @@ export default function ModelView({ url }: ModelViewProps) {
       .getRoot()
       .listTextures()[0];
 
-    const editedTexture = modelData.editedDocument.getRoot().listTextures()[0];
+    const modifiedTexture = modelData.modifiedDocument
+      .getRoot()
+      .listTextures()[0];
 
     // This is an example of how to compress with gltf-transform
-    // editedTexture.setImage(originalTexture.getImage());
-    // await compressTexture(editedTexture, {
+    // modifiedTexture.setImage(originalTexture.getImage());
+    // await compressTexture(modifiedTexture, {
     //   resize: [256, 256],
     //   targetFormat: "jpeg",
     // });
 
     // Create a blob from the UInt8Array
-    const blob = new Blob([originalTexture.getImage()], { type: "image/png" });
+    const blob = new Blob([originalTexture.getImage()!], { type: "image/png" });
     const blobUrl = URL.createObjectURL(blob);
 
     // Create an image element to load the blob URL
@@ -201,8 +207,8 @@ export default function ModelView({ url }: ModelViewProps) {
       );
     });
 
-    editedTexture.setImage(pngUint8Array);
-    editedTexture.setMimeType("image/jpeg");
+    modifiedTexture.setImage(pngUint8Array);
+    modifiedTexture.setMimeType("image/jpeg");
   }, [modelData]);
 
   useControls(
