@@ -42,6 +42,11 @@ export const useModelStore = create<ModelStore>((set, get) => ({
         );
       }
     }
+
+    console.log("*** OLD: ");
+    console.log(compressionSettings);
+    console.log(materialName, textureName);
+
     set({
       model,
       selectedMaterial: materialName,

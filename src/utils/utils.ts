@@ -1,4 +1,8 @@
-import { defaultTextureQuality, textureMapNames } from "@/constants";
+import {
+  defaultTextureQuality,
+  GLTFTextureMapNames,
+  textureMapNames,
+} from "@/constants";
 import {
   GLTFMaterialCompressionSettings,
   GLTFModelCompressionSettings,
@@ -155,7 +159,7 @@ export function filterGLTFMaterialNamesWithTextures(
 export function getFirstAvailableGLTFTextureName(
   materialCompressionSettings: GLTFMaterialCompressionSettings
 ): string | null {
-  const name = textureMapNames.find((prop) => {
+  const name = GLTFTextureMapNames.find((prop) => {
     const value = (materialCompressionSettings as any)[prop];
     return value?.original instanceof GLTFTexture;
   });
@@ -179,11 +183,11 @@ export function buildGLTFTextureCompressionSettings(
 
     // Map gltf-transform texture getters to our texture property names
     const textureGetters = {
-      map: material.getBaseColorTexture(),
-      emissiveMap: material.getEmissiveTexture(),
-      metalnessMap: material.getMetallicRoughnessTexture(),
-      normalMap: material.getNormalTexture(),
-      aoMap: material.getOcclusionTexture(),
+      baseColorTexture: material.getBaseColorTexture(),
+      emissiveTexture: material.getEmissiveTexture(),
+      metallicRoughnessTexture: material.getMetallicRoughnessTexture(),
+      normalTexture: material.getNormalTexture(),
+      occlusionTexture: material.getOcclusionTexture(),
     };
 
     // Check each texture type

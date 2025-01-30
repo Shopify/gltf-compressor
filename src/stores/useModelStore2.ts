@@ -9,9 +9,7 @@ import {
   getFirstAvailableTextureName,
 } from "@/utils/utils";
 import { Document } from "@gltf-transform/core";
-import { ObjectMap } from "@react-three/fiber";
 import { Material, Texture } from "three";
-import { GLTF } from "three-stdlib";
 import { create } from "zustand";
 
 interface ModelStore2 {
@@ -22,7 +20,6 @@ interface ModelStore2 {
     modifiedDocument: Document
   ) => void;
 
-  model: (GLTF & ObjectMap) | null;
   compressionSettings: GLTFModelCompressionSettings | null;
   selectedTexture: string | null;
   selectedMaterial: string | null;
@@ -42,9 +39,6 @@ export const useModelStore2 = create<ModelStore2>((set, get) => ({
     const compressionSettings =
       buildGLTFTextureCompressionSettings(originalDocument);
 
-    console.log("*** NEW: ");
-    console.log(compressionSettings);
-
     // Get the first material and texture for initial selection
     let materialName =
       filterGLTFMaterialNamesWithTextures(compressionSettings)[0];
@@ -53,6 +47,10 @@ export const useModelStore2 = create<ModelStore2>((set, get) => ({
           compressionSettings.materials[materialName]
         )
       : null;
+
+    console.log("*** NEW: ");
+    console.log(compressionSettings);
+    console.log(materialName, textureName);
 
     set({
       originalDocument,
@@ -63,7 +61,6 @@ export const useModelStore2 = create<ModelStore2>((set, get) => ({
     });
   },
 
-  model: null,
   compressionSettings: null,
   selectedTexture: null,
   selectedMaterial: null,
