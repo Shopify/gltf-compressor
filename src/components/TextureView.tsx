@@ -29,6 +29,7 @@ export default function TextureView() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [_, set] = useControls(
+    "Materials",
     () => ({
       materialName: {
         value: selectedMaterial,

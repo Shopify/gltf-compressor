@@ -1,3 +1,4 @@
+import { EXPORT_FOLDER_ORDER } from "@/constants";
 import { useModelStore } from "@/stores/useModelStore";
 import { updateModel } from "@/utils/utils";
 import { WebIO } from "@gltf-transform/core";
@@ -107,7 +108,7 @@ export default function ModelView({ url }: ModelViewProps) {
         exportGLTF();
       }),
     },
-    { collapsed: false }
+    { collapsed: false, order: EXPORT_FOLDER_ORDER }
   );
 
   return (
