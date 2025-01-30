@@ -1,7 +1,11 @@
-import { ModelCompressionSettings, TextureCompressionSettings } from "@/types";
 import {
-  buildTextureCompressionSettings,
-  filterMaterialNamesWithTextures,
+  GLTFModelCompressionSettings,
+  TextureCompressionSettings,
+} from "@/types";
+import {
+  buildGLTFTextureCompressionSettings,
+  filterGLTFMaterialNamesWithTextures,
+  getFirstAvailableGLTFTextureName,
   getFirstAvailableTextureName,
 } from "@/utils/utils";
 import { Document } from "@gltf-transform/core";
@@ -19,10 +23,9 @@ interface ModelStore2 {
   ) => void;
 
   model: (GLTF & ObjectMap) | null;
-  compressionSettings: ModelCompressionSettings | null;
+  compressionSettings: GLTFModelCompressionSettings | null;
   selectedTexture: string | null;
   selectedMaterial: string | null;
-  setModel: (model: any) => void;
   setSelectedTexture: (textureName: string | null) => void;
   setSelectedMaterial: (materialName: string | null) => void;
   updateTextureCompressionSettings: (
@@ -36,36 +39,34 @@ export const useModelStore2 = create<ModelStore2>((set, get) => ({
   originalDocument: null,
   modifiedDocument: null,
   setDocuments: (originalDocument, modifiedDocument) => {
-    set({ originalDocument, modifiedDocument });
+    const compressionSettings =
+      buildGLTFTextureCompressionSettings(originalDocument);
+
+    console.log("*** NEW: ");
+    console.log(compressionSettings);
+
+    // Get the first material and texture for initial selection
+    let materialName =
+      filterGLTFMaterialNamesWithTextures(compressionSettings)[0];
+    let textureName = materialName
+      ? getFirstAvailableGLTFTextureName(
+          compressionSettings.materials[materialName]
+        )
+      : null;
+
+    set({
+      originalDocument,
+      modifiedDocument,
+      compressionSettings,
+      selectedMaterial: materialName,
+      selectedTexture: textureName,
+    });
   },
 
   model: null,
   compressionSettings: null,
   selectedTexture: null,
   selectedMaterial: null,
-  setModel: (model: GLTF & ObjectMap) => {
-    let materialName, textureName;
-    const { materials } = model;
-
-    const compressionSettings = buildTextureCompressionSettings(materials);
-
-    console.log(compressionSettings);
-
-    if (materials) {
-      materialName = filterMaterialNamesWithTextures(compressionSettings)[0];
-      if (materialName) {
-        textureName = getFirstAvailableTextureName(
-          compressionSettings.materials[materialName]
-        );
-      }
-    }
-    set({
-      model,
-      selectedMaterial: materialName,
-      selectedTexture: textureName,
-      compressionSettings: compressionSettings,
-    });
-  },
   setSelectedTexture: (textureName) => set({ selectedTexture: textureName }),
   setSelectedMaterial: (materialName) => {
     if (!materialName) return;
