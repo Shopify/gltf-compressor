@@ -56,6 +56,41 @@ export default function ModelView({ url }: ModelViewProps) {
       const editedDocumentView = new DocumentView(editedDocument);
       const sceneDef = editedDocument.getRoot().getDefaultScene()!;
       const group = editedDocumentView.view(sceneDef);
+
+      /*
+      const materials = originalDocument.getRoot().listMaterials();
+      console.log(materials);
+
+      const textures = originalDocument.getRoot().listTextures();
+      console.log(textures);
+
+      materials.forEach((material) => {
+        console.log("********************");
+
+        console.log("Textures for material: ", material.getName());
+        console.log(
+          "Base Color: ",
+          material.getBaseColorTexture(),
+          "Emissive: ",
+          material.getEmissiveTexture(),
+          "Metallic Roughness: ",
+          material.getMetallicRoughnessTexture(),
+          "Normal: ",
+          material.getNormalTexture(),
+          "Occlusion: ",
+          material.getOcclusionTexture()
+        );
+
+        console.log("Texture Info for material:", material.getName(), {
+          baseColor: material.getBaseColorTextureInfo(),
+          emissive: material.getEmissiveTextureInfo(),
+          metallicRoughness: material.getMetallicRoughnessTextureInfo(),
+          normal: material.getNormalTextureInfo(),
+          occlusion: material.getOcclusionTextureInfo(),
+        });
+      });
+      */
+
       setModelData({
         // @ts-ignore
         originalDocument: originalDocument,
