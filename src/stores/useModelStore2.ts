@@ -6,10 +6,8 @@ import {
   buildGLTFTextureCompressionSettings,
   filterGLTFMaterialNamesWithTextures,
   getFirstAvailableGLTFTextureName,
-  getFirstAvailableTextureName,
 } from "@/utils/utils";
 import { Document } from "@gltf-transform/core";
-import { Material, Texture } from "three";
 import { create } from "zustand";
 
 interface ModelStore2 {
@@ -68,27 +66,23 @@ export const useModelStore2 = create<ModelStore2>((set, get) => ({
   setSelectedMaterial: (materialName) => {
     if (!materialName) return;
 
-    const { model, selectedTexture, compressionSettings } = get();
-    if (!model) return;
+    const { selectedTexture, compressionSettings } = get();
+    if (!compressionSettings) return;
 
-    const { materials } = model;
-
-    const material = materials[materialName];
-    if (!material) return;
+    // Check if the material exists in our compression settings
+    const materialSettings = compressionSettings.materials[materialName];
+    if (!materialSettings) return;
 
     let textureName = selectedTexture;
 
-    if (
-      textureName &&
-      !(material[textureName as keyof Material] instanceof Texture)
-    ) {
+    // If the current texture doesn't exist in the new material, reset it
+    if (textureName && !materialSettings[textureName]) {
       textureName = null;
     }
 
-    if (!textureName && compressionSettings) {
-      textureName = getFirstAvailableTextureName(
-        compressionSettings.materials[materialName]
-      );
+    // If we need a new texture, get the first available one
+    if (!textureName) {
+      textureName = getFirstAvailableGLTFTextureName(materialSettings);
     }
 
     set({ selectedMaterial: materialName, selectedTexture: textureName });
