@@ -1,5 +1,5 @@
 import { useModelStore } from "@/stores/useModelStore";
-import { GLTFTextureCompressionSettings } from "@/types";
+import { TextureCompressionSettings } from "@/types";
 import {
   filterMapNamesWithTextures,
   filterMaterialNamesWithTextures,
@@ -72,7 +72,7 @@ export default function TextureView() {
                   selectedTexture
                 ],
                 compressionEnabled: value,
-              } as GLTFTextureCompressionSettings
+              } as TextureCompressionSettings
             );
           }
         },

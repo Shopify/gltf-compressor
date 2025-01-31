@@ -1,10 +1,10 @@
-import { defaultTextureQuality, GLTFTextureMapNames } from "@/constants";
+import { defaultTextureQuality, textureMapNames } from "@/constants";
 import {
-  GLTFMaterialCompressionSettings,
-  GLTFModelCompressionSettings,
-  GLTFTextureCompressionSettings,
+  MaterialCompressionSettings,
+  ModelCompressionSettings,
+  TextureCompressionSettings,
 } from "@/types";
-import { Document, Texture as GLTFTexture } from "@gltf-transform/core";
+import { Document, Texture } from "@gltf-transform/core";
 
 /**
  * Given model compression settings, returns an array of material names that have textures set
@@ -12,7 +12,7 @@ import { Document, Texture as GLTFTexture } from "@gltf-transform/core";
  * @returns An array of material names that have textures set
  */
 export function filterMaterialNamesWithTextures(
-  modelCompressionSettings: GLTFModelCompressionSettings
+  modelCompressionSettings: ModelCompressionSettings
 ): string[] {
   return Object.keys(modelCompressionSettings.materials).filter(
     (materialName) =>
@@ -28,7 +28,7 @@ export function filterMaterialNamesWithTextures(
  * @returns An object containing the maps that have textures
  */
 export function filterMapNamesWithTextures(
-  materialCompressionSettings: GLTFMaterialCompressionSettings
+  materialCompressionSettings: MaterialCompressionSettings
 ): string[] {
   return Object.keys(materialCompressionSettings);
 }
@@ -39,11 +39,11 @@ export function filterMapNamesWithTextures(
  * @returns The first available texture or null if no texture is found
  */
 export function getFirstAvailableTextureName(
-  materialCompressionSettings: GLTFMaterialCompressionSettings
+  materialCompressionSettings: MaterialCompressionSettings
 ): string | null {
-  const name = GLTFTextureMapNames.find((prop) => {
+  const name = textureMapNames.find((prop) => {
     const value = (materialCompressionSettings as any)[prop];
-    return value?.original instanceof GLTFTexture;
+    return value?.original instanceof Texture;
   });
 
   return name ?? null;
@@ -51,16 +51,15 @@ export function getFirstAvailableTextureName(
 
 export function buildTextureCompressionSettings(
   document: Document
-): GLTFModelCompressionSettings {
-  const compressionSettings: GLTFModelCompressionSettings = {
+): ModelCompressionSettings {
+  const compressionSettings: ModelCompressionSettings = {
     materials: {},
   };
 
   const materials = document.getRoot().listMaterials();
 
   materials.forEach((material) => {
-    const textureSettings: { [key: string]: GLTFTextureCompressionSettings } =
-      {};
+    const textureSettings: { [key: string]: TextureCompressionSettings } = {};
     let hasTextures = false;
 
     // Map gltf-transform texture getters to our texture property names

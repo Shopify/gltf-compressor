@@ -1,7 +1,4 @@
-import {
-  GLTFModelCompressionSettings,
-  GLTFTextureCompressionSettings,
-} from "@/types";
+import { ModelCompressionSettings, TextureCompressionSettings } from "@/types";
 import {
   buildTextureCompressionSettings,
   filterMaterialNamesWithTextures,
@@ -21,7 +18,7 @@ interface ModelStore {
     scene: Group
   ) => void;
 
-  compressionSettings: GLTFModelCompressionSettings | null;
+  compressionSettings: ModelCompressionSettings | null;
   selectedTexture: string | null;
   selectedMaterial: string | null;
   setSelectedTexture: (textureName: string | null) => void;
@@ -29,7 +26,7 @@ interface ModelStore {
   updateTextureCompressionSettings: (
     materialName: string,
     textureName: string,
-    settings: GLTFTextureCompressionSettings
+    settings: TextureCompressionSettings
   ) => void;
 }
 
@@ -94,7 +91,7 @@ export const useModelStore = create<ModelStore>((set, get) => ({
   updateTextureCompressionSettings: (
     materialName: string,
     mapName: string,
-    settings: GLTFTextureCompressionSettings
+    settings: TextureCompressionSettings
   ) => {
     const { compressionSettings } = get();
 
