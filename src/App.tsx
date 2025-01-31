@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import "./App.css";
 import { Dropzone } from "./components/Dropzone";
 import { ExportPanel } from "./components/ExportPanel";
+import MaterialEditPanel from "./components/MaterialEditPanel";
 import ModelView from "./components/ModelView";
 import StatsView from "./components/StatsView";
 import TextureView from "./components/TextureView";
@@ -29,6 +30,7 @@ function App() {
             <ModelView />
             <TextureView />
             <StatsView />
+            <MaterialEditPanel />
             <ExportPanel />
           </div>
         </>
