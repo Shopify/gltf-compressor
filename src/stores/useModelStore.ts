@@ -1,10 +1,15 @@
-import { ModelCompressionSettings, TextureCompressionSettings } from "@/types";
+import {
+  ModelCompressionSettings,
+  ModelStats,
+  TextureCompressionSettings,
+} from "@/types";
 import {
   buildTextureCompressionSettings,
   filterMaterialNamesWithTextures,
   getFirstAvailableTextureName,
 } from "@/utils/utils";
 import { Document } from "@gltf-transform/core";
+import { inspect } from "@gltf-transform/functions";
 import { Group } from "three";
 import { create } from "zustand";
 
@@ -28,6 +33,9 @@ interface ModelStore {
     textureName: string,
     settings: TextureCompressionSettings
   ) => void;
+
+  modelStats: ModelStats | null;
+  setInitialModelStats: () => void;
 }
 
 export const useModelStore = create<ModelStore>((set, get) => ({
@@ -54,6 +62,8 @@ export const useModelStore = create<ModelStore>((set, get) => ({
       selectedMaterial: materialName,
       selectedTexture: textureName,
     });
+
+    get().setInitialModelStats();
   },
 
   compressionSettings: null,
@@ -103,6 +113,54 @@ export const useModelStore = create<ModelStore>((set, get) => ({
             [mapName]: settings,
           },
         },
+      },
+    });
+  },
+
+  modelStats: null,
+  setInitialModelStats: () => {
+    const { originalDocument } = get();
+    if (!originalDocument) return;
+
+    const report = inspect(originalDocument);
+
+    const numRenderVertices = report.scenes.properties.reduce(
+      (total, scene) => total + scene.renderVertexCount,
+      0
+    );
+
+    const sizeOfMeshes = report.meshes.properties.reduce(
+      (total, mesh) => total + mesh.size / 1000,
+      0
+    );
+
+    const sizeOfTextures = report.textures.properties.reduce(
+      (total, texture) => total + texture.size / 1000,
+      0
+    );
+
+    const sizeOfAnimations = report.animations.properties.reduce(
+      (total, animation) => total + animation.size / 1000,
+      0
+    );
+
+    const totalSize = sizeOfMeshes + sizeOfTextures + sizeOfAnimations;
+    const percentOfSizeTakenByMeshes = (sizeOfMeshes / totalSize) * 100;
+    const percentOfSizeTakenByTextures = (sizeOfTextures / totalSize) * 100;
+    const percentOfSizeTakenByAnimations = (sizeOfAnimations / totalSize) * 100;
+
+    set({
+      modelStats: {
+        numMeshes: report.meshes.properties.length,
+        numVertices: numRenderVertices,
+        numTextures: report.textures.properties.length,
+        numAnimationClips: report.animations.properties.length,
+        sizeOfMeshes: sizeOfMeshes,
+        sizeOfTextures: sizeOfTextures,
+        sizeOfAnimations: sizeOfAnimations,
+        percentOfSizeTakenByMeshes: percentOfSizeTakenByMeshes,
+        percentOfSizeTakenByTextures: percentOfSizeTakenByTextures,
+        percentOfSizeTakenByAnimations: percentOfSizeTakenByAnimations,
       },
     });
   },

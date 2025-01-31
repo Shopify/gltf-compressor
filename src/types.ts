@@ -15,3 +15,16 @@ export interface MaterialCompressionSettings {
 export interface ModelCompressionSettings {
   materials: { [materialName: string]: MaterialCompressionSettings };
 }
+
+export interface ModelStats {
+  numMeshes: number;
+  numVertices: number;
+  numTextures: number;
+  numAnimationClips: number;
+  sizeOfMeshes: number;
+  sizeOfTextures: number;
+  sizeOfAnimations: number;
+  percentOfSizeTakenByMeshes: number;
+  percentOfSizeTakenByTextures: number;
+  percentOfSizeTakenByAnimations: number;
+}
