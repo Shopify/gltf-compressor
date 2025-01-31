@@ -78,7 +78,7 @@ export default function TextureView() {
         },
       },
     }),
-    [selectedMaterial, selectedTexture, /*model,*/ compressionSettings]
+    [selectedMaterial, selectedTexture, compressionSettings]
   );
 
   useEffect(() => {
@@ -91,7 +91,7 @@ export default function TextureView() {
               ?.compressionEnabled ?? false
           : false,
     });
-  }, [selectedMaterial, selectedTexture, /*model,*/ compressionSettings]);
+  }, [selectedMaterial, selectedTexture, compressionSettings]);
 
   useEffect(() => {
     const loadTexture = async () => {
