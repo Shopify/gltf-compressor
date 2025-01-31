@@ -20,52 +20,47 @@ export default function StatsView() {
   const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
-    const analyzeWithGLTFTransform = async () => {
-      if (!modifiedDocument) return;
+    if (!modifiedDocument) return;
 
-      const report = inspect(modifiedDocument);
+    const report = inspect(modifiedDocument);
 
-      const numRenderVertices = report.scenes.properties.reduce(
-        (total, scene) => total + scene.renderVertexCount,
-        0
-      );
+    const numRenderVertices = report.scenes.properties.reduce(
+      (total, scene) => total + scene.renderVertexCount,
+      0
+    );
 
-      const sizeOfMeshes = report.meshes.properties.reduce(
-        (total, mesh) => total + mesh.size / 1000,
-        0
-      );
+    const sizeOfMeshes = report.meshes.properties.reduce(
+      (total, mesh) => total + mesh.size / 1000,
+      0
+    );
 
-      const sizeOfTextures = report.textures.properties.reduce(
-        (total, texture) => total + texture.size / 1000,
-        0
-      );
+    const sizeOfTextures = report.textures.properties.reduce(
+      (total, texture) => total + texture.size / 1000,
+      0
+    );
 
-      const sizeOfAnimations = report.animations.properties.reduce(
-        (total, animation) => total + animation.size / 1000,
-        0
-      );
+    const sizeOfAnimations = report.animations.properties.reduce(
+      (total, animation) => total + animation.size / 1000,
+      0
+    );
 
-      const totalSize = sizeOfMeshes + sizeOfTextures + sizeOfAnimations;
-      const percentOfSizeTakenByMeshes = (sizeOfMeshes / totalSize) * 100;
-      const percentOfSizeTakenByTextures = (sizeOfTextures / totalSize) * 100;
-      const percentOfSizeTakenByAnimations =
-        (sizeOfAnimations / totalSize) * 100;
+    const totalSize = sizeOfMeshes + sizeOfTextures + sizeOfAnimations;
+    const percentOfSizeTakenByMeshes = (sizeOfMeshes / totalSize) * 100;
+    const percentOfSizeTakenByTextures = (sizeOfTextures / totalSize) * 100;
+    const percentOfSizeTakenByAnimations = (sizeOfAnimations / totalSize) * 100;
 
-      setStats({
-        numMeshes: report.meshes.properties.length,
-        numVertices: numRenderVertices,
-        numTextures: report.textures.properties.length,
-        numAnimationClips: report.animations.properties.length,
-        sizeOfMeshes: sizeOfMeshes,
-        sizeOfTextures: sizeOfTextures,
-        sizeOfAnimations: sizeOfAnimations,
-        percentOfSizeTakenByMeshes: percentOfSizeTakenByMeshes,
-        percentOfSizeTakenByTextures: percentOfSizeTakenByTextures,
-        percentOfSizeTakenByAnimations: percentOfSizeTakenByAnimations,
-      });
-    };
-
-    analyzeWithGLTFTransform();
+    setStats({
+      numMeshes: report.meshes.properties.length,
+      numVertices: numRenderVertices,
+      numTextures: report.textures.properties.length,
+      numAnimationClips: report.animations.properties.length,
+      sizeOfMeshes: sizeOfMeshes,
+      sizeOfTextures: sizeOfTextures,
+      sizeOfAnimations: sizeOfAnimations,
+      percentOfSizeTakenByMeshes: percentOfSizeTakenByMeshes,
+      percentOfSizeTakenByTextures: percentOfSizeTakenByTextures,
+      percentOfSizeTakenByAnimations: percentOfSizeTakenByAnimations,
+    });
   }, [modifiedDocument]);
 
   if (!stats) return null;
