@@ -23,7 +23,6 @@ export default function ModelView() {
             <primitive object={scene} />
           </Stage>
         </Suspense>
-        <axesHelper />
         <OrbitControls makeDefault />
       </Canvas>
     </div>
