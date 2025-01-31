@@ -16,6 +16,7 @@ export default function MaterialEditPanel() {
     selectedMaterial,
     setSelectedMaterial,
     setSelectedTexture,
+    updateModelStats,
   } = useModelStore();
 
   const [_, set] = useControls(
@@ -81,6 +82,7 @@ export default function MaterialEditPanel() {
         const modifiedTexture = modifiedDocument.getRoot().listTextures()[0];
 
         await compressDocumentTexture(originalTexture, modifiedTexture);
+        updateModelStats();
       }),
     }),
     [selectedMaterial, selectedTexture, compressionSettings]
