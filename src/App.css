@@ -30,3 +30,16 @@ html,
   z-index: 10;
   color: white;
 }
+
+@keyframes vibrate {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateY(-3px); }
+  40% { transform: translateY(4px); }
+  60% { transform: translateY(-1px); }
+  80% { transform: translateY(5px); }
+}
+
+.vibrate-text {
+  color: #dd574e;
+  animation: vibrate 0.2s linear infinite;
+}

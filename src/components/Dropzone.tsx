@@ -1,5 +1,6 @@
 import type { DropEvent, FileRejection } from "react-dropzone";
 import { useDropzone } from "react-dropzone";
+import '../App.css';
 
 interface DropzoneProps {
   onDrop: <T extends File>(
@@ -23,13 +24,13 @@ export function Dropzone({ onDrop }: DropzoneProps) {
       <input {...getInputProps()} />
 
       {isDragActive ? (
-        <p className="text-4xl font-bold text-blue-600">
-          Drop the files here...
+        <p className="text-4xl font-bold text-red-600 vibrate-text">
+          DROP IT! DROP THE FILE HERE, PLEEEEASE
         </p>
       ) : (
         <p className="text-4xl font-bold">
           Drag {"'"}n{"'"} drop your GLTF file{" "}
-          <button className="text-blue-600">here</button>
+          <button className="text-blue-800">here</button>
         </p>
       )}
       {fileRejections.length ? (
