@@ -1,11 +1,6 @@
-import { WebIO } from "@gltf-transform/core";
-import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
+import { useModelStore } from "@/stores/useModelStore";
 import { inspect } from "@gltf-transform/functions";
 import { useEffect, useState } from "react";
-
-interface StatsViewProps {
-  url: string;
-}
 
 interface Stats {
   numMeshes: number;
@@ -20,21 +15,15 @@ interface Stats {
   percentOfSizeTakenByAnimations: number;
 }
 
-export default function StatsView({ url }: StatsViewProps) {
+export default function StatsView() {
+  const { modifiedDocument } = useModelStore();
   const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
     const analyzeWithGLTFTransform = async () => {
-      const io = new WebIO()
-        .registerExtensions(ALL_EXTENSIONS)
-        .registerDependencies({
-          // @ts-ignore
-          "draco3d.encoder": await new DracoEncoderModule(),
-          // @ts-ignore
-          "draco3d.decoder": await new DracoDecoderModule(),
-        });
-      const document = await io.read(url);
-      const report = inspect(document);
+      if (!modifiedDocument) return;
+
+      const report = inspect(modifiedDocument);
 
       const numRenderVertices = report.scenes.properties.reduce(
         (total, scene) => total + scene.renderVertexCount,
@@ -77,7 +66,7 @@ export default function StatsView({ url }: StatsViewProps) {
     };
 
     analyzeWithGLTFTransform();
-  }, [url]);
+  }, [modifiedDocument]);
 
   if (!stats) return null;
 

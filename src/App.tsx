@@ -22,7 +22,7 @@ function App() {
           <div className="grid grid-cols-2 h-full">
             <ModelView url={modelUrl} />
             <TextureView />
-            <StatsView url={modelUrl} />
+            <StatsView />
           </div>
         </>
       ) : (
