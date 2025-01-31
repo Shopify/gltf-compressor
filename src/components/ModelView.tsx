@@ -11,7 +11,7 @@ import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { button, useControls } from "leva";
 import { Suspense, useCallback, useEffect, useRef } from "react";
-import { Stage } from "../drei_stuff/Stage";
+import { Stage } from "../custom_drei_components/Stage";
 
 interface ModelViewProps {
   url: string;
