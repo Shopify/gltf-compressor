@@ -1,10 +1,11 @@
 import { useModelStore } from "@/stores/useModelStore";
 import { TextureCompressionSettings } from "@/types";
+import { compressDocumentTexture } from "@/utils/documentUtils";
 import {
   filterMapNamesWithTextures,
   filterMaterialNamesWithTextures,
 } from "@/utils/utils";
-import { useControls } from "leva";
+import { button, useControls } from "leva";
 import { useEffect, useRef } from "react";
 
 export default function TextureView() {
@@ -80,6 +81,16 @@ export default function TextureView() {
           }
         },
       },
+      compress: button(async () => {
+        if (!selectedMaterial || !selectedTexture) return;
+        const { originalDocument, modifiedDocument } = useModelStore.getState();
+        if (!originalDocument || !modifiedDocument) return;
+
+        const originalTexture = originalDocument.getRoot().listTextures()[0];
+        const modifiedTexture = modifiedDocument.getRoot().listTextures()[0];
+
+        await compressDocumentTexture(originalTexture, modifiedTexture);
+      }),
     }),
     [selectedMaterial, selectedTexture, compressionSettings]
   );
