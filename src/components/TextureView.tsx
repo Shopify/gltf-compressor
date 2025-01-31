@@ -31,6 +31,7 @@ export default function TextureView() {
     () => ({
       materialName: {
         value: selectedMaterial,
+        label: "Material",
         options: compressionSettings
           ? filterMaterialNamesWithTextures(compressionSettings)
           : [],
@@ -42,6 +43,7 @@ export default function TextureView() {
       },
       textureName: {
         value: selectedTexture,
+        label: "Texture",
         options:
           selectedMaterial && compressionSettings
             ? filterMapNamesWithTextures(
@@ -61,6 +63,7 @@ export default function TextureView() {
                 selectedTexture
               ]?.compressionEnabled ?? false
             : false,
+        label: "Compress?",
         onChange: (value) => {
           if (selectedMaterial && selectedTexture) {
             console.log("UPDATING", selectedMaterial, selectedTexture, value);
