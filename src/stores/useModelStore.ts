@@ -7,8 +7,9 @@ import {
   buildTextureCompressionSettings,
   filterMaterialNamesWithTextures,
   getFirstAvailableTextureName,
+  getUniqueTexturesFromDocument,
 } from "@/utils/utils";
-import { Document } from "@gltf-transform/core";
+import { Document, Texture } from "@gltf-transform/core";
 import { inspect } from "@gltf-transform/functions";
 import { Group } from "three";
 import { create } from "zustand";
@@ -35,7 +36,9 @@ interface ModelStore {
   ) => void;
 
   modelStats: ModelStats | null;
+  modifiedTextures: Texture[] | null;
   setInitialModelStats: () => void;
+  updateModelStats: () => void;
 }
 
 export const useModelStore = create<ModelStore>((set, get) => ({
@@ -118,9 +121,11 @@ export const useModelStore = create<ModelStore>((set, get) => ({
   },
 
   modelStats: null,
+  modifiedTextures: null,
   setInitialModelStats: () => {
-    const { originalDocument } = get();
-    if (!originalDocument) return;
+    const { originalDocument, modifiedDocument } = get();
+
+    if (!originalDocument || !modifiedDocument) return;
 
     const report = inspect(originalDocument);
 
@@ -149,6 +154,8 @@ export const useModelStore = create<ModelStore>((set, get) => ({
     const percentOfSizeTakenByTextures = (sizeOfTextures / totalSize) * 100;
     const percentOfSizeTakenByAnimations = (sizeOfAnimations / totalSize) * 100;
 
+    const modifiedTextures = getUniqueTexturesFromDocument(modifiedDocument);
+
     set({
       modelStats: {
         numMeshes: report.meshes.properties.length,
@@ -161,6 +168,34 @@ export const useModelStore = create<ModelStore>((set, get) => ({
         percentOfSizeTakenByMeshes: percentOfSizeTakenByMeshes,
         percentOfSizeTakenByTextures: percentOfSizeTakenByTextures,
         percentOfSizeTakenByAnimations: percentOfSizeTakenByAnimations,
+      },
+      modifiedTextures,
+    });
+  },
+  updateModelStats: () => {
+    const { modelStats, modifiedTextures } = get();
+
+    if (!modelStats || !modifiedTextures) return;
+
+    let sizeOfTextures = 0;
+    modifiedTextures.forEach((texture) => {
+      const imageData = texture.getImage();
+      if (imageData?.byteLength) {
+        sizeOfTextures += imageData.byteLength / 1000;
+      }
+    });
+
+    const totalSize =
+      modelStats.sizeOfMeshes + sizeOfTextures + modelStats.sizeOfAnimations;
+
+    set({
+      modelStats: {
+        ...modelStats,
+        sizeOfTextures,
+        percentOfSizeTakenByMeshes: (modelStats.sizeOfMeshes / totalSize) * 100,
+        percentOfSizeTakenByTextures: (sizeOfTextures / totalSize) * 100,
+        percentOfSizeTakenByAnimations:
+          (modelStats.sizeOfAnimations / totalSize) * 100,
       },
     });
   },

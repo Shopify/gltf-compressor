@@ -105,3 +105,41 @@ export function buildTextureCompressionSettings(
 
   return compressionSettings;
 }
+
+export function getUniqueTexturesFromDocument(document: Document): Texture[] {
+  const uniqueTextures = new Set<Texture>();
+
+  document
+    .getRoot()
+    .listMaterials()
+    .forEach((material) => {
+      const extensions = new Set<ExtensionProperty>(material.listExtensions());
+      const materialTextures = document
+        .getGraph()
+        .listEdges()
+        .filter((ref) => {
+          const child = ref.getChild();
+          const parent = ref.getParent();
+          if (child instanceof Texture && parent === material) {
+            return true;
+          }
+          if (
+            child instanceof Texture &&
+            parent instanceof ExtensionProperty &&
+            extensions.has(parent)
+          ) {
+            return true;
+          }
+          return false;
+        })
+        .map((ref) => {
+          return ref.getChild() as Texture;
+        });
+
+      materialTextures.forEach((texture) => {
+        uniqueTextures.add(texture);
+      });
+    });
+
+  return Array.from(uniqueTextures);
+}
