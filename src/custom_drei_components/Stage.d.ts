@@ -1,21 +1,15 @@
 import * as React from "react";
 import { PresetsType } from "../helpers/environment-assets";
-import {
-  AccumulativeShadowsProps,
-  RandomizedLightProps,
-} from "./AccumulativeShadows";
 import { CenterProps } from "./Center";
 import { ContactShadowsProps } from "./ContactShadows";
 import { EnvironmentProps } from "./Environment";
-type StageShadows = Partial<AccumulativeShadowsProps> &
-  Partial<RandomizedLightProps> &
-  Partial<ContactShadowsProps> & {
-    type: "contact" | "accumulative";
-    offset?: number;
-    bias?: number;
-    normalBias?: number;
-    size?: number;
-  };
+type StageShadows = Partial<ContactShadowsProps> & {
+  type: "contact";
+  offset?: number;
+  bias?: number;
+  normalBias?: number;
+  size?: number;
+};
 type StageProps = {
   preset?:
     | "rembrandt"
@@ -26,7 +20,7 @@ type StageProps = {
         main: [x: number, y: number, z: number];
         fill: [x: number, y: number, z: number];
       };
-  shadows?: boolean | "contact" | "accumulative" | StageShadows;
+  shadows?: boolean | "contact" | StageShadows;
   adjustCamera?: boolean | number;
   environment?: PresetsType | Partial<EnvironmentProps> | null;
   intensity?: number;

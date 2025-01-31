@@ -1,10 +1,5 @@
 import _extends from "@babel/runtime/helpers/esm/extends";
-import {
-  AccumulativeShadows,
-  ContactShadows,
-  Environment,
-  RandomizedLight,
-} from "@react-three/drei";
+import { ContactShadows, Environment } from "@react-three/drei";
 import * as React from "react";
 import { Bounds, useBounds } from "./Bounds.js";
 import { Center } from "./Center.js";
@@ -82,9 +77,6 @@ function Stage({
   const contactShadow =
     shadows === "contact" ||
     (shadows == null ? void 0 : shadows.type) === "contact";
-  const accumulativeShadow =
-    shadows === "accumulative" ||
-    (shadows == null ? void 0 : shadows.type) === "accumulative";
   const shadowSpread = {
     ...(typeof shadows === "object" ? shadows : {}),
   };
@@ -172,47 +164,6 @@ function Stage({
             },
             shadowSpread
           )
-        ),
-      accumulativeShadow &&
-        /*#__PURE__*/ React.createElement(
-          AccumulativeShadows,
-          _extends(
-            {
-              temporal: true,
-              frames: 100,
-              alphaTest: 0.9,
-              toneMapped: true,
-              scale: radius * 4,
-            },
-            shadowSpread
-          ),
-          /*#__PURE__*/ React.createElement(RandomizedLight, {
-            amount:
-              (_amount = shadowSpread.amount) !== null && _amount !== void 0
-                ? _amount
-                : 8,
-            radius:
-              (_radius = shadowSpread.radius) !== null && _radius !== void 0
-                ? _radius
-                : radius,
-            ambient:
-              (_ambient = shadowSpread.ambient) !== null && _ambient !== void 0
-                ? _ambient
-                : 0.5,
-            intensity:
-              (_intensity = shadowSpread.intensity) !== null &&
-              _intensity !== void 0
-                ? _intensity
-                : 1,
-            position: [
-              config.main[0] * radius,
-              config.main[1] * radius,
-              config.main[2] * radius,
-            ],
-            size: radius * 4,
-            bias: -shadowBias,
-            mapSize: shadowSize,
-          })
         )
     ),
     environment &&
