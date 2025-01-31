@@ -8,14 +8,17 @@ import {
   getFirstAvailableGLTFTextureName,
 } from "@/utils/utils";
 import { Document } from "@gltf-transform/core";
+import { Group } from "three";
 import { create } from "zustand";
 
 interface ModelStore2 {
   originalDocument: Document | null;
   modifiedDocument: Document | null;
+  scene: Group | null;
   setDocuments: (
     originalDocument: Document,
-    modifiedDocument: Document
+    modifiedDocument: Document,
+    scene: Group
   ) => void;
 
   compressionSettings: GLTFModelCompressionSettings | null;
@@ -33,7 +36,8 @@ interface ModelStore2 {
 export const useModelStore2 = create<ModelStore2>((set, get) => ({
   originalDocument: null,
   modifiedDocument: null,
-  setDocuments: (originalDocument, modifiedDocument) => {
+  scene: null,
+  setDocuments: (originalDocument, modifiedDocument, scene) => {
     const compressionSettings =
       buildGLTFTextureCompressionSettings(originalDocument);
 
@@ -53,6 +57,7 @@ export const useModelStore2 = create<ModelStore2>((set, get) => ({
     set({
       originalDocument,
       modifiedDocument,
+      scene,
       compressionSettings,
       selectedMaterial: materialName,
       selectedTexture: textureName,

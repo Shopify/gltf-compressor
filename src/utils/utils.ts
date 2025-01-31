@@ -152,6 +152,17 @@ export function filterGLTFMaterialNamesWithTextures(
 }
 
 /**
+ * Filters the material compression settings to only include maps that have textures
+ * @param materialCompressionSettings The material compression settings to filter
+ * @returns An object containing the maps that have textures
+ */
+export function filterGLTFMapNamesWithTextures(
+  materialCompressionSettings: GLTFMaterialCompressionSettings
+): string[] {
+  return Object.keys(materialCompressionSettings);
+}
+
+/**
  * Returns the first available texture according to the order in constants.ts
  * @param materialCompressionSettings The material compression settings to extract textures from
  * @returns The first available texture or null if no texture is found

@@ -1,19 +1,16 @@
 import { EXPORT_FOLDER_ORDER } from "@/constants";
-import { useModelStore } from "@/stores/useModelStore";
 import { useModelStore2 } from "@/stores/useModelStore2";
-import { updateModel } from "@/utils/utils";
-import { Document, WebIO } from "@gltf-transform/core";
+import { WebIO } from "@gltf-transform/core";
 import {
   ALL_EXTENSIONS,
   KHRDracoMeshCompression,
 } from "@gltf-transform/extensions";
 import { cloneDocument } from "@gltf-transform/functions";
 import { DocumentView } from "@gltf-transform/view";
-import { OrbitControls, useGLTF } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { button, useControls } from "leva";
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { Group } from "three";
+import { Suspense, useCallback, useEffect, useRef } from "react";
 import { Stage } from "../drei_stuff/Stage";
 
 interface ModelViewProps {
@@ -21,27 +18,8 @@ interface ModelViewProps {
 }
 
 export default function ModelView({ url }: ModelViewProps) {
-  const gltf = useGLTF(url);
-  const { model, compressionSettings } = useModelStore();
-  const setModel = useModelStore((state) => state.setModel);
+  const { originalDocument, modifiedDocument, scene } = useModelStore2();
   const setDocuments = useModelStore2((state) => state.setDocuments);
-
-  useEffect(() => {
-    setModel(gltf);
-  }, [gltf, setModel]);
-
-  useEffect(() => {
-    if (compressionSettings && model) {
-      updateModel(model, compressionSettings, true);
-    }
-  }, [compressionSettings, model]);
-
-  const [modelData, setModelData] = useState<{
-    originalDocument: Document;
-    modifiedDocument: Document;
-    modifiedDocumentView: DocumentView;
-    scene: Group;
-  } | null>(null);
 
   useEffect(() => {
     const setupDocumentView = async () => {
@@ -59,48 +37,7 @@ export default function ModelView({ url }: ModelViewProps) {
       const sceneDef = modifiedDocument.getRoot().getDefaultScene()!;
       const group = modifiedDocumentView.view(sceneDef);
 
-      /*
-      const materials = originalDocument.getRoot().listMaterials();
-      console.log(materials);
-
-      const textures = originalDocument.getRoot().listTextures();
-      console.log(textures);
-
-      materials.forEach((material) => {
-        console.log("********************");
-
-        console.log("Textures for material: ", material.getName());
-        console.log(
-          "Base Color: ",
-          material.getBaseColorTexture(),
-          "Emissive: ",
-          material.getEmissiveTexture(),
-          "Metallic Roughness: ",
-          material.getMetallicRoughnessTexture(),
-          "Normal: ",
-          material.getNormalTexture(),
-          "Occlusion: ",
-          material.getOcclusionTexture()
-        );
-
-        console.log("Texture Info for material:", material.getName(), {
-          baseColor: material.getBaseColorTextureInfo(),
-          emissive: material.getEmissiveTextureInfo(),
-          metallicRoughness: material.getMetallicRoughnessTextureInfo(),
-          normal: material.getNormalTextureInfo(),
-          occlusion: material.getOcclusionTextureInfo(),
-        });
-      });
-      */
-
-      setDocuments(originalDocument, modifiedDocument);
-
-      setModelData({
-        originalDocument: originalDocument,
-        modifiedDocument: modifiedDocument,
-        modifiedDocumentView: modifiedDocumentView,
-        scene: group,
-      });
+      setDocuments(originalDocument, modifiedDocument, group);
     };
 
     if (url) {
@@ -111,7 +48,7 @@ export default function ModelView({ url }: ModelViewProps) {
   const useDracoCompressionRef = useRef(false);
 
   const exportGLTF = useCallback(async () => {
-    if (!modelData) return;
+    if (!modifiedDocument) return;
 
     const io = new WebIO()
       .registerExtensions(ALL_EXTENSIONS)
@@ -123,7 +60,7 @@ export default function ModelView({ url }: ModelViewProps) {
       });
 
     if (useDracoCompressionRef.current) {
-      modelData.modifiedDocument
+      modifiedDocument
         .createExtension(KHRDracoMeshCompression)
         .setRequired(true)
         .setEncoderOptions({
@@ -135,9 +72,7 @@ export default function ModelView({ url }: ModelViewProps) {
       // Right now if you export with draco compression enabled, all future exports will be draco compressed
     }
 
-    const compressedArrayBuffer = await io.writeBinary(
-      modelData.modifiedDocument
-    );
+    const compressedArrayBuffer = await io.writeBinary(modifiedDocument);
 
     const blob = new Blob([compressedArrayBuffer], {
       type: "application/octet-stream",
@@ -150,18 +85,14 @@ export default function ModelView({ url }: ModelViewProps) {
     document.body.appendChild(a);
     a.click();
     URL.revokeObjectURL(url);
-  }, [modelData]);
+  }, [modifiedDocument]);
 
   const processTexture = useCallback(async () => {
-    if (!modelData) return;
+    if (!originalDocument || !modifiedDocument) return;
 
-    const originalTexture = modelData.originalDocument
-      .getRoot()
-      .listTextures()[0];
+    const originalTexture = originalDocument.getRoot().listTextures()[0];
 
-    const modifiedTexture = modelData.modifiedDocument
-      .getRoot()
-      .listTextures()[0];
+    const modifiedTexture = modifiedDocument.getRoot().listTextures()[0];
 
     // This is an example of how to compress with gltf-transform
     // modifiedTexture.setImage(originalTexture.getImage());
@@ -209,7 +140,7 @@ export default function ModelView({ url }: ModelViewProps) {
 
     modifiedTexture.setImage(pngUint8Array);
     modifiedTexture.setMimeType("image/jpeg");
-  }, [modelData]);
+  }, [originalDocument, modifiedDocument]);
 
   useControls(
     "Export",
@@ -231,7 +162,7 @@ export default function ModelView({ url }: ModelViewProps) {
     [processTexture]
   );
 
-  if (!modelData) return null;
+  if (!scene) return null;
 
   return (
     <div id="view-3d">
@@ -244,7 +175,7 @@ export default function ModelView({ url }: ModelViewProps) {
             adjustCamera
             environment={"city"}
           >
-            <primitive object={modelData.scene} />
+            <primitive object={scene} />
           </Stage>
         </Suspense>
         <axesHelper />

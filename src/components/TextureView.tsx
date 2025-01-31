@@ -1,29 +1,27 @@
-import { useModelStore } from "@/stores/useModelStore";
-import { TextureCompressionSettings } from "@/types";
+import { useModelStore2 } from "@/stores/useModelStore2";
+import { GLTFTextureCompressionSettings } from "@/types";
 import {
-  filterMapNamesWithTextures,
-  filterMaterialNamesWithTextures,
+  filterGLTFMapNamesWithTextures,
+  filterGLTFMaterialNamesWithTextures,
 } from "@/utils/utils";
 import { useControls } from "leva";
 import { useEffect, useRef } from "react";
-import { Texture } from "three";
 
 export default function TextureView() {
   const {
-    model,
     compressionSettings,
     updateTextureCompressionSettings,
     selectedTexture,
     selectedMaterial,
     setSelectedMaterial,
     setSelectedTexture,
-  } = useModelStore();
+  } = useModelStore2();
 
-  const { materials = {} } = model || {};
+  const materials = compressionSettings?.materials ?? {};
 
   const material = selectedMaterial ? materials[selectedMaterial] : null;
   const texture = selectedTexture
-    ? material?.[selectedTexture as keyof typeof material]
+    ? material?.[selectedTexture as keyof typeof material].original
     : null;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -34,7 +32,7 @@ export default function TextureView() {
       materialName: {
         value: selectedMaterial,
         options: compressionSettings
-          ? filterMaterialNamesWithTextures(compressionSettings)
+          ? filterGLTFMaterialNamesWithTextures(compressionSettings)
           : [],
         onChange: (value) => {
           if (value) {
@@ -46,7 +44,7 @@ export default function TextureView() {
         value: selectedTexture,
         options:
           selectedMaterial && compressionSettings
-            ? filterMapNamesWithTextures(
+            ? filterGLTFMapNamesWithTextures(
                 compressionSettings.materials[selectedMaterial]
               )
             : [],
@@ -74,13 +72,13 @@ export default function TextureView() {
                   selectedTexture
                 ],
                 compressionEnabled: value,
-              } as TextureCompressionSettings
+              } as GLTFTextureCompressionSettings
             );
           }
         },
       },
     }),
-    [selectedMaterial, selectedTexture, model, compressionSettings]
+    [selectedMaterial, selectedTexture, /*model,*/ compressionSettings]
   );
 
   useEffect(() => {
@@ -93,21 +91,41 @@ export default function TextureView() {
               ?.compressionEnabled ?? false
           : false,
     });
-  }, [selectedMaterial, selectedTexture, model, compressionSettings]);
+  }, [selectedMaterial, selectedTexture, /*model,*/ compressionSettings]);
 
   useEffect(() => {
-    if (!texture) return;
+    const loadTexture = async () => {
+      if (!texture) return;
 
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+      const canvas = canvasRef.current;
+      if (!canvas) return;
 
-    canvas.width = (texture as Texture).image.width;
-    canvas.height = (texture as Texture).image.height;
-    const ctx = canvas.getContext("2d");
+      const size = texture.getSize();
+      const imageData = texture.getImage();
+      const mimeType = texture.getMimeType();
+      if (!size || !imageData) return;
 
-    if (ctx) {
-      ctx.drawImage((texture as Texture).image, 0, 0);
-    }
+      canvas.width = size[0];
+      canvas.height = size[1];
+      const ctx = canvas.getContext("2d");
+
+      if (ctx) {
+        const blob = new Blob([imageData], {
+          type: mimeType,
+        });
+        const blobUrl = URL.createObjectURL(blob);
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = (e) => reject(console.log(e));
+          img.src = blobUrl;
+        });
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+
+    loadTexture();
   }, [selectedTexture, selectedMaterial]);
 
   return (
