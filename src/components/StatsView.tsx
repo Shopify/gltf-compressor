@@ -72,7 +72,7 @@ export default function StatsView() {
 
   return (
     <div className="absolute top-4 left-4 p-4 text-white font-mono text-xs select-none pointer-events-none">
-      <div>Meshes: {stats.numMeshes}</div>
+      <div>Objects: {stats.numMeshes}</div>
       <div>Verts: {stats.numVertices}</div>
       <div>Textures: {stats.numTextures}</div>
       <div>Anim Clips: {stats.numAnimationClips}</div>
