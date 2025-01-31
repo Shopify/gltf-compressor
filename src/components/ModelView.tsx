@@ -1,5 +1,5 @@
 import { EXPORT_FOLDER_ORDER } from "@/constants";
-import { useModelStore2 } from "@/stores/useModelStore2";
+import { useModelStore } from "@/stores/useModelStore";
 import { WebIO } from "@gltf-transform/core";
 import {
   ALL_EXTENSIONS,
@@ -18,8 +18,8 @@ interface ModelViewProps {
 }
 
 export default function ModelView({ url }: ModelViewProps) {
-  const { originalDocument, modifiedDocument, scene } = useModelStore2();
-  const setDocuments = useModelStore2((state) => state.setDocuments);
+  const { originalDocument, modifiedDocument, scene } = useModelStore();
+  const setDocuments = useModelStore((state) => state.setDocuments);
 
   useEffect(() => {
     const setupDocumentView = async () => {

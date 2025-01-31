@@ -1,4 +1,4 @@
-import { useModelStore2 } from "@/stores/useModelStore2";
+import { useModelStore } from "@/stores/useModelStore";
 import { GLTFTextureCompressionSettings } from "@/types";
 import {
   filterGLTFMapNamesWithTextures,
@@ -15,7 +15,7 @@ export default function TextureView() {
     selectedMaterial,
     setSelectedMaterial,
     setSelectedTexture,
-  } = useModelStore2();
+  } = useModelStore();
 
   const materials = compressionSettings?.materials ?? {};
 

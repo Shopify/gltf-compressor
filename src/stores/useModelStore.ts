@@ -1,84 +1,93 @@
-import { ModelCompressionSettings, TextureCompressionSettings } from "@/types";
 import {
-  buildTextureCompressionSettings,
-  filterMaterialNamesWithTextures,
-  getFirstAvailableTextureName,
+  GLTFModelCompressionSettings,
+  GLTFTextureCompressionSettings,
+} from "@/types";
+import {
+  buildGLTFTextureCompressionSettings,
+  filterGLTFMaterialNamesWithTextures,
+  getFirstAvailableGLTFTextureName,
 } from "@/utils/utils";
-import { ObjectMap } from "@react-three/fiber";
-import { Material, Texture } from "three";
-import { GLTF } from "three-stdlib";
+import { Document } from "@gltf-transform/core";
+import { Group } from "three";
 import { create } from "zustand";
 
 interface ModelStore {
-  model: (GLTF & ObjectMap) | null;
-  compressionSettings: ModelCompressionSettings | null;
+  originalDocument: Document | null;
+  modifiedDocument: Document | null;
+  scene: Group | null;
+  setDocuments: (
+    originalDocument: Document,
+    modifiedDocument: Document,
+    scene: Group
+  ) => void;
+
+  compressionSettings: GLTFModelCompressionSettings | null;
   selectedTexture: string | null;
   selectedMaterial: string | null;
-  setModel: (model: any) => void;
   setSelectedTexture: (textureName: string | null) => void;
   setSelectedMaterial: (materialName: string | null) => void;
   updateTextureCompressionSettings: (
     materialName: string,
     textureName: string,
-    settings: TextureCompressionSettings
+    settings: GLTFTextureCompressionSettings
   ) => void;
 }
 
 export const useModelStore = create<ModelStore>((set, get) => ({
-  model: null,
-  compressionSettings: null,
-  selectedTexture: null,
-  selectedMaterial: null,
-  setModel: (model: GLTF & ObjectMap) => {
-    let materialName, textureName;
-    const { materials } = model;
+  originalDocument: null,
+  modifiedDocument: null,
+  scene: null,
+  setDocuments: (originalDocument, modifiedDocument, scene) => {
+    const compressionSettings =
+      buildGLTFTextureCompressionSettings(originalDocument);
 
-    const compressionSettings = buildTextureCompressionSettings(materials);
-    if (materials) {
-      materialName = filterMaterialNamesWithTextures(compressionSettings)[0];
-      if (materialName) {
-        textureName = getFirstAvailableTextureName(
+    // Get the first material and texture for initial selection
+    let materialName =
+      filterGLTFMaterialNamesWithTextures(compressionSettings)[0];
+    let textureName = materialName
+      ? getFirstAvailableGLTFTextureName(
           compressionSettings.materials[materialName]
-        );
-      }
-    }
+        )
+      : null;
 
-    console.log("*** OLD: ");
+    console.log("*** NEW: ");
     console.log(compressionSettings);
     console.log(materialName, textureName);
 
     set({
-      model,
+      originalDocument,
+      modifiedDocument,
+      scene,
+      compressionSettings,
       selectedMaterial: materialName,
       selectedTexture: textureName,
-      compressionSettings: compressionSettings,
     });
   },
+
+  compressionSettings: null,
+  selectedTexture: null,
+  selectedMaterial: null,
   setSelectedTexture: (textureName) => set({ selectedTexture: textureName }),
   setSelectedMaterial: (materialName) => {
     if (!materialName) return;
 
-    const { model, selectedTexture, compressionSettings } = get();
-    if (!model) return;
+    const { selectedTexture, compressionSettings } = get();
+    if (!compressionSettings) return;
 
-    const { materials } = model;
-
-    const material = materials[materialName];
-    if (!material) return;
+    // Check if the material exists in our compression settings
+    const materialSettings = compressionSettings.materials[materialName];
+    if (!materialSettings) return;
 
     let textureName = selectedTexture;
 
-    if (
-      textureName &&
-      !(material[textureName as keyof Material] instanceof Texture)
-    ) {
+    // If the current texture doesn't exist in the new material, reset it
+    if (textureName && !materialSettings[textureName]) {
       textureName = null;
     }
 
-    if (!textureName && compressionSettings) {
-      textureName = getFirstAvailableTextureName(
-        compressionSettings.materials[materialName]
-      );
+    // If we need a new texture, get the first available one
+    if (!textureName) {
+      textureName = getFirstAvailableGLTFTextureName(materialSettings);
     }
 
     set({ selectedMaterial: materialName, selectedTexture: textureName });
@@ -86,7 +95,7 @@ export const useModelStore = create<ModelStore>((set, get) => ({
   updateTextureCompressionSettings: (
     materialName: string,
     mapName: string,
-    settings: TextureCompressionSettings
+    settings: GLTFTextureCompressionSettings
   ) => {
     const { compressionSettings } = get();
 
