@@ -1,8 +1,8 @@
 import { useModelStore } from "@/stores/useModelStore";
 import { GLTFTextureCompressionSettings } from "@/types";
 import {
-  filterGLTFMapNamesWithTextures,
-  filterGLTFMaterialNamesWithTextures,
+  filterMapNamesWithTextures,
+  filterMaterialNamesWithTextures,
 } from "@/utils/utils";
 import { useControls } from "leva";
 import { useEffect, useRef } from "react";
@@ -32,7 +32,7 @@ export default function TextureView() {
       materialName: {
         value: selectedMaterial,
         options: compressionSettings
-          ? filterGLTFMaterialNamesWithTextures(compressionSettings)
+          ? filterMaterialNamesWithTextures(compressionSettings)
           : [],
         onChange: (value) => {
           if (value) {
@@ -44,7 +44,7 @@ export default function TextureView() {
         value: selectedTexture,
         options:
           selectedMaterial && compressionSettings
-            ? filterGLTFMapNamesWithTextures(
+            ? filterMapNamesWithTextures(
                 compressionSettings.materials[selectedMaterial]
               )
             : [],

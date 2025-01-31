@@ -11,12 +11,12 @@ import { Document, Texture as GLTFTexture } from "@gltf-transform/core";
  * @param modelCompressionSettings The model compression settings to filter
  * @returns An array of material names that have textures set
  */
-export function filterGLTFMaterialNamesWithTextures(
+export function filterMaterialNamesWithTextures(
   modelCompressionSettings: GLTFModelCompressionSettings
 ): string[] {
   return Object.keys(modelCompressionSettings.materials).filter(
     (materialName) =>
-      getFirstAvailableGLTFTextureName(
+      getFirstAvailableTextureName(
         modelCompressionSettings.materials[materialName]
       )
   );
@@ -27,7 +27,7 @@ export function filterGLTFMaterialNamesWithTextures(
  * @param materialCompressionSettings The material compression settings to filter
  * @returns An object containing the maps that have textures
  */
-export function filterGLTFMapNamesWithTextures(
+export function filterMapNamesWithTextures(
   materialCompressionSettings: GLTFMaterialCompressionSettings
 ): string[] {
   return Object.keys(materialCompressionSettings);
@@ -38,7 +38,7 @@ export function filterGLTFMapNamesWithTextures(
  * @param materialCompressionSettings The material compression settings to extract textures from
  * @returns The first available texture or null if no texture is found
  */
-export function getFirstAvailableGLTFTextureName(
+export function getFirstAvailableTextureName(
   materialCompressionSettings: GLTFMaterialCompressionSettings
 ): string | null {
   const name = GLTFTextureMapNames.find((prop) => {
@@ -49,7 +49,7 @@ export function getFirstAvailableGLTFTextureName(
   return name ?? null;
 }
 
-export function buildGLTFTextureCompressionSettings(
+export function buildTextureCompressionSettings(
   document: Document
 ): GLTFModelCompressionSettings {
   const compressionSettings: GLTFModelCompressionSettings = {

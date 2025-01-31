@@ -3,9 +3,9 @@ import {
   GLTFTextureCompressionSettings,
 } from "@/types";
 import {
-  buildGLTFTextureCompressionSettings,
-  filterGLTFMaterialNamesWithTextures,
-  getFirstAvailableGLTFTextureName,
+  buildTextureCompressionSettings,
+  filterMaterialNamesWithTextures,
+  getFirstAvailableTextureName,
 } from "@/utils/utils";
 import { Document } from "@gltf-transform/core";
 import { Group } from "three";
@@ -39,13 +39,12 @@ export const useModelStore = create<ModelStore>((set, get) => ({
   scene: null,
   setDocuments: (originalDocument, modifiedDocument, scene) => {
     const compressionSettings =
-      buildGLTFTextureCompressionSettings(originalDocument);
+      buildTextureCompressionSettings(originalDocument);
 
     // Get the first material and texture for initial selection
-    let materialName =
-      filterGLTFMaterialNamesWithTextures(compressionSettings)[0];
+    let materialName = filterMaterialNamesWithTextures(compressionSettings)[0];
     let textureName = materialName
-      ? getFirstAvailableGLTFTextureName(
+      ? getFirstAvailableTextureName(
           compressionSettings.materials[materialName]
         )
       : null;
@@ -87,7 +86,7 @@ export const useModelStore = create<ModelStore>((set, get) => ({
 
     // If we need a new texture, get the first available one
     if (!textureName) {
-      textureName = getFirstAvailableGLTFTextureName(materialSettings);
+      textureName = getFirstAvailableTextureName(materialSettings);
     }
 
     set({ selectedMaterial: materialName, selectedTexture: textureName });
