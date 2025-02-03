@@ -1,7 +1,29 @@
-import { ContactShadows, Environment } from "@react-three/drei";
+import {
+  ContactShadows,
+  Environment,
+  EnvironmentProps,
+} from "@react-three/drei";
+import { PresetsType } from "@react-three/drei/helpers/environment-assets";
 import { useCallback, useEffect, useState } from "react";
-import { Bounds, useBounds } from "./Bounds.tsx";
-import { Center } from "./Center.tsx";
+import { Bounds, useBounds } from "./Bounds";
+import { Center, CenterProps, OnCenterCallbackProps } from "./Center";
+
+type StageProps = {
+  preset?:
+    | "rembrandt"
+    | "portrait"
+    | "upfront"
+    | "soft"
+    | {
+        main: [x: number, y: number, z: number];
+        fill: [x: number, y: number, z: number];
+      };
+  contactShadows?: boolean;
+  adjustCamera?: boolean | number;
+  environment?: PresetsType | Partial<EnvironmentProps> | null;
+  intensity?: number;
+  center?: Partial<CenterProps>;
+};
 
 const presets = {
   rembrandt: {
@@ -22,10 +44,16 @@ const presets = {
   },
 };
 
-function Refit({ radius, adjustCamera }) {
+function Refit({
+  radius,
+  adjustCamera,
+}: {
+  radius: number;
+  adjustCamera: boolean | number;
+}) {
   const api = useBounds();
   useEffect(() => {
-    if (adjustCamera) api.refresh().clip().fit();
+    if (adjustCamera && api) api.refresh().clip().fit();
   }, [radius, adjustCamera]);
   return null;
 }
@@ -35,20 +63,11 @@ function Stage({
   center,
   adjustCamera = true,
   intensity = 0.5,
-  shadows = "contact",
+  contactShadows = true,
   environment = "city",
   preset = "rembrandt",
   ...props
-}) {
-  var _bias,
-    _normalBias,
-    _size,
-    _offset,
-    _amount,
-    _radius,
-    _ambient,
-    _intensity;
-
+}: JSX.IntrinsicElements["group"] & StageProps) {
   const config = typeof preset === "string" ? presets[preset] : preset;
 
   const [{ radius, height }, set] = useState({
@@ -58,38 +77,6 @@ function Stage({
     depth: 0,
   });
 
-  const shadowBias =
-    (_bias = shadows == null ? void 0 : shadows.bias) !== null &&
-    _bias !== void 0
-      ? _bias
-      : -0.0001;
-
-  const normalBias =
-    (_normalBias = shadows == null ? void 0 : shadows.normalBias) !== null &&
-    _normalBias !== void 0
-      ? _normalBias
-      : 0;
-
-  const shadowSize =
-    (_size = shadows == null ? void 0 : shadows.size) !== null &&
-    _size !== void 0
-      ? _size
-      : 1024;
-
-  const shadowOffset =
-    (_offset = shadows == null ? void 0 : shadows.offset) !== null &&
-    _offset !== void 0
-      ? _offset
-      : 0;
-
-  const contactShadow =
-    shadows === "contact" ||
-    (shadows == null ? void 0 : shadows.type) === "contact";
-
-  const shadowSpread = {
-    ...(typeof shadows === "object" ? shadows : {}),
-  };
-
   const environmentProps = !environment
     ? null
     : typeof environment === "string"
@@ -98,7 +85,7 @@ function Stage({
       }
     : environment;
 
-  const onCentered = useCallback((props) => {
+  const onCentered = useCallback((props: OnCenterCallbackProps) => {
     const { width, height, depth, boundingSphere } = props;
     set({
       radius: boundingSphere.radius,
@@ -120,10 +107,6 @@ function Stage({
           config.main[2] * radius,
         ]}
         intensity={intensity * 2}
-        castShadow={!!shadows}
-        shadow-bias={shadowBias}
-        shadow-normalBias={normalBias}
-        shadow-mapSize={shadowSize}
       />
       <pointLight
         position={[
@@ -141,22 +124,13 @@ function Stage({
         {...props}
       >
         <Refit radius={radius} adjustCamera={adjustCamera} />
-        <Center
-          {...center}
-          position={[0, shadowOffset / 2, 0]}
-          onCentered={onCentered}
-        >
+        <Center {...center} position={[0, 0, 0]} onCentered={onCentered}>
           {children}
         </Center>
       </Bounds>
-      <group position={[0, -height / 2 - shadowOffset / 2, 0]}>
-        {contactShadow && (
-          <ContactShadows
-            scale={radius * 4}
-            far={radius}
-            blur={2}
-            {...shadowSpread}
-          />
+      <group position={[0, -height / 2, 0]}>
+        {contactShadows && (
+          <ContactShadows scale={radius * 4} far={radius} blur={2} />
         )}
       </group>
       {environment && <Environment {...environmentProps} />}
