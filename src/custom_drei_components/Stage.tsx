@@ -7,7 +7,6 @@ import { Center, OnCenterCallbackProps } from "./Center";
 
 type StageProps = {
   contactShadows?: boolean;
-  adjustCamera?: boolean | number;
   intensity?: number;
 };
 
@@ -30,23 +29,16 @@ const presets = {
   },
 };
 
-function Refit({
-  radius,
-  adjustCamera,
-}: {
-  radius: number;
-  adjustCamera: boolean | number;
-}) {
+function Refit({ radius }: { radius: number }) {
   const api = useBounds();
   useEffect(() => {
-    if (adjustCamera && api) api.refresh().clip().fit();
-  }, [radius, adjustCamera]);
+    if (api) api.refresh().clip().fit();
+  }, [radius]);
   return null;
 }
 
 function Stage({
   children,
-  adjustCamera = true,
   intensity = 0.5,
   contactShadows = true,
   ...props
@@ -56,9 +48,7 @@ function Stage({
 
   const [{ radius, height }, set] = useState({
     radius: 0,
-    width: 0,
     height: 0,
-    depth: 0,
   });
 
   const { setModelDimensions } = useModelStore();
@@ -68,9 +58,7 @@ function Stage({
     setModelDimensions([width, height, depth]);
     set({
       radius,
-      width,
       height,
-      depth,
     });
   }, []);
 
@@ -94,14 +82,8 @@ function Stage({
         ]}
         intensity={intensity}
       />
-      <Bounds
-        fit={!!adjustCamera}
-        clip={!!adjustCamera}
-        margin={Number(adjustCamera)}
-        observe={true}
-        {...props}
-      >
-        <Refit radius={radius} adjustCamera={adjustCamera} />
+      <Bounds fit={true} clip={true} margin={1} observe={true} {...props}>
+        <Refit radius={radius} />
         <Center onCentered={onCentered}>{children}</Center>
       </Bounds>
       <group position={[0, -height / 2, 0]}>
