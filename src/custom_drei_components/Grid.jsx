@@ -1,9 +1,8 @@
-import _extends from "@babel/runtime/helpers/esm/extends";
 import { shaderMaterial } from "@react-three/drei/core/shaderMaterial.js";
 import { version } from "@react-three/drei/helpers/constants.js";
 import { extend, useFrame } from "@react-three/fiber";
-import * as React from "react";
-import * as THREE from "three";
+import { forwardRef, useImperativeHandle, useRef } from "react";
+import { BackSide, Color, Plane, Vector3 } from "three";
 
 const GridMaterial = shaderMaterial(
   {
@@ -14,12 +13,12 @@ const GridMaterial = shaderMaterial(
     fadeFrom: 1,
     cellThickness: 0.5,
     sectionThickness: 1,
-    cellColor: new THREE.Color(),
-    sectionColor: new THREE.Color(),
+    cellColor: new Color(),
+    sectionColor: new Color(),
     infiniteGrid: false,
     followCamera: false,
-    worldCamProjPosition: new THREE.Vector3(),
-    worldPlanePosition: new THREE.Vector3(),
+    worldCamProjPosition: new Vector3(),
+    worldPlanePosition: new Vector3(),
   },
   /* glsl */ `
     varying vec3 localPosition;
@@ -86,7 +85,7 @@ const GridMaterial = shaderMaterial(
     }
   `
 );
-const Grid = React.forwardRef(
+const Grid = forwardRef(
   (
     {
       args,
@@ -101,7 +100,7 @@ const Grid = React.forwardRef(
       fadeFrom = 1,
       cellThickness = 0.5,
       sectionThickness = 1,
-      side = THREE.BackSide,
+      side = BackSide,
       ...props
     },
     fRef
@@ -109,11 +108,12 @@ const Grid = React.forwardRef(
     extend({
       GridMaterial,
     });
-    const ref = React.useRef(null);
-    React.useImperativeHandle(fRef, () => ref.current, []);
-    const plane = new THREE.Plane();
-    const upVector = new THREE.Vector3(0, 1, 0);
-    const zeroVector = new THREE.Vector3(0, 0, 0);
+    const ref = useRef(null);
+    useImperativeHandle(fRef, () => ref.current, []);
+    const plane = new Plane();
+    const upVector = new Vector3(0, 1, 0);
+    const zeroVector = new Vector3(0, 0, 0);
+
     useFrame((state) => {
       plane
         .setFromNormalAndCoplanarPoint(upVector, zeroVector)
@@ -126,6 +126,7 @@ const Grid = React.forwardRef(
         .set(0, 0, 0)
         .applyMatrix4(ref.current.matrixWorld);
     });
+
     const uniforms1 = {
       cellSize,
       sectionSize,
@@ -134,6 +135,7 @@ const Grid = React.forwardRef(
       cellThickness,
       sectionThickness,
     };
+
     const uniforms2 = {
       fadeDistance,
       fadeStrength,
@@ -141,30 +143,18 @@ const Grid = React.forwardRef(
       infiniteGrid,
       followCamera,
     };
-    return React.createElement(
-      "mesh",
-      _extends(
-        {
-          ref: ref,
-          frustumCulled: false,
-        },
-        props
-      ),
-      React.createElement(
-        "gridMaterial",
-        _extends(
-          {
-            transparent: true,
-            "extensions-derivatives": true,
-            side: side,
-          },
-          uniforms1,
-          uniforms2
-        )
-      ),
-      React.createElement("planeGeometry", {
-        args: args,
-      })
+
+    return (
+      <mesh ref={ref} frustumCulled={false} {...props}>
+        <gridMaterial
+          transparent
+          extensions-derivatives
+          side={side}
+          {...uniforms1}
+          {...uniforms2}
+        />
+        <planeGeometry args={args} />
+      </mesh>
     );
   }
 );

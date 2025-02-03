@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { ForwardRefComponent } from "../helpers/ts-utils";
+
 export type GridMaterialType = {
   cellSize?: number;
   cellThickness?: number;
@@ -14,9 +15,11 @@ export type GridMaterialType = {
   fadeFrom?: number;
   side?: THREE.Side;
 };
+
 export type GridProps = GridMaterialType & {
   args?: ConstructorParameters<typeof THREE.PlaneGeometry>;
 };
+
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -24,6 +27,7 @@ declare global {
     }
   }
 }
+
 export declare const Grid: ForwardRefComponent<
   Omit<JSX.IntrinsicElements["mesh"], "args"> & GridProps,
   THREE.Mesh
