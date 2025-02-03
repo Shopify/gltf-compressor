@@ -10,12 +10,12 @@ export default function Grid() {
 
   const gridSettings = useRef({
     cellColor: "#6f6f6f",
-    sectionColor: "#9d4b4b",
-    cellSize: 0.6,
-    sectionSize: 3.3,
+    sectionColor: "#7f7f7f",
+    cellSize: 0.25,
+    sectionSize: 0.75,
     cellThickness: 1,
     sectionThickness: 1.5,
-    fadeDistance: 10,
+    fadeDistance: 5,
     fadeStrength: 1,
     infiniteGrid: true,
   });
@@ -49,13 +49,25 @@ export default function Grid() {
   useControls(
     "Grid",
     {
-      cellColor: "#6f6f6f",
-      sectionColor: "#9d4b4b",
+      cellColor: {
+        value: gridSettings.current.cellColor,
+        onChange: (value) => {
+          gridSettings.current.cellColor = value;
+          updateUniform("cellColor", new Color(value));
+        },
+      },
+      sectionColor: {
+        value: gridSettings.current.sectionColor,
+        onChange: (value) => {
+          gridSettings.current.sectionColor = value;
+          updateUniform("sectionColor", new Color(value));
+        },
+      },
       cellSize: {
         value: gridSettings.current.cellSize,
         min: 0.1,
         max: 10,
-        step: 0.1,
+        step: 0.01,
         onChange: (value) => {
           gridSettings.current.cellSize = value;
           updateUniform("cellSize", value);
@@ -65,7 +77,7 @@ export default function Grid() {
         value: gridSettings.current.sectionSize,
         min: 0.1,
         max: 10,
-        step: 0.1,
+        step: 0.01,
         onChange: (value) => {
           gridSettings.current.sectionSize = value;
           updateUniform("sectionSize", value);
@@ -95,7 +107,7 @@ export default function Grid() {
         value: gridSettings.current.fadeDistance,
         min: 0,
         max: 100,
-        step: 1,
+        step: 0.1,
         onChange: (value) => {
           gridSettings.current.fadeDistance = value;
           updateUniform("fadeDistance", value);

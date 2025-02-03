@@ -2,6 +2,7 @@ import { useModelStore } from "@/stores/useModelStore";
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
+import { Grid } from "../custom_drei_components/Grid";
 import { Stage } from "../custom_drei_components/Stage";
 
 export default function ModelView() {
@@ -23,6 +24,7 @@ export default function ModelView() {
           </Stage>
         </Suspense>
         <OrbitControls makeDefault />
+        <Grid />
       </Canvas>
     </div>
   );
