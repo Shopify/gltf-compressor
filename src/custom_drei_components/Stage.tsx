@@ -1,3 +1,4 @@
+import { useModelStore } from "@/stores/useModelStore";
 import {
   ContactShadows,
   Environment,
@@ -85,8 +86,11 @@ function Stage({
       }
     : environment;
 
+  const { setModelDimensions } = useModelStore();
+
   const onCentered = useCallback((props: OnCenterCallbackProps) => {
     const { width, height, depth, boundingSphere } = props;
+    setModelDimensions([width, height, depth]);
     set({
       radius: boundingSphere.radius,
       width,
