@@ -6,13 +6,13 @@ interface ViewportStore {
   setLightingPreset: (
     preset: "soft" | "upfront" | "portrait" | "rembrandt"
   ) => void;
-  environment: PresetsType;
-  setEnvironment: (environment: PresetsType) => void;
+  environmentPreset: PresetsType;
+  setEnvironmentPreset: (environmentPreset: PresetsType) => void;
 }
 
 export const useViewportStore = create<ViewportStore>((set, get) => ({
   lightingPreset: "rembrandt",
   setLightingPreset: (preset) => set({ lightingPreset: preset }),
-  environment: "city",
-  setEnvironment: (environment) => set({ environment }),
+  environmentPreset: "city",
+  setEnvironmentPreset: (environmentPreset) => set({ environmentPreset }),
 }));

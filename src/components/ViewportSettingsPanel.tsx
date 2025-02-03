@@ -3,7 +3,7 @@ import { useViewportStore } from "@/stores/useViewportStore";
 import { useControls } from "leva";
 
 export default function ViewportSettingsPanel() {
-  const { setLightingPreset, setEnvironment } = useViewportStore();
+  const { setLightingPreset, setEnvironmentPreset } = useViewportStore();
 
   useControls(
     "Viewport",
@@ -13,7 +13,7 @@ export default function ViewportSettingsPanel() {
         options: ["rembrandt", "portrait", "upfront", "soft"],
         onChange: (value) => setLightingPreset(value),
       },
-      environment: {
+      environmentPreset: {
         value: "city",
         options: [
           "apartment",
@@ -27,7 +27,7 @@ export default function ViewportSettingsPanel() {
           "sunset",
           "warehouse",
         ],
-        onChange: (value) => setEnvironment(value),
+        onChange: (value) => setEnvironmentPreset(value),
       },
     },
     { collapsed: false, order: VIEWPORT_FOLDER_ORDER }

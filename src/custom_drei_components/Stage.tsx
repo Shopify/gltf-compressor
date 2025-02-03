@@ -53,7 +53,7 @@ function Stage({
   contactShadows = true,
   ...props
 }: JSX.IntrinsicElements["group"] & StageProps) {
-  const { lightingPreset, environment } = useViewportStore();
+  const { lightingPreset, environmentPreset } = useViewportStore();
   const config = presets[lightingPreset];
 
   const [{ radius, height }, set] = useState({
@@ -114,7 +114,7 @@ function Stage({
           <ContactShadows scale={radius * 4} far={radius} blur={2} />
         )}
       </group>
-      {environment && <Environment preset={environment} />}
+      <Environment preset={environmentPreset} />
     </>
   );
 }
