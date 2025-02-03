@@ -7,7 +7,6 @@ uniform vec3 cellColor;
 uniform vec3 sectionColor;
 uniform float fadeDistance;
 uniform float fadeStrength;
-uniform float fadeFrom;
 uniform float cellThickness;
 uniform float sectionThickness;
 
@@ -22,7 +21,7 @@ void main() {
   float g1 = getGrid(cellSize, cellThickness);
   float g2 = getGrid(sectionSize, sectionThickness);
 
-  float dist = distance(vec3(fadeFrom), worldPosition.xyz);
+  float dist = distance(vec3(0.0, 0.0, 0.0), worldPosition.xyz);
   float d = 1.0 - min(dist / fadeDistance, 1.0);
   vec3 color = mix(cellColor, sectionColor, min(1.0, sectionThickness * g2));
 
