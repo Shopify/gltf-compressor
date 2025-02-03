@@ -100,7 +100,7 @@ function Bounds({
           object.updateMatrixWorld(true);
         });
         target.updateWorldMatrix(true, true);
-        box.setFromObject(target);
+        box.setFromObject(target, true);
         if (box.isEmpty()) {
           const max = camera.position.length() || 10;
           box.setFromCenterAndSize(new Vector3(), new Vector3(max, max, max));
