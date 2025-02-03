@@ -1,6 +1,6 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { createContext, useContext, useMemo, useRef, useState } from "react";
-import { Box3, Matrix4, Object3D, Vector3 } from "three";
+import { Box3, Object3D, Vector3 } from "three";
 
 export type SizeProps = {
   box: Box3;
@@ -39,7 +39,6 @@ const AnimationState = (function (AnimationState: { [key: string]: any }) {
   AnimationState[AnimationState.ACTIVE] = "ACTIVE";
   return AnimationState;
 })(AnimationStateEnum || {});
-const isOrthographic = (def: any) => def && def.isOrthographicCamera;
 const isBox3 = (def: any) => def && def.isBox3;
 const interpolateFuncDefault = (t: number) => {
   // Imitates the previously used MathUtils.damp
@@ -79,14 +78,11 @@ function Bounds({
       const boxSize = box.getSize(new Vector3());
       const center = box.getCenter(new Vector3());
       const maxSize = Math.max(boxSize.x, boxSize.y, boxSize.z);
-      const fitHeightDistance = isOrthographic(camera)
-        ? maxSize * 4
-        : // @ts-ignore
-          maxSize / (2 * Math.atan((Math.PI * camera.fov) / 360));
-      const fitWidthDistance = isOrthographic(camera)
-        ? maxSize * 4
-        : // @ts-ignore
-          fitHeightDistance / camera.aspect;
+      const fitHeightDistance =
+        // @ts-ignore
+        maxSize / (2 * Math.atan((Math.PI * camera.fov) / 360));
+      // @ts-ignore
+      const fitWidthDistance = fitHeightDistance / camera.aspect;
       const distance = margin * Math.max(fitHeightDistance, fitWidthDistance);
       return {
         box,
@@ -111,7 +107,6 @@ function Bounds({
           box.setFromCenterAndSize(new Vector3(), new Vector3(max, max, max));
         }
         origin.current.camPos.copy(camera.position);
-        isOrthographic(camera) && (origin.current.camZoom = camera.zoom);
         goal.current.camPos = undefined;
         goal.current.camZoom = undefined;
         goal.current.target = undefined;
@@ -129,49 +124,7 @@ function Bounds({
         return this;
       },
       fit() {
-        if (!isOrthographic(camera)) {
-          // For non-orthographic cameras, fit should behave exactly like reset
-          return this.reset();
-        }
-
-        // For orthographic cameras, fit should only modify the zoom value
-        let maxHeight = 0,
-          maxWidth = 0;
-        const vertices = [
-          new Vector3(box.min.x, box.min.y, box.min.z),
-          new Vector3(box.min.x, box.max.y, box.min.z),
-          new Vector3(box.min.x, box.min.y, box.max.z),
-          new Vector3(box.min.x, box.max.y, box.max.z),
-          new Vector3(box.max.x, box.max.y, box.max.z),
-          new Vector3(box.max.x, box.max.y, box.min.z),
-          new Vector3(box.max.x, box.min.y, box.max.z),
-          new Vector3(box.max.x, box.min.y, box.min.z),
-        ];
-
-        // Transform the center and each corner to camera space
-        const pos = goal.current.camPos || camera.position;
-        const target =
-          // @ts-ignore
-          goal.current.target || (controls == null ? void 0 : controls.target);
-        const up = camera.up;
-        const mCamWInv = target
-          ? new Matrix4().lookAt(pos, target, up).setPosition(pos).invert()
-          : camera.matrixWorldInverse;
-        for (const v of vertices) {
-          v.applyMatrix4(mCamWInv);
-          maxHeight = Math.max(maxHeight, Math.abs(v.y));
-          maxWidth = Math.max(maxWidth, Math.abs(v.x));
-        }
-        maxHeight *= 2;
-        maxWidth *= 2;
-        // @ts-ignore
-        const zoomForHeight = (camera.top - camera.bottom) / maxHeight;
-        // @ts-ignore
-        const zoomForWidth = (camera.right - camera.left) / maxWidth;
-        goal.current.camZoom = Math.min(zoomForHeight, zoomForWidth) / margin;
-        animationState.current = AnimationState.START;
-        t.current = 0;
-        return this;
+        return this.reset();
       },
       clip() {
         const { distance } = getSize();
@@ -196,9 +149,6 @@ function Bounds({
       t.current += delta / maxDuration;
       if (t.current >= 1) {
         goal.current.camPos && camera.position.copy(goal.current.camPos);
-        goal.current.camZoom &&
-          isOrthographic(camera) &&
-          (camera.zoom = goal.current.camZoom);
         camera.lookAt(new Vector3(0, 0, 0));
         camera.updateMatrixWorld();
         camera.updateProjectionMatrix();
@@ -211,10 +161,6 @@ function Bounds({
             goal.current.camPos,
             k
           );
-        goal.current.camZoom &&
-          isOrthographic(camera) &&
-          (camera.zoom =
-            (1 - k) * origin.current.camZoom + k * goal.current.camZoom);
         camera.lookAt(new Vector3(0, 0, 0));
         camera.updateMatrixWorld();
         camera.updateProjectionMatrix();
