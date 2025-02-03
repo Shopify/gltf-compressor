@@ -1,8 +1,12 @@
-import _extends from "@babel/runtime/helpers/esm/extends";
-import * as React from "react";
+import {
+  forwardRef,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import { Box3, Sphere, Vector3 } from "three";
 
-const Center = /* @__PURE__ */ React.forwardRef(function Center(
+const Center = forwardRef(function Center(
   {
     children,
     disable,
@@ -22,10 +26,10 @@ const Center = /* @__PURE__ */ React.forwardRef(function Center(
   },
   fRef
 ) {
-  const ref = React.useRef(null);
-  const outer = React.useRef(null);
-  const inner = React.useRef(null);
-  React.useLayoutEffect(() => {
+  const ref = useRef(null);
+  const outer = useRef(null);
+  const inner = useRef(null);
+  useLayoutEffect(() => {
     outer.current.matrixWorld.identity();
     ref.current.traverse((object) => {
       object.updateMatrixWorld(true);
@@ -78,28 +82,13 @@ const Center = /* @__PURE__ */ React.forwardRef(function Center(
     bottom,
     back,
   ]);
-  React.useImperativeHandle(fRef, () => ref.current, []);
-  return /*#__PURE__*/ React.createElement(
-    "group",
-    _extends(
-      {
-        ref: ref,
-      },
-      props
-    ),
-    /*#__PURE__*/ React.createElement(
-      "group",
-      {
-        ref: outer,
-      },
-      /*#__PURE__*/ React.createElement(
-        "group",
-        {
-          ref: inner,
-        },
-        children
-      )
-    )
+  useImperativeHandle(fRef, () => ref.current, []);
+  return (
+    <group ref={ref} {...props}>
+      <group ref={outer}>
+        <group ref={inner}>{children}</group>
+      </group>
+    </group>
   );
 });
 

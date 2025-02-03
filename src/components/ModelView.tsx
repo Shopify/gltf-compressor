@@ -2,7 +2,7 @@ import { useModelStore } from "@/stores/useModelStore";
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
-import { Stage } from "../custom_drei_components/Stage";
+import { Stage } from "../custom_drei_components/Stage.jsx";
 
 export default function ModelView() {
   const { scene } = useModelStore();

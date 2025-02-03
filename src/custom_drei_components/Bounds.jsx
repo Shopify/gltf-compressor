@@ -1,8 +1,8 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import * as React from "react";
-import * as THREE from "three";
+import { createContext, useContext, useMemo, useRef, useState } from "react";
+import { Box3, Matrix4, Vector3 } from "three";
 
-var AnimationState = /*#__PURE__*/ (function (AnimationState) {
+var AnimationState = (function (AnimationState) {
   AnimationState[(AnimationState["NONE"] = 0)] = "NONE";
   AnimationState[(AnimationState["START"] = 1)] = "START";
   AnimationState[(AnimationState["ACTIVE"] = 2)] = "ACTIVE";
@@ -11,10 +11,10 @@ var AnimationState = /*#__PURE__*/ (function (AnimationState) {
 const isOrthographic = (def) => def && def.isOrthographicCamera;
 const isBox3 = (def) => def && def.isBox3;
 const interpolateFuncDefault = (t) => {
-  // Imitates the previously used THREE.MathUtils.damp
+  // Imitates the previously used MathUtils.damp
   return 1 - Math.exp(-5 * t) + 0.007 * t;
 };
-const context = /*#__PURE__*/ React.createContext(null);
+const context = createContext(null);
 
 function Bounds({
   children,
@@ -24,27 +24,27 @@ function Bounds({
   clip,
   interpolateFunc = interpolateFuncDefault,
 }) {
-  const ref = React.useRef(null);
+  const ref = useRef(null);
   const { camera } = useThree();
   const controls = useThree((state) => state.controls);
-  const origin = React.useRef({
-    camPos: new THREE.Vector3(),
+  const origin = useRef({
+    camPos: new Vector3(),
     camZoom: 1,
   });
-  const goal = React.useRef({
+  const goal = useRef({
     camPos: undefined,
     camZoom: undefined,
     target: undefined,
   });
-  const animationState = React.useRef(AnimationState.NONE);
-  const t = React.useRef(0); // represent animation state from 0 to 1
+  const animationState = useRef(AnimationState.NONE);
+  const t = useRef(0); // represent animation state from 0 to 1
 
-  const [box] = React.useState(() => new THREE.Box3());
+  const [box] = useState(() => new Box3());
 
-  const api = React.useMemo(() => {
+  const api = useMemo(() => {
     function getSize() {
-      const boxSize = box.getSize(new THREE.Vector3());
-      const center = box.getCenter(new THREE.Vector3());
+      const boxSize = box.getSize(new Vector3());
+      const center = box.getCenter(new Vector3());
       const maxSize = Math.max(boxSize.x, boxSize.y, boxSize.z);
       const fitHeightDistance = isOrthographic(camera)
         ? maxSize * 4
@@ -73,10 +73,7 @@ function Bounds({
         }
         if (box.isEmpty()) {
           const max = camera.position.length() || 10;
-          box.setFromCenterAndSize(
-            new THREE.Vector3(),
-            new THREE.Vector3(max, max, max)
-          );
+          box.setFromCenterAndSize(new Vector3(), new Vector3(max, max, max));
         }
         origin.current.camPos.copy(camera.position);
         isOrthographic(camera) && (origin.current.camZoom = camera.zoom);
@@ -106,14 +103,14 @@ function Bounds({
         let maxHeight = 0,
           maxWidth = 0;
         const vertices = [
-          new THREE.Vector3(box.min.x, box.min.y, box.min.z),
-          new THREE.Vector3(box.min.x, box.max.y, box.min.z),
-          new THREE.Vector3(box.min.x, box.min.y, box.max.z),
-          new THREE.Vector3(box.min.x, box.max.y, box.max.z),
-          new THREE.Vector3(box.max.x, box.max.y, box.max.z),
-          new THREE.Vector3(box.max.x, box.max.y, box.min.z),
-          new THREE.Vector3(box.max.x, box.min.y, box.max.z),
-          new THREE.Vector3(box.max.x, box.min.y, box.min.z),
+          new Vector3(box.min.x, box.min.y, box.min.z),
+          new Vector3(box.min.x, box.max.y, box.min.z),
+          new Vector3(box.min.x, box.min.y, box.max.z),
+          new Vector3(box.min.x, box.max.y, box.max.z),
+          new Vector3(box.max.x, box.max.y, box.max.z),
+          new Vector3(box.max.x, box.max.y, box.min.z),
+          new Vector3(box.max.x, box.min.y, box.max.z),
+          new Vector3(box.max.x, box.min.y, box.min.z),
         ];
 
         // Transform the center and each corner to camera space
@@ -122,10 +119,7 @@ function Bounds({
           goal.current.target || (controls == null ? void 0 : controls.target);
         const up = camera.up;
         const mCamWInv = target
-          ? new THREE.Matrix4()
-              .lookAt(pos, target, up)
-              .setPosition(pos)
-              .invert()
+          ? new Matrix4().lookAt(pos, target, up).setPosition(pos).invert()
           : camera.matrixWorldInverse;
         for (const v of vertices) {
           v.applyMatrix4(mCamWInv);
@@ -165,7 +159,7 @@ function Bounds({
         goal.current.camZoom &&
           isOrthographic(camera) &&
           (camera.zoom = goal.current.camZoom);
-        camera.lookAt(new THREE.Vector3(0, 0, 0));
+        camera.lookAt(new Vector3(0, 0, 0));
         camera.updateMatrixWorld();
         camera.updateProjectionMatrix();
         animationState.current = AnimationState.NONE;
@@ -181,29 +175,22 @@ function Bounds({
           isOrthographic(camera) &&
           (camera.zoom =
             (1 - k) * origin.current.camZoom + k * goal.current.camZoom);
-        camera.lookAt(new THREE.Vector3(0, 0, 0));
+        camera.lookAt(new Vector3(0, 0, 0));
         camera.updateMatrixWorld();
         camera.updateProjectionMatrix();
       }
     }
   });
 
-  return /*#__PURE__*/ React.createElement(
-    "group",
-    {
-      ref: ref,
-    },
-    /*#__PURE__*/ React.createElement(
-      context.Provider,
-      {
-        value: api,
-      },
-      children
-    )
+  return (
+    <group ref={ref}>
+      <context.Provider value={api}>{children}</context.Provider>
+    </group>
   );
 }
+
 function useBounds() {
-  return React.useContext(context);
+  return useContext(context);
 }
 
 export { Bounds, useBounds };
