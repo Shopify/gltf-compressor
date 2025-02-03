@@ -99,6 +99,9 @@ function Bounds({
         else {
           const target = object || ref.current;
           if (!target) return this;
+          target.traverse((obj: Object3D) => {
+            obj.updateMatrixWorld(true);
+          });
           target.updateWorldMatrix(true, true);
           box.setFromObject(target);
         }
