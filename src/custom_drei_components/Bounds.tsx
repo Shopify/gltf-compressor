@@ -1,6 +1,6 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { createContext, useContext, useMemo, useRef, useState } from "react";
-import { Box3, Object3D, Vector3 } from "three";
+import { Box3, Group, Object3D, Vector3 } from "three";
 
 export type SizeProps = {
   box: Box3;
@@ -11,7 +11,7 @@ export type SizeProps = {
 
 export type BoundsApi = {
   getSize: () => SizeProps;
-  refresh(object?: Object3D | Box3): BoundsApi;
+  refresh(): BoundsApi;
   reset(): BoundsApi;
   fit(): BoundsApi;
   clip(): BoundsApi;
@@ -39,7 +39,6 @@ const AnimationState = (function (AnimationState: { [key: string]: any }) {
   AnimationState[AnimationState.ACTIVE] = "ACTIVE";
   return AnimationState;
 })(AnimationStateEnum || {});
-const isBox3 = (def: any) => def && def.isBox3;
 const interpolateFuncDefault = (t: number) => {
   // Imitates the previously used MathUtils.damp
   return 1 - Math.exp(-5 * t) + 0.007 * t;
@@ -52,7 +51,7 @@ function Bounds({
   margin = 1.2,
   interpolateFunc = interpolateFuncDefault,
 }: BoundsProps) {
-  const ref = useRef(null);
+  const ref = useRef<Group>(null);
   const { camera } = useThree();
   const controls = useThree((state) => state.controls);
   const origin = useRef({
@@ -94,17 +93,14 @@ function Bounds({
 
     return {
       getSize,
-      refresh(object: any) {
-        if (isBox3(object)) box.copy(object);
-        else {
-          const target = object || ref.current;
-          if (!target) return this;
-          target.traverse((obj: Object3D) => {
-            obj.updateMatrixWorld(true);
-          });
-          target.updateWorldMatrix(true, true);
-          box.setFromObject(target);
-        }
+      refresh() {
+        const target = ref.current;
+        if (!target) return this;
+        target.traverse((object: Object3D) => {
+          object.updateMatrixWorld(true);
+        });
+        target.updateWorldMatrix(true, true);
+        box.setFromObject(target);
         if (box.isEmpty()) {
           const max = camera.position.length() || 10;
           box.setFromCenterAndSize(new Vector3(), new Vector3(max, max, max));
