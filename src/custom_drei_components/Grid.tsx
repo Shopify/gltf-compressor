@@ -2,7 +2,35 @@ import { shaderMaterial } from "@react-three/drei/core/shaderMaterial.js";
 import { version } from "@react-three/drei/helpers/constants.js";
 import { extend, useFrame } from "@react-three/fiber";
 import { forwardRef, useImperativeHandle, useRef } from "react";
-import { BackSide, Color, Plane, Vector3 } from "three";
+import {
+  BackSide,
+  Color,
+  ColorRepresentation,
+  Mesh,
+  Plane,
+  PlaneGeometry,
+  Side,
+  Vector3,
+} from "three";
+
+export type GridMaterialType = {
+  cellSize?: number;
+  cellThickness?: number;
+  cellColor?: ColorRepresentation;
+  sectionSize?: number;
+  sectionThickness?: number;
+  sectionColor?: ColorRepresentation;
+  followCamera?: boolean;
+  infiniteGrid?: boolean;
+  fadeDistance?: number;
+  fadeStrength?: number;
+  fadeFrom?: number;
+  side?: Side;
+};
+
+export type GridProps = GridMaterialType & {
+  args?: ConstructorParameters<typeof PlaneGeometry>;
+};
 
 const GridMaterial = shaderMaterial(
   {
@@ -102,24 +130,27 @@ const Grid = forwardRef(
       sectionThickness = 1,
       side = BackSide,
       ...props
-    },
+    }: GridProps,
     fRef
   ) => {
     extend({
       GridMaterial,
     });
-    const ref = useRef(null);
+    const ref = useRef<Mesh>(null);
     useImperativeHandle(fRef, () => ref.current, []);
     const plane = new Plane();
     const upVector = new Vector3(0, 1, 0);
     const zeroVector = new Vector3(0, 0, 0);
 
     useFrame((state) => {
+      if (!ref.current) return;
       plane
         .setFromNormalAndCoplanarPoint(upVector, zeroVector)
         .applyMatrix4(ref.current.matrixWorld);
       const gridMaterial = ref.current.material;
+      // @ts-ignore
       const worldCamProjPosition = gridMaterial.uniforms.worldCamProjPosition;
+      // @ts-ignore
       const worldPlanePosition = gridMaterial.uniforms.worldPlanePosition;
       plane.projectPoint(state.camera.position, worldCamProjPosition.value);
       worldPlanePosition.value
