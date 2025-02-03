@@ -4,16 +4,13 @@ import {
   useLayoutEffect,
   useRef,
 } from "react";
-import { Box3, Group, Object3D, Sphere, Vector3 } from "three";
+import { Box3, Group, Sphere, Vector3 } from "three";
 
 export type OnCenterCallbackProps = {
-  parent: Object3D;
-  container: Object3D;
   width: number;
   height: number;
   depth: number;
-  boundingBox: Box3;
-  boundingSphere: Sphere;
+  radius: number;
   center: Vector3;
 };
 
@@ -50,13 +47,10 @@ const Center = forwardRef(function Center(
     // Only fire onCentered if the bounding box has changed
     if (typeof onCentered !== "undefined" && ref.current.parent) {
       onCentered({
-        parent: ref.current.parent,
-        container: ref.current,
         width,
         height,
         depth,
-        boundingBox: box3,
-        boundingSphere: sphere,
+        radius: sphere.radius,
         center: center,
       });
     }

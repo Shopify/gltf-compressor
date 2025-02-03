@@ -3,13 +3,12 @@ import { useViewportStore } from "@/stores/useViewportStore";
 import { ContactShadows, Environment } from "@react-three/drei";
 import { useCallback, useEffect, useState } from "react";
 import { Bounds, useBounds } from "./Bounds";
-import { Center, CenterProps, OnCenterCallbackProps } from "./Center";
+import { Center, OnCenterCallbackProps } from "./Center";
 
 type StageProps = {
   contactShadows?: boolean;
   adjustCamera?: boolean | number;
   intensity?: number;
-  center?: Partial<CenterProps>;
 };
 
 const presets = {
@@ -47,7 +46,6 @@ function Refit({
 
 function Stage({
   children,
-  center,
   adjustCamera = true,
   intensity = 0.5,
   contactShadows = true,
@@ -66,15 +64,14 @@ function Stage({
   const { setModelDimensions } = useModelStore();
 
   const onCentered = useCallback((props: OnCenterCallbackProps) => {
-    const { width, height, depth, boundingSphere } = props;
+    const { width, height, depth, radius } = props;
     setModelDimensions([width, height, depth]);
     set({
-      radius: boundingSphere.radius,
+      radius,
       width,
       height,
       depth,
     });
-    if (center != null && center.onCentered) center.onCentered(props);
   }, []);
 
   return (
@@ -105,9 +102,7 @@ function Stage({
         {...props}
       >
         <Refit radius={radius} adjustCamera={adjustCamera} />
-        <Center {...center} position={[0, 0, 0]} onCentered={onCentered}>
-          {children}
-        </Center>
+        <Center onCentered={onCentered}>{children}</Center>
       </Bounds>
       <group position={[0, -height / 2, 0]}>
         {contactShadows && (
