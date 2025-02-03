@@ -1,9 +1,4 @@
-import {
-  forwardRef,
-  useImperativeHandle,
-  useLayoutEffect,
-  useRef,
-} from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { Box3, Group, Sphere, Vector3 } from "three";
 
 export type OnCenterCallbackProps = {
@@ -15,26 +10,25 @@ export type OnCenterCallbackProps = {
 };
 
 export type CenterProps = JSX.IntrinsicElements["group"] & {
-  precise?: boolean;
   onCentered?: (props: OnCenterCallbackProps) => void;
-  cacheKey?: any;
 };
 
 const Center = forwardRef(function Center(
-  { children, onCentered, precise = true, cacheKey = 0, ...props }: CenterProps,
+  { children, onCentered, ...props }: CenterProps,
   fRef
 ) {
   const ref = useRef<Group>(null);
   const outer = useRef<Group>(null);
   const inner = useRef<Group>(null);
-  useLayoutEffect(() => {
+
+  useEffect(() => {
     if (!ref.current || !outer.current || !inner.current) return;
 
     outer.current.matrixWorld.identity();
     ref.current.traverse((object) => {
       object.updateMatrixWorld(true);
     });
-    const box3 = new Box3().setFromObject(inner.current, precise);
+    const box3 = new Box3().setFromObject(inner.current, true);
     const center = new Vector3();
     const sphere = new Sphere();
     const width = box3.max.x - box3.min.x;
@@ -54,8 +48,10 @@ const Center = forwardRef(function Center(
         center: center,
       });
     }
-  }, [cacheKey, onCentered, precise]);
+  }, [onCentered]);
+
   useImperativeHandle(fRef, () => ref.current, []);
+
   return (
     <group ref={ref} {...props}>
       <group ref={outer}>
