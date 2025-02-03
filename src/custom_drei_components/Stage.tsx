@@ -1,27 +1,13 @@
 import { useModelStore } from "@/stores/useModelStore";
-import {
-  ContactShadows,
-  Environment,
-  EnvironmentProps,
-} from "@react-three/drei";
-import { PresetsType } from "@react-three/drei/helpers/environment-assets";
+import { useViewportStore } from "@/stores/useViewportStore";
+import { ContactShadows, Environment } from "@react-three/drei";
 import { useCallback, useEffect, useState } from "react";
 import { Bounds, useBounds } from "./Bounds";
 import { Center, CenterProps, OnCenterCallbackProps } from "./Center";
 
 type StageProps = {
-  preset?:
-    | "rembrandt"
-    | "portrait"
-    | "upfront"
-    | "soft"
-    | {
-        main: [x: number, y: number, z: number];
-        fill: [x: number, y: number, z: number];
-      };
   contactShadows?: boolean;
   adjustCamera?: boolean | number;
-  environment?: PresetsType | Partial<EnvironmentProps> | null;
   intensity?: number;
   center?: Partial<CenterProps>;
 };
@@ -65,11 +51,10 @@ function Stage({
   adjustCamera = true,
   intensity = 0.5,
   contactShadows = true,
-  environment = "city",
-  preset = "rembrandt",
   ...props
 }: JSX.IntrinsicElements["group"] & StageProps) {
-  const config = typeof preset === "string" ? presets[preset] : preset;
+  const { lightingPreset, environment } = useViewportStore();
+  const config = presets[lightingPreset];
 
   const [{ radius, height }, set] = useState({
     radius: 0,
@@ -77,14 +62,6 @@ function Stage({
     height: 0,
     depth: 0,
   });
-
-  const environmentProps = !environment
-    ? null
-    : typeof environment === "string"
-    ? {
-        preset: environment,
-      }
-    : environment;
 
   const { setModelDimensions } = useModelStore();
 
@@ -137,7 +114,7 @@ function Stage({
           <ContactShadows scale={radius * 4} far={radius} blur={2} />
         )}
       </group>
-      {environment && <Environment {...environmentProps} />}
+      {environment && <Environment preset={environment} />}
     </>
   );
 }

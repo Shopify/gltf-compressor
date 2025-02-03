@@ -14,12 +14,7 @@ export default function ModelView() {
     <div id="view-3d">
       <Canvas camera={{ position: [0, 0, 150], fov: 50 }}>
         <Suspense fallback={null}>
-          <Stage
-            preset={"rembrandt"}
-            intensity={1}
-            adjustCamera
-            environment={"city"}
-          >
+          <Stage intensity={1} adjustCamera>
             <primitive object={scene} />
           </Stage>
         </Suspense>

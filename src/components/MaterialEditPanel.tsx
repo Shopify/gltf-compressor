@@ -1,3 +1,4 @@
+import { MATERIAL_FOLDER_ORDER } from "@/constants";
 import { useModelStore } from "@/stores/useModelStore";
 import { TextureCompressionSettings } from "@/types";
 import { compressDocumentTexture } from "@/utils/documentUtils";
@@ -85,6 +86,7 @@ export default function MaterialEditPanel() {
         updateModelStats();
       }),
     }),
+    { collapsed: false, order: MATERIAL_FOLDER_ORDER },
     [selectedMaterial, selectedTexture, compressionSettings]
   );
 

@@ -6,6 +6,7 @@ import MaterialEditPanel from "./components/MaterialEditPanel";
 import ModelView from "./components/ModelView";
 import StatsView from "./components/StatsView";
 import TextureView from "./components/TextureView";
+import ViewportSettingsPanel from "./components/ViewportSettingsPanel";
 import { useModelStore } from "./stores/useModelStore";
 import { createDocuments } from "./utils/documentUtils";
 
@@ -30,6 +31,7 @@ function App() {
             <ModelView />
             <TextureView />
             <StatsView />
+            <ViewportSettingsPanel />
             <MaterialEditPanel />
             <ExportPanel />
           </div>
