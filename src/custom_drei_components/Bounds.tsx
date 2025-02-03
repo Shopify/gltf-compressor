@@ -13,21 +13,6 @@ export type BoundsApi = {
   getSize: () => SizeProps;
   refresh(object?: Object3D | Box3): BoundsApi;
   reset(): BoundsApi;
-  moveTo(position: Vector3 | [number, number, number]): BoundsApi;
-  lookAt({
-    target,
-    up,
-  }: {
-    target?: Vector3 | [number, number, number];
-    up?: Vector3 | [number, number, number];
-  }): BoundsApi;
-  to({
-    position,
-    target,
-  }: {
-    position: [number, number, number];
-    target: [number, number, number];
-  }): BoundsApi;
   fit(): BoundsApi;
   clip(): BoundsApi;
 };
@@ -42,19 +27,25 @@ export type BoundsProps = JSX.IntrinsicElements["group"] & {
   onFit?: (data: SizeProps) => void;
 };
 
-var AnimationState = (function (AnimationState) {
-  AnimationState[(AnimationState["NONE"] = 0)] = "NONE";
-  AnimationState[(AnimationState["START"] = 1)] = "START";
-  AnimationState[(AnimationState["ACTIVE"] = 2)] = "ACTIVE";
+enum AnimationStateEnum {
+  NONE = 0,
+  START = 1,
+  ACTIVE = 2,
+}
+
+const AnimationState = (function (AnimationState: { [key: string]: any }) {
+  AnimationState[AnimationState.NONE] = "NONE";
+  AnimationState[AnimationState.START] = "START";
+  AnimationState[AnimationState.ACTIVE] = "ACTIVE";
   return AnimationState;
-})(AnimationState || {});
+})(AnimationStateEnum || {});
 const isOrthographic = (def: any) => def && def.isOrthographicCamera;
 const isBox3 = (def: any) => def && def.isBox3;
 const interpolateFuncDefault = (t: number) => {
   // Imitates the previously used MathUtils.damp
   return 1 - Math.exp(-5 * t) + 0.007 * t;
 };
-const context = createContext(null);
+const context = createContext<BoundsApi | null>(null);
 
 function Bounds({
   children,
