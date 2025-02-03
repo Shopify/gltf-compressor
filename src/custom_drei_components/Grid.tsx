@@ -1,5 +1,5 @@
 import { useModelStore } from "@/stores/useModelStore";
-import { useControls } from "leva";
+// import { useControls } from "leva";
 import { useMemo, useRef } from "react";
 import { BackSide, Color, ShaderMaterial } from "three";
 import fragmentShader from "../shaders/grid/fragment.glsl";
@@ -40,6 +40,7 @@ export default function Grid() {
     });
   }, []);
 
+  /*
   const updateUniform = (uniformName: string, value: any) => {
     if (gridMaterial.uniforms[uniformName]) {
       gridMaterial.uniforms[uniformName].value = value;
@@ -133,6 +134,7 @@ export default function Grid() {
     },
     { collapsed: false }
   );
+  */
 
   if (!modelDimensions) return null;
 
