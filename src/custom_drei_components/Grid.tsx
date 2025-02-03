@@ -147,7 +147,10 @@ export default function Grid() {
   if (!modelDimensions) return null;
 
   return (
-    <mesh position={[0, -modelDimensions[1] / 2, 0]} frustumCulled={false}>
+    <mesh
+      position={[0, -modelDimensions[1] / 2 - 0.001, 0]}
+      frustumCulled={false}
+    >
       <planeGeometry args={[10, 10]} />
       <primitive object={gridMaterial} />
     </mesh>

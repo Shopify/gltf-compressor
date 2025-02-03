@@ -86,7 +86,7 @@ function Stage({
         <Refit radius={radius} />
         <Center onCentered={onCentered}>{children}</Center>
       </Bounds>
-      <group position={[0, -height / 2, 0]}>
+      <group position={[0, -height / 2 - 0.0005, 0]}>
         {contactShadows && (
           <ContactShadows scale={radius * 4} far={radius} blur={2} />
         )}
