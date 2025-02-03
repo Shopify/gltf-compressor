@@ -16,7 +16,6 @@ export default function ModelView() {
           <Stage
             preset={"rembrandt"}
             intensity={1}
-            shadows={"contact"}
             adjustCamera
             environment={"city"}
           >
