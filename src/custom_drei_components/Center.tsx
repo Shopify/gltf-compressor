@@ -4,7 +4,37 @@ import {
   useLayoutEffect,
   useRef,
 } from "react";
-import { Box3, Sphere, Vector3 } from "three";
+import { Box3, Group, Object3D, Sphere, Vector3 } from "three";
+
+export type OnCenterCallbackProps = {
+  parent: Object3D;
+  container: Object3D;
+  width: number;
+  height: number;
+  depth: number;
+  boundingBox: Box3;
+  boundingSphere: Sphere;
+  center: Vector3;
+  verticalAlignment: number;
+  horizontalAlignment: number;
+  depthAlignment: number;
+};
+
+export type CenterProps = JSX.IntrinsicElements["group"] & {
+  top?: boolean;
+  right?: boolean;
+  bottom?: boolean;
+  left?: boolean;
+  front?: boolean;
+  back?: boolean;
+  disable?: boolean;
+  disableX?: boolean;
+  disableY?: boolean;
+  disableZ?: boolean;
+  precise?: boolean;
+  onCentered?: (props: OnCenterCallbackProps) => void;
+  cacheKey?: any;
+};
 
 const Center = forwardRef(function Center(
   {
@@ -23,13 +53,15 @@ const Center = forwardRef(function Center(
     precise = true,
     cacheKey = 0,
     ...props
-  },
+  }: CenterProps,
   fRef
 ) {
-  const ref = useRef(null);
-  const outer = useRef(null);
-  const inner = useRef(null);
+  const ref = useRef<Group>(null);
+  const outer = useRef<Group>(null);
+  const inner = useRef<Group>(null);
   useLayoutEffect(() => {
+    if (!ref.current || !outer.current || !inner.current) return;
+
     outer.current.matrixWorld.identity();
     ref.current.traverse((object) => {
       object.updateMatrixWorld(true);
@@ -52,7 +84,7 @@ const Center = forwardRef(function Center(
     );
 
     // Only fire onCentered if the bounding box has changed
-    if (typeof onCentered !== "undefined") {
+    if (typeof onCentered !== "undefined" && ref.current.parent) {
       onCentered({
         parent: ref.current.parent,
         container: ref.current,

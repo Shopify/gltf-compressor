@@ -1,7 +1,7 @@
 import { ContactShadows, Environment } from "@react-three/drei";
 import { useCallback, useEffect, useState } from "react";
-import { Bounds, useBounds } from "./Bounds.jsx";
-import { Center } from "./Center.jsx";
+import { Bounds, useBounds } from "./Bounds.tsx";
+import { Center } from "./Center.tsx";
 
 const presets = {
   rembrandt: {

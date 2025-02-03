@@ -1,6 +1,46 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { createContext, useContext, useMemo, useRef, useState } from "react";
-import { Box3, Matrix4, Vector3 } from "three";
+import { Box3, Matrix4, Object3D, Vector3 } from "three";
+
+export type SizeProps = {
+  box: Box3;
+  size: Vector3;
+  center: Vector3;
+  distance: number;
+};
+
+export type BoundsApi = {
+  getSize: () => SizeProps;
+  refresh(object?: Object3D | Box3): BoundsApi;
+  reset(): BoundsApi;
+  moveTo(position: Vector3 | [number, number, number]): BoundsApi;
+  lookAt({
+    target,
+    up,
+  }: {
+    target?: Vector3 | [number, number, number];
+    up?: Vector3 | [number, number, number];
+  }): BoundsApi;
+  to({
+    position,
+    target,
+  }: {
+    position: [number, number, number];
+    target: [number, number, number];
+  }): BoundsApi;
+  fit(): BoundsApi;
+  clip(): BoundsApi;
+};
+
+export type BoundsProps = JSX.IntrinsicElements["group"] & {
+  maxDuration?: number;
+  margin?: number;
+  observe?: boolean;
+  fit?: boolean;
+  clip?: boolean;
+  interpolateFunc?: (t: number) => number;
+  onFit?: (data: SizeProps) => void;
+};
 
 var AnimationState = (function (AnimationState) {
   AnimationState[(AnimationState["NONE"] = 0)] = "NONE";
@@ -8,9 +48,9 @@ var AnimationState = (function (AnimationState) {
   AnimationState[(AnimationState["ACTIVE"] = 2)] = "ACTIVE";
   return AnimationState;
 })(AnimationState || {});
-const isOrthographic = (def) => def && def.isOrthographicCamera;
-const isBox3 = (def) => def && def.isBox3;
-const interpolateFuncDefault = (t) => {
+const isOrthographic = (def: any) => def && def.isOrthographicCamera;
+const isBox3 = (def: any) => def && def.isBox3;
+const interpolateFuncDefault = (t: number) => {
   // Imitates the previously used MathUtils.damp
   return 1 - Math.exp(-5 * t) + 0.007 * t;
 };
@@ -20,10 +60,8 @@ function Bounds({
   children,
   maxDuration = 1.0,
   margin = 1.2,
-  fit,
-  clip,
   interpolateFunc = interpolateFuncDefault,
-}) {
+}: BoundsProps) {
   const ref = useRef(null);
   const { camera } = useThree();
   const controls = useThree((state) => state.controls);
@@ -31,7 +69,11 @@ function Bounds({
     camPos: new Vector3(),
     camZoom: 1,
   });
-  const goal = useRef({
+  const goal = useRef<{
+    camPos: Vector3 | undefined;
+    camZoom: number | undefined;
+    target: Vector3 | undefined;
+  }>({
     camPos: undefined,
     camZoom: undefined,
     target: undefined,
@@ -48,10 +90,12 @@ function Bounds({
       const maxSize = Math.max(boxSize.x, boxSize.y, boxSize.z);
       const fitHeightDistance = isOrthographic(camera)
         ? maxSize * 4
-        : maxSize / (2 * Math.atan((Math.PI * camera.fov) / 360));
+        : // @ts-ignore
+          maxSize / (2 * Math.atan((Math.PI * camera.fov) / 360));
       const fitWidthDistance = isOrthographic(camera)
         ? maxSize * 4
-        : fitHeightDistance / camera.aspect;
+        : // @ts-ignore
+          fitHeightDistance / camera.aspect;
       const distance = margin * Math.max(fitHeightDistance, fitWidthDistance);
       return {
         box,
@@ -63,7 +107,7 @@ function Bounds({
 
     return {
       getSize,
-      refresh(object) {
+      refresh(object: any) {
         if (isBox3(object)) box.copy(object);
         else {
           const target = object || ref.current;
@@ -116,6 +160,7 @@ function Bounds({
         // Transform the center and each corner to camera space
         const pos = goal.current.camPos || camera.position;
         const target =
+          // @ts-ignore
           goal.current.target || (controls == null ? void 0 : controls.target);
         const up = camera.up;
         const mCamWInv = target
@@ -128,7 +173,9 @@ function Bounds({
         }
         maxHeight *= 2;
         maxWidth *= 2;
+        // @ts-ignore
         const zoomForHeight = (camera.top - camera.bottom) / maxHeight;
+        // @ts-ignore
         const zoomForWidth = (camera.right - camera.left) / maxWidth;
         goal.current.camZoom = Math.min(zoomForHeight, zoomForWidth) / margin;
         animationState.current = AnimationState.START;
@@ -141,7 +188,9 @@ function Bounds({
         camera.far = distance * 100;
         camera.updateProjectionMatrix();
         if (controls) {
+          // @ts-ignore
           controls.maxDistance = distance * 10;
+          // @ts-ignore
           controls.update();
         }
         return this;
@@ -149,7 +198,7 @@ function Bounds({
     };
   }, [box, camera, controls, margin]);
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (animationState.current === AnimationState.START) {
       animationState.current = AnimationState.ACTIVE;
     } else if (animationState.current === AnimationState.ACTIVE) {
