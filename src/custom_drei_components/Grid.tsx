@@ -1,6 +1,6 @@
 import { useModelStore } from "@/stores/useModelStore";
 // import { useControls } from "leva";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { BackSide, Color, ShaderMaterial } from "three";
 import fragmentShader from "../shaders/grid/fragment.glsl";
 import vertexShader from "../shaders/grid/vertex.glsl";
@@ -15,7 +15,7 @@ export default function Grid() {
     sectionSize: 0.75,
     cellThickness: 1,
     sectionThickness: 1.5,
-    fadeDistance: 5,
+    fadeDistance: 4.5,
     fadeStrength: 1,
     infiniteGrid: true,
   });
@@ -135,6 +135,14 @@ export default function Grid() {
     { collapsed: false }
   );
   */
+
+  useEffect(() => {
+    if (!modelDimensions) return;
+    // Find the maximum dimension of the model in the XZ plane
+    const maxDimension = Math.max(modelDimensions[0], modelDimensions[2]);
+    // Update the fade distance
+    gridMaterial.uniforms.fadeDistance.value = maxDimension + 4.5;
+  }, [modelDimensions]);
 
   if (!modelDimensions) return null;
 
