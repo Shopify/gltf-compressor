@@ -15,45 +15,16 @@ export type OnCenterCallbackProps = {
   boundingBox: Box3;
   boundingSphere: Sphere;
   center: Vector3;
-  verticalAlignment: number;
-  horizontalAlignment: number;
-  depthAlignment: number;
 };
 
 export type CenterProps = JSX.IntrinsicElements["group"] & {
-  top?: boolean;
-  right?: boolean;
-  bottom?: boolean;
-  left?: boolean;
-  front?: boolean;
-  back?: boolean;
-  disable?: boolean;
-  disableX?: boolean;
-  disableY?: boolean;
-  disableZ?: boolean;
   precise?: boolean;
   onCentered?: (props: OnCenterCallbackProps) => void;
   cacheKey?: any;
 };
 
 const Center = forwardRef(function Center(
-  {
-    children,
-    disable,
-    disableX,
-    disableY,
-    disableZ,
-    left,
-    right,
-    top,
-    bottom,
-    front,
-    back,
-    onCentered,
-    precise = true,
-    cacheKey = 0,
-    ...props
-  }: CenterProps,
+  { children, onCentered, precise = true, cacheKey = 0, ...props }: CenterProps,
   fRef
 ) {
   const ref = useRef<Group>(null);
@@ -74,14 +45,7 @@ const Center = forwardRef(function Center(
     const depth = box3.max.z - box3.min.z;
     box3.getCenter(center);
     box3.getBoundingSphere(sphere);
-    const vAlign = top ? height / 2 : bottom ? -height / 2 : 0;
-    const hAlign = left ? -width / 2 : right ? width / 2 : 0;
-    const dAlign = front ? depth / 2 : back ? -depth / 2 : 0;
-    outer.current.position.set(
-      disable || disableX ? 0 : -center.x + hAlign,
-      disable || disableY ? 0 : -center.y + vAlign,
-      disable || disableZ ? 0 : -center.z + dAlign
-    );
+    outer.current.position.set(-center.x, -center.y, -center.z);
 
     // Only fire onCentered if the bounding box has changed
     if (typeof onCentered !== "undefined" && ref.current.parent) {
@@ -94,26 +58,9 @@ const Center = forwardRef(function Center(
         boundingBox: box3,
         boundingSphere: sphere,
         center: center,
-        verticalAlignment: vAlign,
-        horizontalAlignment: hAlign,
-        depthAlignment: dAlign,
       });
     }
-  }, [
-    cacheKey,
-    onCentered,
-    top,
-    left,
-    front,
-    disable,
-    disableX,
-    disableY,
-    disableZ,
-    precise,
-    right,
-    bottom,
-    back,
-  ]);
+  }, [cacheKey, onCentered, precise]);
   useImperativeHandle(fRef, () => ref.current, []);
   return (
     <group ref={ref} {...props}>
