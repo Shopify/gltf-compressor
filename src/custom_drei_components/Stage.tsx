@@ -5,11 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 import { Bounds, useBounds } from "./Bounds";
 import { Center, OnCenterCallbackProps } from "./Center";
 
-type StageProps = {
-  contactShadows?: boolean;
-  intensity?: number;
-};
-
 const presets = {
   rembrandt: {
     main: [1, 2, 1],
@@ -37,13 +32,9 @@ function Refit({ radius }: { radius: number }) {
   return null;
 }
 
-function Stage({
-  children,
-  intensity = 0.5,
-  contactShadows = true,
-  ...props
-}: JSX.IntrinsicElements["group"] & StageProps) {
-  const { lightingPreset, environmentPreset } = useViewportStore();
+function Stage({ children, ...props }: JSX.IntrinsicElements["group"]) {
+  const { lightingPreset, environmentPreset, lightIntensity, contactShadows } =
+    useViewportStore();
   const config = presets[lightingPreset];
 
   const [{ radius, height }, set] = useState({
@@ -64,7 +55,7 @@ function Stage({
 
   return (
     <>
-      <ambientLight intensity={intensity / 3} />
+      <ambientLight intensity={lightIntensity / 3} />
       <spotLight
         penumbra={1}
         position={[
@@ -72,7 +63,7 @@ function Stage({
           config.main[1] * radius,
           config.main[2] * radius,
         ]}
-        intensity={intensity * 2}
+        intensity={lightIntensity * 2}
       />
       <pointLight
         position={[
@@ -80,7 +71,7 @@ function Stage({
           config.fill[1] * radius,
           config.fill[2] * radius,
         ]}
-        intensity={intensity}
+        intensity={lightIntensity}
       />
       <Bounds fit={true} clip={true} margin={1} observe={true} {...props}>
         <Refit radius={radius} />

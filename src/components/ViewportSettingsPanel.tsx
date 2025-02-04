@@ -3,7 +3,12 @@ import { useViewportStore } from "@/stores/useViewportStore";
 import { useControls } from "leva";
 
 export default function ViewportSettingsPanel() {
-  const { setLightingPreset, setEnvironmentPreset } = useViewportStore();
+  const {
+    setLightingPreset,
+    setEnvironmentPreset,
+    setLightIntensity,
+    setContactShadows,
+  } = useViewportStore();
 
   useControls(
     "Viewport",
@@ -28,6 +33,17 @@ export default function ViewportSettingsPanel() {
           "warehouse",
         ],
         onChange: (value) => setEnvironmentPreset(value),
+      },
+      lightIntensity: {
+        value: 1,
+        min: 0,
+        max: 2,
+        step: 0.1,
+        onChange: (value) => setLightIntensity(value),
+      },
+      contactShadows: {
+        value: true,
+        onChange: (value) => setContactShadows(value),
       },
     },
     { collapsed: false, order: VIEWPORT_FOLDER_ORDER }
