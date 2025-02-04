@@ -15,12 +15,12 @@ export default function ViewportSettingsPanel() {
   useControls(
     "Viewport",
     {
-      lightingPreset: {
+      "Lighting Preset": {
         value: "rembrandt",
         options: ["rembrandt", "portrait", "upfront", "soft"],
         onChange: (value) => setLightingPreset(value),
       },
-      environmentPreset: {
+      "Environment Preset": {
         value: "city",
         options: [
           "apartment",
@@ -36,22 +36,22 @@ export default function ViewportSettingsPanel() {
         ],
         onChange: (value) => setEnvironmentPreset(value),
       },
-      lightIntensity: {
+      "Light Intensity": {
         value: 1,
         min: 0,
         max: 2,
         step: 0.1,
         onChange: (value) => setLightIntensity(value),
       },
-      contactShadows: {
+      "Contact Shadows": {
         value: true,
         onChange: (value) => setContactShadows(value),
       },
-      grid: {
+      Grid: {
         value: true,
         onChange: (value) => setGrid(value),
       },
-      autoRotate: {
+      "Auto-Rotate": {
         value: false,
         onChange: (value) => setAutoRotate(value),
       },

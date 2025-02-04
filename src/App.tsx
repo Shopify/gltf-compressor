@@ -1,3 +1,4 @@
+import { Leva } from "leva";
 import { useCallback } from "react";
 import "./App.css";
 import { Dropzone } from "./components/Dropzone";
@@ -27,6 +28,28 @@ function App() {
     <>
       {originalDocument ? (
         <>
+          <Leva
+            flat
+            hideCopyButton
+            theme={{
+              sizes: {
+                rootWidth: "300px",
+                rowHeight: "20px",
+                folderTitleHeight: "20px",
+                titleBarHeight: "30px",
+              },
+              fontSizes: { root: "9px" },
+              space: {
+                sm: "5px",
+                md: "7.5px",
+                rowGap: "5px",
+                colGap: "0px",
+              },
+            }}
+            titleBar={{
+              filter: false,
+            }}
+          />
           <div className="grid grid-cols-2 h-full">
             <ModelView />
             <TextureView />
