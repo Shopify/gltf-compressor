@@ -14,6 +14,8 @@ interface ViewportStore {
   setContactShadows: (contactShadows: boolean) => void;
   grid: boolean;
   setGrid: (grid: boolean) => void;
+  autoRotate: boolean;
+  setAutoRotate: (autoRotate: boolean) => void;
 }
 
 export const useViewportStore = create<ViewportStore>((set, get) => ({
@@ -27,4 +29,6 @@ export const useViewportStore = create<ViewportStore>((set, get) => ({
   setContactShadows: (contactShadows) => set({ contactShadows }),
   grid: true,
   setGrid: (grid) => set({ grid }),
+  autoRotate: false,
+  setAutoRotate: (autoRotate) => set({ autoRotate }),
 }));

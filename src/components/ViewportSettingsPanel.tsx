@@ -9,6 +9,7 @@ export default function ViewportSettingsPanel() {
     setLightIntensity,
     setContactShadows,
     setGrid,
+    setAutoRotate,
   } = useViewportStore();
 
   useControls(
@@ -49,6 +50,10 @@ export default function ViewportSettingsPanel() {
       grid: {
         value: true,
         onChange: (value) => setGrid(value),
+      },
+      autoRotate: {
+        value: false,
+        onChange: (value) => setAutoRotate(value),
       },
     },
     { collapsed: false, order: VIEWPORT_FOLDER_ORDER }

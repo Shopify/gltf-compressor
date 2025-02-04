@@ -1,4 +1,5 @@
 import { useModelStore } from "@/stores/useModelStore";
+import { useViewportStore } from "@/stores/useViewportStore";
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
@@ -7,6 +8,7 @@ import { Stage } from "../custom_drei_components/Stage";
 
 export default function ModelView() {
   const { scene } = useModelStore();
+  const { autoRotate } = useViewportStore();
 
   if (!scene) return null;
 
@@ -18,7 +20,11 @@ export default function ModelView() {
             <primitive object={scene} />
           </Stage>
         </Suspense>
-        <OrbitControls makeDefault />
+        <OrbitControls
+          makeDefault
+          autoRotate={autoRotate}
+          autoRotateSpeed={-1}
+        />
         <Grid />
       </Canvas>
     </div>
