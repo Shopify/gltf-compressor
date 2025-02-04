@@ -39,9 +39,6 @@ interface ModelStore {
   modifiedTextures: Texture[] | null;
   setInitialModelStats: () => void;
   updateModelStats: () => void;
-
-  modelDimensions: [number, number, number] | null;
-  setModelDimensions: (dimensions: [number, number, number]) => void;
 }
 
 export const useModelStore = create<ModelStore>((set, get) => ({
@@ -202,7 +199,4 @@ export const useModelStore = create<ModelStore>((set, get) => ({
       },
     });
   },
-
-  modelDimensions: null,
-  setModelDimensions: (dimensions) => set({ modelDimensions: dimensions }),
 }));

@@ -1,4 +1,3 @@
-import { useModelStore } from "@/stores/useModelStore";
 // import { useControls } from "leva";
 import { useViewportStore } from "@/stores/useViewportStore";
 import { useEffect, useMemo, useRef } from "react";
@@ -7,7 +6,7 @@ import fragmentShader from "../shaders/grid/fragment.glsl";
 import vertexShader from "../shaders/grid/vertex.glsl";
 
 export default function Grid() {
-  const { modelDimensions } = useModelStore();
+  const { modelDimensions } = useViewportStore();
 
   const gridSettings = useRef({
     cellColor: "#6f6f6f",

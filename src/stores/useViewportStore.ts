@@ -17,6 +17,8 @@ interface ViewportStore {
   setGrid: (grid: boolean) => void;
   autoRotate: boolean;
   setAutoRotate: (autoRotate: boolean) => void;
+  modelDimensions: [number, number, number] | null;
+  setModelDimensions: (dimensions: [number, number, number]) => void;
 }
 
 export const useViewportStore = create<ViewportStore>()(
@@ -34,6 +36,8 @@ export const useViewportStore = create<ViewportStore>()(
       setGrid: (grid) => set({ grid }),
       autoRotate: false,
       setAutoRotate: (autoRotate) => set({ autoRotate }),
+      modelDimensions: null,
+      setModelDimensions: (dimensions) => set({ modelDimensions: dimensions }),
     };
   })
 );

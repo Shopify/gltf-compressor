@@ -1,4 +1,3 @@
-import { useModelStore } from "@/stores/useModelStore";
 import { useViewportStore } from "@/stores/useViewportStore";
 import { ContactShadows, Environment } from "@react-three/drei";
 import { useCallback, useEffect, useState } from "react";
@@ -33,16 +32,19 @@ function Refit({ radius }: { radius: number }) {
 }
 
 function Stage({ children, ...props }: JSX.IntrinsicElements["group"]) {
-  const { lightingPreset, environmentPreset, lightIntensity, contactShadows } =
-    useViewportStore();
+  const {
+    lightingPreset,
+    environmentPreset,
+    lightIntensity,
+    contactShadows,
+    setModelDimensions,
+  } = useViewportStore();
   const config = presets[lightingPreset];
 
   const [{ radius, height }, set] = useState({
     radius: 0,
     height: 0,
   });
-
-  const { setModelDimensions } = useModelStore();
 
   const onCentered = useCallback((props: OnCenterCallbackProps) => {
     const { width, height, depth, radius } = props;
