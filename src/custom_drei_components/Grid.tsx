@@ -6,8 +6,6 @@ import fragmentShader from "../shaders/grid/fragment.glsl";
 import vertexShader from "../shaders/grid/vertex.glsl";
 
 export default function Grid() {
-  const { modelDimensions } = useViewportStore();
-
   const gridSettings = useRef({
     cellColor: "#6f6f6f",
     sectionColor: "#7f7f7f",
@@ -140,11 +138,20 @@ export default function Grid() {
 
   useEffect(() => {
     const unsubscribe = useViewportStore.subscribe(
-      (state) => state.grid,
-      (value) => {
+      (state) => state.modelDimensions,
+      (modelDimensions) => {
+        if (!modelDimensions) return;
+
+        // Update the position and scale of the grid
         if (gridRef.current) {
-          gridRef.current.visible = value;
+          gridRef.current.position.set(0, -modelDimensions[1] / 2 - 0.001, 0);
+          gridRef.current.scale.set(1, 1, 1);
         }
+
+        // Find the maximum dimension of the model in the XZ plane
+        const maxDimension = Math.max(modelDimensions[0], modelDimensions[2]);
+        // Update the fade distance of the grid
+        gridMaterial.uniforms.fadeDistance.value = maxDimension + 4.5;
       }
     );
 
@@ -154,19 +161,25 @@ export default function Grid() {
   }, []);
 
   useEffect(() => {
-    if (!modelDimensions) return;
-    // Find the maximum dimension of the model in the XZ plane
-    const maxDimension = Math.max(modelDimensions[0], modelDimensions[2]);
-    // Update the fade distance
-    gridMaterial.uniforms.fadeDistance.value = maxDimension + 4.5;
-  }, [modelDimensions]);
+    const unsubscribe = useViewportStore.subscribe(
+      (state) => state.grid,
+      (displayGrid) => {
+        if (gridRef.current) {
+          gridRef.current.visible = displayGrid;
+        }
+      }
+    );
 
-  if (!modelDimensions) return null;
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <mesh
       ref={gridRef}
-      position={[0, -modelDimensions[1] / 2 - 0.001, 0]}
+      position={[0, 0, 0]}
+      scale={[0, 0, 0]}
       frustumCulled={false}
     >
       <planeGeometry args={[10, 10]} />
