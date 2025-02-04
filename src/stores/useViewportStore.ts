@@ -1,5 +1,6 @@
 import { PresetsType } from "@react-three/drei/helpers/environment-assets";
 import { create } from "zustand";
+import { subscribeWithSelector } from "zustand/middleware";
 
 interface ViewportStore {
   lightingPreset: "soft" | "upfront" | "portrait" | "rembrandt";
@@ -18,17 +19,21 @@ interface ViewportStore {
   setAutoRotate: (autoRotate: boolean) => void;
 }
 
-export const useViewportStore = create<ViewportStore>((set, get) => ({
-  lightingPreset: "rembrandt",
-  setLightingPreset: (preset) => set({ lightingPreset: preset }),
-  environmentPreset: "city",
-  setEnvironmentPreset: (environmentPreset) => set({ environmentPreset }),
-  lightIntensity: 1,
-  setLightIntensity: (lightIntensity) => set({ lightIntensity }),
-  contactShadows: true,
-  setContactShadows: (contactShadows) => set({ contactShadows }),
-  grid: true,
-  setGrid: (grid) => set({ grid }),
-  autoRotate: false,
-  setAutoRotate: (autoRotate) => set({ autoRotate }),
-}));
+export const useViewportStore = create<ViewportStore>()(
+  subscribeWithSelector((set) => {
+    return {
+      lightingPreset: "rembrandt",
+      setLightingPreset: (preset) => set({ lightingPreset: preset }),
+      environmentPreset: "city",
+      setEnvironmentPreset: (environmentPreset) => set({ environmentPreset }),
+      lightIntensity: 1,
+      setLightIntensity: (lightIntensity) => set({ lightIntensity }),
+      contactShadows: true,
+      setContactShadows: (contactShadows) => set({ contactShadows }),
+      grid: true,
+      setGrid: (grid) => set({ grid }),
+      autoRotate: false,
+      setAutoRotate: (autoRotate) => set({ autoRotate }),
+    };
+  })
+);

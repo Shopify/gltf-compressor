@@ -1,14 +1,13 @@
 import { useModelStore } from "@/stores/useModelStore";
-import { useViewportStore } from "@/stores/useViewportStore";
-import { GizmoHelper, GizmoViewport, OrbitControls } from "@react-three/drei";
+import { GizmoHelper, GizmoViewport } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
 import { Grid } from "../custom_drei_components/Grid";
 import { Stage } from "../custom_drei_components/Stage";
+import CameraControls from "./CameraControls";
 
 export default function ModelView() {
   const { scene } = useModelStore();
-  const { autoRotate } = useViewportStore();
 
   if (!scene) return null;
 
@@ -20,11 +19,7 @@ export default function ModelView() {
             <primitive object={scene} />
           </Stage>
         </Suspense>
-        <OrbitControls
-          makeDefault
-          autoRotate={autoRotate}
-          autoRotateSpeed={-1}
-        />
+        <CameraControls />
         <Grid />
         <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
           <GizmoViewport
