@@ -1,6 +1,6 @@
 import { useModelStore } from "@/stores/useModelStore";
 import { useViewportStore } from "@/stores/useViewportStore";
-import { OrbitControls } from "@react-three/drei";
+import { GizmoHelper, GizmoViewport, OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
 import { Grid } from "../custom_drei_components/Grid";
@@ -26,6 +26,12 @@ export default function ModelView() {
           autoRotateSpeed={-1}
         />
         <Grid />
+        <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
+          <GizmoViewport
+            axisColors={["#9d4b4b", "#2f7f4f", "#3b5b9d"]}
+            labelColor="white"
+          />
+        </GizmoHelper>
       </Canvas>
     </div>
   );
