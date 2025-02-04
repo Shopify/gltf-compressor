@@ -8,6 +8,7 @@ export default function ViewportSettingsPanel() {
     setEnvironmentPreset,
     setLightIntensity,
     setContactShadows,
+    setGrid,
   } = useViewportStore();
 
   useControls(
@@ -44,6 +45,10 @@ export default function ViewportSettingsPanel() {
       contactShadows: {
         value: true,
         onChange: (value) => setContactShadows(value),
+      },
+      grid: {
+        value: true,
+        onChange: (value) => setGrid(value),
       },
     },
     { collapsed: false, order: VIEWPORT_FOLDER_ORDER }

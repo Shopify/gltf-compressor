@@ -12,6 +12,8 @@ interface ViewportStore {
   setLightIntensity: (lightIntensity: number) => void;
   contactShadows: boolean;
   setContactShadows: (contactShadows: boolean) => void;
+  grid: boolean;
+  setGrid: (grid: boolean) => void;
 }
 
 export const useViewportStore = create<ViewportStore>((set, get) => ({
@@ -23,4 +25,6 @@ export const useViewportStore = create<ViewportStore>((set, get) => ({
   setLightIntensity: (lightIntensity) => set({ lightIntensity }),
   contactShadows: true,
   setContactShadows: (contactShadows) => set({ contactShadows }),
+  grid: true,
+  setGrid: (grid) => set({ grid }),
 }));

@@ -1,5 +1,6 @@
 import { useModelStore } from "@/stores/useModelStore";
 // import { useControls } from "leva";
+import { useViewportStore } from "@/stores/useViewportStore";
 import { useEffect, useMemo, useRef } from "react";
 import { BackSide, Color, ShaderMaterial } from "three";
 import fragmentShader from "../shaders/grid/fragment.glsl";
@@ -7,6 +8,7 @@ import vertexShader from "../shaders/grid/vertex.glsl";
 
 export default function Grid() {
   const { modelDimensions } = useModelStore();
+  const { grid } = useViewportStore();
 
   const gridSettings = useRef({
     cellColor: "#6f6f6f",
@@ -150,6 +152,7 @@ export default function Grid() {
     <mesh
       position={[0, -modelDimensions[1] / 2 - 0.001, 0]}
       frustumCulled={false}
+      visible={grid}
     >
       <planeGeometry args={[10, 10]} />
       <primitive object={gridMaterial} />
