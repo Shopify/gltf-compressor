@@ -10,16 +10,27 @@ import TextureView from "./components/TextureView";
 import ViewportSettingsPanel from "./components/ViewportSettingsPanel";
 import { useModelStore } from "./stores/useModelStore";
 import { createDocuments } from "./utils/documentUtils";
+import { buildTextureCompressionSettings } from "./utils/utils";
 
 function App() {
-  const { originalDocument, setDocuments } = useModelStore();
+  const { originalDocument } = useModelStore();
   const onDrop = useCallback(async <T extends File>(acceptedFiles: T[]) => {
     if (acceptedFiles[0]) {
       const url = URL.createObjectURL(acceptedFiles[0]);
       if (url) {
         const { originalDocument, modifiedDocument, sceneView } =
           await createDocuments(url);
-        setDocuments(originalDocument, modifiedDocument, sceneView);
+
+        const compressionSettings = buildTextureCompressionSettings(
+          originalDocument,
+          modifiedDocument
+        );
+        useModelStore.setState({
+          originalDocument,
+          modifiedDocument,
+          compressionSettings,
+          scene: sceneView,
+        });
       }
     }
   }, []);

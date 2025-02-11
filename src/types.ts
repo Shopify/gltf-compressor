@@ -1,7 +1,6 @@
 import { Texture } from "@gltf-transform/core";
 
 export interface TextureCompressionSettings {
-  original: Texture;
   compressed: Texture | null;
   type: string;
   quality: number;
@@ -14,6 +13,7 @@ export interface MaterialCompressionSettings {
 
 export interface ModelCompressionSettings {
   materials: { [materialName: string]: MaterialCompressionSettings };
+  textures: Map<Texture, TextureCompressionSettings>;
 }
 
 export interface ModelStats {

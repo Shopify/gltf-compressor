@@ -5,12 +5,12 @@ import {
 } from "@/types";
 import {
   buildTextureCompressionSettings,
-  filterMaterialNamesWithTextures,
-  getFirstAvailableTextureName,
+  getTexturesFromMaterial,
   getUniqueTexturesFromDocument,
 } from "@/utils/utils";
-import { Document, Texture } from "@gltf-transform/core";
+import { Document, Material, Texture } from "@gltf-transform/core";
 import { inspect } from "@gltf-transform/functions";
+import { produce } from "immer";
 import { Group } from "three";
 import { create } from "zustand";
 
@@ -25,14 +25,15 @@ interface ModelStore {
   ) => void;
 
   compressionSettings: ModelCompressionSettings | null;
-  selectedTexture: string | null;
-  selectedMaterial: string | null;
-  setSelectedTexture: (textureName: string | null) => void;
-  setSelectedMaterial: (materialName: string | null) => void;
+  selectedTexture: Texture | null;
+  selectedTextureSlot: string;
+  selectedMaterial: Material | null;
+  setSelectedTexture: (texture: Texture | null) => void;
+  setSelectedTextureSlot: (slot: string) => void;
+  setSelectedMaterial: (material: Material | null) => void;
   updateTextureCompressionSettings: (
-    materialName: string,
-    textureName: string,
-    settings: TextureCompressionSettings
+    texture: Texture,
+    settings: Partial<TextureCompressionSettings>
   ) => void;
 
   modelStats: ModelStats | null;
@@ -41,29 +42,36 @@ interface ModelStore {
   updateModelStats: () => void;
 }
 
-export const useModelStore = create<ModelStore>((set, get) => ({
+export const useModelStore = create<ModelStore>()((set, get) => ({
   originalDocument: null,
   modifiedDocument: null,
   scene: null,
-  setDocuments: (originalDocument, modifiedDocument, scene) => {
-    const compressionSettings =
-      buildTextureCompressionSettings(originalDocument);
+  setDocuments: (
+    originalDocument: Document,
+    modifiedDocument: Document,
+    scene: Group
+  ) => {
+    const compressionSettings = buildTextureCompressionSettings(
+      originalDocument,
+      modifiedDocument
+    );
 
     // Get the first material and texture for initial selection
-    let materialName = filterMaterialNamesWithTextures(compressionSettings)[0];
-    let textureName = materialName
-      ? getFirstAvailableTextureName(
-          compressionSettings.materials[materialName]
-        )
-      : null;
+    const firstMaterial = originalDocument?.getRoot().listMaterials()?.[0];
+
+    let slot, texture;
+    if (firstMaterial) {
+      ({ slot, texture } = getTexturesFromMaterial(firstMaterial)[0]);
+    }
 
     set({
       originalDocument,
       modifiedDocument,
       scene,
       compressionSettings,
-      selectedMaterial: materialName,
-      selectedTexture: textureName,
+      selectedMaterial: firstMaterial,
+      selectedTextureSlot: slot,
+      selectedTexture: texture,
     });
 
     get().setInitialModelStats();
@@ -71,53 +79,32 @@ export const useModelStore = create<ModelStore>((set, get) => ({
 
   compressionSettings: null,
   selectedTexture: null,
+  selectedTextureSlot: "",
   selectedMaterial: null,
-  setSelectedTexture: (textureName) => set({ selectedTexture: textureName }),
-  setSelectedMaterial: (materialName) => {
-    if (!materialName) return;
-
-    const { selectedTexture, compressionSettings } = get();
-    if (!compressionSettings) return;
-
-    // Check if the material exists in our compression settings
-    const materialSettings = compressionSettings.materials[materialName];
-    if (!materialSettings) return;
-
-    let textureName = selectedTexture;
-
-    // If the current texture doesn't exist in the new material, reset it
-    if (textureName && !materialSettings[textureName]) {
-      textureName = null;
-    }
-
-    // If we need a new texture, get the first available one
-    if (!textureName) {
-      textureName = getFirstAvailableTextureName(materialSettings);
-    }
-
-    set({ selectedMaterial: materialName, selectedTexture: textureName });
+  setSelectedTexture: (texture: Texture | null) =>
+    set({ selectedTexture: texture }),
+  setSelectedTextureSlot: (slot: string) => set({ selectedTextureSlot: slot }),
+  setSelectedMaterial: (material: Material | null) => {
+    if (!material) return;
+    set({ selectedMaterial: material });
   },
   updateTextureCompressionSettings: (
-    materialName: string,
-    mapName: string,
-    settings: TextureCompressionSettings
+    texture: Texture,
+    settings: Partial<TextureCompressionSettings>
   ) => {
     const { compressionSettings } = get();
-
     if (!compressionSettings) return;
 
-    set({
-      compressionSettings: {
-        ...compressionSettings,
-        materials: {
-          ...compressionSettings.materials,
-          [materialName]: {
-            ...compressionSettings.materials[materialName],
-            [mapName]: settings,
-          },
-        },
-      },
-    });
+    console.log("Updating", get().selectedTexture?.getName(), settings);
+
+    set(
+      produce((state: ModelStore) => {
+        state.compressionSettings!.textures.set(texture, {
+          ...compressionSettings.textures.get(texture)!,
+          ...settings,
+        } as TextureCompressionSettings);
+      })
+    );
   },
 
   modelStats: null,
@@ -178,7 +165,7 @@ export const useModelStore = create<ModelStore>((set, get) => ({
     if (!modelStats || !modifiedTextures) return;
 
     let sizeOfTextures = 0;
-    modifiedTextures.forEach((texture) => {
+    modifiedTextures.forEach((texture: Texture) => {
       const imageData = texture.getImage();
       if (imageData?.byteLength) {
         sizeOfTextures += imageData.byteLength / 1000;

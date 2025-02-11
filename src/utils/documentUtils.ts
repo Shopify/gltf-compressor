@@ -1,4 +1,5 @@
-import { Document, Texture, WebIO } from "@gltf-transform/core";
+import { TextureCompressionSettings } from "@/types";
+import { Document, Material, Texture, WebIO } from "@gltf-transform/core";
 import {
   ALL_EXTENSIONS,
   KHRDracoMeshCompression,
@@ -6,6 +7,7 @@ import {
 import { cloneDocument } from "@gltf-transform/functions";
 import { DocumentView } from "@gltf-transform/view";
 import { compressImage } from "./compress";
+import { getTexturesFromMaterial } from "./utils";
 
 export const createDocuments = async (url: string) => {
   const io = new WebIO()
@@ -28,7 +30,7 @@ export const createDocuments = async (url: string) => {
 
 export const compressDocumentTexture = async (
   originalTexture: Texture,
-  modifiedTexture: Texture
+  compressionSettings: TextureCompressionSettings
 ) => {
   const compressedImageData = await compressImage(
     originalTexture.getImage()!,
@@ -36,9 +38,40 @@ export const compressDocumentTexture = async (
     "image/jpeg",
     0.8
   );
+  if (compressionSettings.compressed) {
+    compressionSettings.compressed!.setImage(compressedImageData);
+    compressionSettings.compressed!.setMimeType("image/jpeg");
+  }
+};
 
-  modifiedTexture.setImage(compressedImageData);
-  modifiedTexture.setMimeType("image/jpeg");
+export const getAvailableMaterialNames = (document: Document) => {
+  return document
+    .getRoot()
+    .listMaterials()
+    .map((m) => m.getName());
+};
+
+export const getMaterialbyName = (
+  document: Document,
+  name: string
+): Material | null => {
+  return (
+    document
+      .getRoot()
+      .listMaterials()
+      .find((m) => m.getName() === name) || null
+  );
+};
+
+export const getMaterialTextureBySlot = (
+  material: Material,
+  slot: string
+): Texture | null => {
+  return (
+    getTexturesFromMaterial(material).find(
+      ({ slot: textureSlot }) => textureSlot === slot
+    )?.texture || null
+  );
 };
 
 export const exportDocument = async (

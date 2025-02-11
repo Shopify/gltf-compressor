@@ -4,7 +4,12 @@ import {
   ModelCompressionSettings,
   TextureCompressionSettings,
 } from "@/types";
-import { Document, ExtensionProperty, Texture } from "@gltf-transform/core";
+import {
+  Document,
+  ExtensionProperty,
+  Material,
+  Texture,
+} from "@gltf-transform/core";
 
 /**
  * Given model compression settings, returns an array of material names that have textures set
@@ -46,64 +51,63 @@ export function getFirstAvailableTextureName(
 }
 
 export function buildTextureCompressionSettings(
-  document: Document
+  document: Document,
+  modifiedDocument: Document
 ): ModelCompressionSettings {
   const compressionSettings: ModelCompressionSettings = {
     materials: {},
+    textures: new Map(),
   };
 
-  const materials = document.getRoot().listMaterials();
+  const textures = document.getRoot().listTextures();
 
-  materials.forEach((material) => {
-    const extensions = new Set<ExtensionProperty>(material.listExtensions());
-    const materialTextures = document
-      .getGraph()
-      .listEdges()
-      .filter((ref) => {
-        const child = ref.getChild();
-        const parent = ref.getParent();
-        if (child instanceof Texture && parent === material) {
-          return true;
-        }
-        if (
-          child instanceof Texture &&
-          parent instanceof ExtensionProperty &&
-          extensions.has(parent)
-        ) {
-          return true;
-        }
-        return false;
-      })
-      .map((ref) => {
-        return {
-          slotName: ref.getName(),
-          texture: ref.getChild() as Texture,
-        };
-      });
+  const modifiedTextures = modifiedDocument.getRoot().listTextures();
 
-    const textureSettings: { [key: string]: TextureCompressionSettings } = {};
-    let hasTextures = false;
-
-    materialTextures.forEach(({ slotName, texture }) => {
-      if (texture) {
-        hasTextures = true;
-        textureSettings[slotName] = {
-          original: texture,
-          compressed: null,
-          type: slotName,
-          quality: defaultTextureQuality,
-          compressionEnabled: false,
-        };
-      }
-    });
-
-    if (hasTextures) {
-      compressionSettings.materials[material.getName() || "unnamed"] =
-        textureSettings;
-    }
+  textures.forEach((texture, index) => {
+    const textureCompressionSettings: TextureCompressionSettings = {
+      compressed: modifiedTextures[index],
+      type: texture.getName(),
+      quality: defaultTextureQuality,
+      compressionEnabled: false,
+    };
+    compressionSettings.textures.set(texture, textureCompressionSettings);
   });
 
   return compressionSettings;
+}
+
+export function getTexturesFromMaterial(
+  material: Material
+): { slot: string; texture: Texture }[] {
+  const extensions = new Set<ExtensionProperty>(material.listExtensions());
+  return material
+    .getGraph()
+    .listEdges()
+    .filter((ref) => {
+      const child = ref.getChild();
+      const parent = ref.getParent();
+      if (child instanceof Texture && parent === material) {
+        return true;
+      }
+      if (
+        child instanceof Texture &&
+        parent instanceof ExtensionProperty &&
+        extensions.has(parent)
+      ) {
+        return true;
+      }
+      return false;
+    })
+    .map((ref) => {
+      return {
+        slot: ref.getName() || "",
+        texture: (ref.getChild() as Texture) || null,
+      };
+    });
+}
+
+export function getTextureSlotsFromMaterial(material: Material): string[] {
+  return getTexturesFromMaterial(material).map(({ slot }) => slot);
 }
 
 export function getUniqueTexturesFromDocument(document: Document): Texture[] {
@@ -113,30 +117,9 @@ export function getUniqueTexturesFromDocument(document: Document): Texture[] {
     .getRoot()
     .listMaterials()
     .forEach((material) => {
-      const extensions = new Set<ExtensionProperty>(material.listExtensions());
-      const materialTextures = document
-        .getGraph()
-        .listEdges()
-        .filter((ref) => {
-          const child = ref.getChild();
-          const parent = ref.getParent();
-          if (child instanceof Texture && parent === material) {
-            return true;
-          }
-          if (
-            child instanceof Texture &&
-            parent instanceof ExtensionProperty &&
-            extensions.has(parent)
-          ) {
-            return true;
-          }
-          return false;
-        })
-        .map((ref) => {
-          return ref.getChild() as Texture;
-        });
+      const materialTextures = getTexturesFromMaterial(material);
 
-      materialTextures.forEach((texture) => {
+      materialTextures.forEach(({ texture }) => {
         uniqueTextures.add(texture);
       });
     });

@@ -2,20 +2,17 @@ import { useModelStore } from "@/stores/useModelStore";
 import { useEffect, useRef } from "react";
 
 export default function TextureView() {
-  const { compressionSettings, selectedTexture, selectedMaterial } =
-    useModelStore();
-
-  const materials = compressionSettings?.materials ?? {};
-
-  const material = selectedMaterial ? materials[selectedMaterial] : null;
-  const texture = selectedTexture
-    ? material?.[selectedTexture as keyof typeof material].original
-    : null;
+  const { selectedTexture, compressionSettings } = useModelStore();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const loadTexture = async () => {
+      if (!selectedTexture) return;
+
+      const texture =
+        compressionSettings?.textures.get(selectedTexture)?.compressed;
+
       if (!texture) return;
 
       const canvas = canvasRef.current;
@@ -47,7 +44,7 @@ export default function TextureView() {
     };
 
     loadTexture();
-  }, [selectedTexture, selectedMaterial]);
+  }, [selectedTexture]);
 
   return (
     <div

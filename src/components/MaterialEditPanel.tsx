@@ -1,10 +1,13 @@
 import { MATERIAL_FOLDER_ORDER } from "@/constants";
 import { useModelStore } from "@/stores/useModelStore";
-import { TextureCompressionSettings } from "@/types";
-import { compressDocumentTexture } from "@/utils/documentUtils";
 import {
-  filterMapNamesWithTextures,
-  filterMaterialNamesWithTextures,
+  getAvailableMaterialNames,
+  getMaterialbyName,
+  getMaterialTextureBySlot,
+} from "@/utils/documentUtils";
+import {
+  getTexturesFromMaterial,
+  getTextureSlotsFromMaterial,
 } from "@/utils/utils";
 import { button, useControls } from "leva";
 import { useEffect } from "react";
@@ -13,94 +16,98 @@ export default function MaterialEditPanel() {
   const {
     compressionSettings,
     updateTextureCompressionSettings,
+    selectedTextureSlot,
     selectedTexture,
     selectedMaterial,
     setSelectedMaterial,
+    setSelectedTextureSlot,
     setSelectedTexture,
     updateModelStats,
+    originalDocument,
   } = useModelStore();
+
+  useEffect(() => {
+    const firstMaterial = originalDocument?.getRoot().listMaterials()[0];
+    if (firstMaterial) {
+      setSelectedMaterial(firstMaterial);
+      const { slot, texture: firstTexture } =
+        getTexturesFromMaterial(firstMaterial)?.[0];
+      setSelectedTexture(firstTexture);
+      setSelectedTextureSlot(slot ?? "");
+    }
+  }, [originalDocument]);
+
+  const selectedMaterialName = selectedMaterial?.getName();
 
   const [_, set] = useControls(
     "Materials",
-    () => ({
-      materialName: {
-        value: selectedMaterial,
-        label: "Material",
-        options: compressionSettings
-          ? filterMaterialNamesWithTextures(compressionSettings)
-          : [],
-        onChange: (value) => {
-          if (value) {
-            setSelectedMaterial(value);
-          }
-        },
-      },
-      textureName: {
-        value: selectedTexture,
-        label: "Texture",
-        options:
-          selectedMaterial && compressionSettings
-            ? filterMapNamesWithTextures(
-                compressionSettings.materials[selectedMaterial]
-              )
+    () => {
+      return {
+        materialName: {
+          value: selectedMaterial?.getName(),
+          label: "Material",
+          options: originalDocument
+            ? getAvailableMaterialNames(originalDocument)
             : [],
-        onChange: (value) => {
-          if (value) {
-            setSelectedTexture(value);
-          }
+          onChange: (value) => {
+            if (value && originalDocument) {
+              const material = getMaterialbyName(originalDocument, value);
+              if (material) {
+                const textures = getTexturesFromMaterial(material);
+                const { slot, texture: firstTexture } = textures?.[0] ?? {};
+                setSelectedMaterial(material);
+                setSelectedTexture(firstTexture);
+                setSelectedTextureSlot(slot ?? "");
+              }
+            }
+          },
         },
-      },
-      compressionEnabled: {
-        value:
-          selectedMaterial && selectedTexture
-            ? compressionSettings?.materials[selectedMaterial]?.[
-                selectedTexture
-              ]?.compressionEnabled ?? false
-            : false,
-        label: "Compress?",
-        onChange: (value) => {
-          if (selectedMaterial && selectedTexture) {
-            console.log("UPDATING", selectedMaterial, selectedTexture, value);
-            updateTextureCompressionSettings(
-              selectedMaterial,
-              selectedTexture,
-              {
-                ...compressionSettings?.materials[selectedMaterial]?.[
-                  selectedTexture
-                ],
+        textureName: {
+          value: selectedTextureSlot,
+          label: "Texture",
+          options:
+            selectedMaterial && originalDocument
+              ? getTextureSlotsFromMaterial(selectedMaterial)
+              : [],
+          onChange: (value) => {
+            if (value && originalDocument && selectedMaterial) {
+              setSelectedTexture(
+                getMaterialTextureBySlot(selectedMaterial, value)
+              );
+            }
+          },
+        },
+        compressionEnabled: {
+          value: false,
+          label: "Compress?",
+          onChange: (value) => {
+            if (selectedMaterial && selectedTexture) {
+              updateTextureCompressionSettings(selectedTexture, {
                 compressionEnabled: value,
-              } as TextureCompressionSettings
-            );
-          }
+              });
+            }
+          },
         },
-      },
-      compress: button(async () => {
-        if (!selectedMaterial || !selectedTexture) return;
-        const { originalDocument, modifiedDocument } = useModelStore.getState();
-        if (!originalDocument || !modifiedDocument) return;
-
-        const originalTexture = originalDocument.getRoot().listTextures()[0];
-        const modifiedTexture = modifiedDocument.getRoot().listTextures()[0];
-
-        await compressDocumentTexture(originalTexture, modifiedTexture);
-        updateModelStats();
-      }),
-    }),
+        compress: button(async () => {
+          const texture = originalDocument?.getRoot().listTextures()[1];
+          // await compressDocumentTexture(
+          //   texture,
+          //   compressionSettings?.textures.get(texture)
+          // );
+          updateModelStats();
+        }),
+      };
+    },
     { collapsed: false, order: MATERIAL_FOLDER_ORDER },
-    [selectedMaterial, selectedTexture, compressionSettings]
+    [selectedMaterialName, selectedTextureSlot]
   );
 
   useEffect(() => {
     set({
-      materialName: selectedMaterial,
-      textureName: selectedTexture,
-      compressionEnabled:
-        selectedMaterial && selectedTexture
-          ? compressionSettings?.materials[selectedMaterial]?.[selectedTexture]
-              ?.compressionEnabled ?? false
-          : false,
+      materialName: selectedMaterialName,
+      textureName: selectedTextureSlot,
     });
-  }, [selectedMaterial, selectedTexture, compressionSettings]);
+  }, [selectedMaterialName, selectedTextureSlot, compressionSettings]);
 
   return null;
 }
