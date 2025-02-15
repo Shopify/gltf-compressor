@@ -176,12 +176,7 @@ export default function Grid() {
   }, []);
 
   return (
-    <mesh
-      ref={gridRef}
-      position={[0, 0, 0]}
-      scale={[0, 0, 0]}
-      frustumCulled={false}
-    >
+    <mesh ref={gridRef} position={[0, 0, 0]} scale={[0, 0, 0]} renderOrder={0}>
       <planeGeometry args={[10, 10]} />
       <primitive object={gridMaterial} />
     </mesh>

@@ -81,7 +81,12 @@ function Stage({ children, ...props }: JSX.IntrinsicElements["group"]) {
       </Bounds>
       <group position={[0, -height / 2 - 0.0005, 0]}>
         {contactShadows && (
-          <ContactShadows scale={radius * 4} far={radius} blur={2} />
+          <ContactShadows
+            scale={radius * 4}
+            far={radius}
+            blur={2}
+            renderOrder={1}
+          />
         )}
       </group>
       <Environment preset={environmentPreset} />
