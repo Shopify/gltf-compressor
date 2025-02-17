@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -115,62 +114,54 @@ export default function MaterialEditPanel() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-sm">Material Settings</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-1">
-          <Label htmlFor="material-select">Material</Label>
-          <Select
-            value={selectedMaterial?.getName()}
-            onValueChange={handleMaterialChange}
-          >
-            <SelectTrigger id="material-select">
-              <SelectValue placeholder="Select material" />
-            </SelectTrigger>
-            <SelectContent>
-              {materialNames.map((name) => (
-                <SelectItem key={name} value={name}>
-                  {name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="space-y-4">
+      <div className="space-y-1">
+        <Label htmlFor="material-select">Material</Label>
+        <Select
+          value={selectedMaterial?.getName()}
+          onValueChange={handleMaterialChange}
+        >
+          <SelectTrigger id="material-select">
+            <SelectValue placeholder="Select material" />
+          </SelectTrigger>
+          <SelectContent>
+            {materialNames.map((name) => (
+              <SelectItem key={name} value={name}>
+                {name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-        <div className="space-y-1">
-          <Label htmlFor="texture-select">Texture</Label>
-          <Select
-            value={selectedTextureSlot}
-            onValueChange={handleTextureChange}
-          >
-            <SelectTrigger id="texture-select">
-              <SelectValue placeholder="Select texture" />
-            </SelectTrigger>
-            <SelectContent>
-              {textureSlots.map((slot) => (
-                <SelectItem key={slot} value={slot}>
-                  {slot}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-1">
+        <Label htmlFor="texture-select">Texture</Label>
+        <Select value={selectedTextureSlot} onValueChange={handleTextureChange}>
+          <SelectTrigger id="texture-select">
+            <SelectValue placeholder="Select texture" />
+          </SelectTrigger>
+          <SelectContent>
+            {textureSlots.map((slot) => (
+              <SelectItem key={slot} value={slot}>
+                {slot}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="compression-toggle"
-            checked={compressionEnabled}
-            onCheckedChange={handleCompressionChange}
-          />
-          <Label htmlFor="compression-toggle">Compress?</Label>
-        </div>
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="compression-toggle"
+          checked={compressionEnabled}
+          onCheckedChange={handleCompressionChange}
+        />
+        <Label htmlFor="compression-toggle">Compress?</Label>
+      </div>
 
-        <Button onClick={handleCompress} className="w-full">
-          Compress
-        </Button>
-      </CardContent>
-    </Card>
+      <Button onClick={handleCompress} className="w-full">
+        Compress
+      </Button>
+    </div>
   );
 }
