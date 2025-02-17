@@ -34,10 +34,16 @@ function App() {
   return (
     <>
       {originalDocument ? (
-        <div className="grid grid-cols-2 h-full">
-          <ModelView />
-          <TextureView />
-          <SettingsView />
+        <div className="flex h-full">
+          <div className="w-[40%] h-full">
+            <ModelView />
+          </div>
+          <div className="w-[40%] h-full">
+            <TextureView />
+          </div>
+          <div className="w-[20%] h-full overflow-y-auto">
+            <SettingsView />
+          </div>
         </div>
       ) : (
         <Dropzone onDrop={onDrop} />
