@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react(), glsl()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 });
