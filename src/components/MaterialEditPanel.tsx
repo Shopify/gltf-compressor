@@ -71,14 +71,17 @@ export default function MaterialEditPanel() {
               : [],
           onChange: (value) => {
             if (value && originalDocument && selectedMaterial) {
-              setSelectedTexture(
-                getMaterialTextureBySlot(selectedMaterial, value)
-              );
+              const texture = getMaterialTextureBySlot(selectedMaterial, value);
+              setSelectedTexture(texture);
+              setSelectedTextureSlot(value);
             }
           },
         },
         compressionEnabled: {
-          value: false,
+          value: selectedTexture
+            ? compressionSettings?.textures.get(selectedTexture)
+                ?.compressionEnabled ?? false
+            : false,
           label: "Compress?",
           onChange: (value) => {
             if (selectedMaterial && selectedTexture) {
@@ -99,15 +102,28 @@ export default function MaterialEditPanel() {
       };
     },
     { collapsed: false, order: MATERIAL_FOLDER_ORDER },
-    [selectedMaterialName, selectedTextureSlot]
+    [selectedMaterialName, selectedTextureSlot, compressionSettings]
   );
 
   useEffect(() => {
     set({
       materialName: selectedMaterialName,
       textureName: selectedTextureSlot,
+      compressionEnabled: selectedTexture
+        ? compressionSettings?.textures.get(selectedTexture)
+            ?.compressionEnabled ?? false
+        : false,
     });
-  }, [selectedMaterialName, selectedTextureSlot, compressionSettings]);
+  }, [
+    selectedMaterialName,
+    selectedTextureSlot,
+    compressionSettings,
+    selectedTexture,
+  ]);
+
+  useEffect(() => {
+    console.log(compressionSettings);
+  }, [compressionSettings]);
 
   return null;
 }
