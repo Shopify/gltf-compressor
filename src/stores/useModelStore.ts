@@ -3,11 +3,7 @@ import {
   ModelStats,
   TextureCompressionSettings,
 } from "@/types";
-import {
-  buildTextureCompressionSettings,
-  getTexturesFromMaterial,
-  getUniqueTexturesFromDocument,
-} from "@/utils/utils";
+import { getUniqueTexturesFromDocument } from "@/utils/utils";
 import { Document, Material, Texture } from "@gltf-transform/core";
 import { inspect } from "@gltf-transform/functions";
 import { produce } from "immer";
@@ -18,11 +14,6 @@ interface ModelStore {
   originalDocument: Document | null;
   modifiedDocument: Document | null;
   scene: Group | null;
-  setDocuments: (
-    originalDocument: Document,
-    modifiedDocument: Document,
-    scene: Group
-  ) => void;
 
   compressionSettings: ModelCompressionSettings | null;
   selectedTexture: Texture | null;
@@ -46,36 +37,6 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
   originalDocument: null,
   modifiedDocument: null,
   scene: null,
-  setDocuments: (
-    originalDocument: Document,
-    modifiedDocument: Document,
-    scene: Group
-  ) => {
-    const compressionSettings = buildTextureCompressionSettings(
-      originalDocument,
-      modifiedDocument
-    );
-
-    // Get the first material and texture for initial selection
-    const firstMaterial = originalDocument?.getRoot().listMaterials()?.[0];
-
-    let slot, texture;
-    if (firstMaterial) {
-      ({ slot, texture } = getTexturesFromMaterial(firstMaterial)[0]);
-    }
-
-    set({
-      originalDocument,
-      modifiedDocument,
-      scene,
-      compressionSettings,
-      selectedMaterial: firstMaterial,
-      selectedTextureSlot: slot,
-      selectedTexture: texture,
-    });
-
-    get().setInitialModelStats();
-  },
 
   compressionSettings: null,
   selectedTexture: null,

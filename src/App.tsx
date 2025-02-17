@@ -25,6 +25,7 @@ function App() {
           originalDocument,
           modifiedDocument
         );
+
         useModelStore.setState({
           originalDocument,
           modifiedDocument,
