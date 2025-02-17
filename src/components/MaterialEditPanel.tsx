@@ -37,8 +37,6 @@ export default function MaterialEditPanel() {
     }
   }, [originalDocument]);
 
-  const selectedMaterialName = selectedMaterial?.getName();
-
   const [_, set] = useControls(
     "Materials",
     () => {
@@ -102,12 +100,12 @@ export default function MaterialEditPanel() {
       };
     },
     { collapsed: false, order: MATERIAL_FOLDER_ORDER },
-    [selectedMaterialName, selectedTextureSlot, compressionSettings]
+    [selectedMaterial, selectedTextureSlot, compressionSettings]
   );
 
   useEffect(() => {
     set({
-      materialName: selectedMaterialName,
+      materialName: selectedMaterial?.getName(),
       textureName: selectedTextureSlot,
       compressionEnabled: selectedTexture
         ? compressionSettings?.textures.get(selectedTexture)
@@ -115,7 +113,7 @@ export default function MaterialEditPanel() {
         : false,
     });
   }, [
-    selectedMaterialName,
+    selectedMaterial,
     selectedTextureSlot,
     selectedTexture,
     compressionSettings,
