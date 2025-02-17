@@ -13,11 +13,16 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useViewportStore } from "@/stores/useViewportStore";
 import { GripVertical } from "lucide-react";
-import { useEffect, useState } from "react";
 import Draggable from "react-draggable";
 
 export default function ViewportSettingsPanel() {
   const {
+    lightingPreset,
+    environmentPreset,
+    lightIntensity,
+    contactShadows,
+    grid,
+    autoRotate,
     setLightingPreset,
     setEnvironmentPreset,
     setLightIntensity,
@@ -25,37 +30,6 @@ export default function ViewportSettingsPanel() {
     setGrid,
     setAutoRotate,
   } = useViewportStore();
-
-  const [lightingPreset, setLocalLightingPreset] = useState("rembrandt");
-  const [environmentPreset, setLocalEnvironmentPreset] = useState("city");
-  const [lightIntensity, setLocalLightIntensity] = useState(1);
-  const [contactShadows, setLocalContactShadows] = useState(true);
-  const [grid, setLocalGrid] = useState(true);
-  const [autoRotate, setLocalAutoRotate] = useState(false);
-
-  useEffect(() => {
-    setLightingPreset(lightingPreset);
-  }, [lightingPreset, setLightingPreset]);
-
-  useEffect(() => {
-    setEnvironmentPreset(environmentPreset);
-  }, [environmentPreset, setEnvironmentPreset]);
-
-  useEffect(() => {
-    setLightIntensity(lightIntensity);
-  }, [lightIntensity, setLightIntensity]);
-
-  useEffect(() => {
-    setContactShadows(contactShadows);
-  }, [contactShadows, setContactShadows]);
-
-  useEffect(() => {
-    setGrid(grid);
-  }, [grid, setGrid]);
-
-  useEffect(() => {
-    setAutoRotate(autoRotate);
-  }, [autoRotate, setAutoRotate]);
 
   return (
     <Draggable handle=".drag-handle">
@@ -69,10 +43,7 @@ export default function ViewportSettingsPanel() {
         <CardContent className="space-y-4">
           <div className="space-y-1">
             <Label htmlFor="lighting-preset">Lighting Preset</Label>
-            <Select
-              value={lightingPreset}
-              onValueChange={setLocalLightingPreset}
-            >
+            <Select value={lightingPreset} onValueChange={setLightingPreset}>
               <SelectTrigger id="lighting-preset">
                 <SelectValue placeholder="Select lighting preset" />
               </SelectTrigger>
@@ -90,7 +61,7 @@ export default function ViewportSettingsPanel() {
             <Label htmlFor="environment-preset">Environment Preset</Label>
             <Select
               value={environmentPreset}
-              onValueChange={setLocalEnvironmentPreset}
+              onValueChange={setEnvironmentPreset}
             >
               <SelectTrigger id="environment-preset">
                 <SelectValue placeholder="Select environment preset" />
@@ -126,7 +97,7 @@ export default function ViewportSettingsPanel() {
               max={2}
               step={0.1}
               value={[lightIntensity]}
-              onValueChange={(value) => setLocalLightIntensity(value[0])}
+              onValueChange={(value) => setLightIntensity(value[0])}
             />
           </div>
 
@@ -134,13 +105,13 @@ export default function ViewportSettingsPanel() {
             <Switch
               id="contact-shadows"
               checked={contactShadows}
-              onCheckedChange={setLocalContactShadows}
+              onCheckedChange={setContactShadows}
             />
             <Label htmlFor="contact-shadows">Contact Shadows</Label>
           </div>
 
           <div className="flex items-center space-x-2">
-            <Switch id="grid" checked={grid} onCheckedChange={setLocalGrid} />
+            <Switch id="grid" checked={grid} onCheckedChange={setGrid} />
             <Label htmlFor="grid">Grid</Label>
           </div>
 
@@ -148,7 +119,7 @@ export default function ViewportSettingsPanel() {
             <Switch
               id="auto-rotate"
               checked={autoRotate}
-              onCheckedChange={setLocalAutoRotate}
+              onCheckedChange={setAutoRotate}
             />
             <Label htmlFor="auto-rotate">Auto-Rotate</Label>
           </div>
