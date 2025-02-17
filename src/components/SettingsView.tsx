@@ -5,7 +5,7 @@ import ViewportSettingsPanel from "./ViewportSettingsPanel";
 
 export default function SettingsView() {
   return (
-    <Card className="w-80 absolute top-4 right-4 max-h-[calc(100vh-2rem)]">
+    <Card>
       <ViewportSettingsPanel />
       <MaterialEditPanel />
       <ExportPanel />
