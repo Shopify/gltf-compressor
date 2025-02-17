@@ -1,8 +1,7 @@
 import { useCallback } from "react";
-import CombinedSettingsPanel from "./components/CombinedSettingsPanel";
 import { Dropzone } from "./components/Dropzone";
 import ModelView from "./components/ModelView";
-import StatsView from "./components/StatsView";
+import SettingsView from "./components/SettingsView";
 import TextureView from "./components/TextureView";
 import { useModelStore } from "./stores/useModelStore";
 import { createDocuments } from "./utils/documentUtils";
@@ -38,8 +37,7 @@ function App() {
         <div className="grid grid-cols-2 h-full">
           <ModelView />
           <TextureView />
-          <StatsView />
-          <CombinedSettingsPanel />
+          <SettingsView />
         </div>
       ) : (
         <Dropzone onDrop={onDrop} />

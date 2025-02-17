@@ -1,5 +1,3 @@
-"use client";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GripVertical } from "lucide-react";
 import { useRef } from "react";
@@ -8,7 +6,7 @@ import { ExportPanel } from "./ExportPanel";
 import MaterialEditPanel from "./MaterialEditPanel";
 import ViewportSettingsPanel from "./ViewportSettingsPanel";
 
-export default function CombinedSettingsPanel() {
+export default function SettingsView() {
   const nodeRef = useRef(null);
 
   return (
