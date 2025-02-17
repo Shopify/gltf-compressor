@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GripVertical } from "lucide-react";
 import { useRef } from "react";
 import Draggable from "react-draggable";
+import { ExportPanel } from "./ExportPanel";
 import MaterialEditPanel from "./MaterialEditPanel";
 import ViewportSettingsPanel from "./ViewportSettingsPanel";
 
@@ -23,6 +24,7 @@ export default function CombinedSettingsPanel() {
         <CardContent className="space-y-4 overflow-y-auto max-h-[calc(100vh-6rem)]">
           <ViewportSettingsPanel />
           <MaterialEditPanel />
+          <ExportPanel />
         </CardContent>
       </Card>
     </Draggable>

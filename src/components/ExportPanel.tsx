@@ -1,30 +1,38 @@
-import { EXPORT_FOLDER_ORDER } from "@/constants";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useModelStore } from "@/stores/useModelStore";
 import { exportDocument } from "@/utils/documentUtils";
-import { button, useControls } from "leva";
-import { useRef } from "react";
+import { useState } from "react";
 
 export function ExportPanel() {
-  const useDracoCompressionRef = useRef(false);
+  const [useDracoCompression, setUseDracoCompression] = useState(false);
+  const { modifiedDocument } = useModelStore();
 
-  useControls(
-    "Export",
-    {
-      "Use Draco Compression": {
-        value: false,
-        onChange: (value) => {
-          useDracoCompressionRef.current = value;
-        },
-      },
-      Export: button(async () => {
-        const { modifiedDocument } = useModelStore.getState();
-        if (!modifiedDocument) return;
+  const handleExport = async () => {
+    if (!modifiedDocument) return;
+    await exportDocument(modifiedDocument, useDracoCompression);
+  };
 
-        await exportDocument(modifiedDocument, useDracoCompressionRef.current);
-      }),
-    },
-    { collapsed: false, order: EXPORT_FOLDER_ORDER }
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm">Export</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="draco-compression"
+            checked={useDracoCompression}
+            onCheckedChange={setUseDracoCompression}
+          />
+          <Label htmlFor="draco-compression">Use Draco Compression</Label>
+        </div>
+        <Button onClick={handleExport} className="w-full">
+          Export
+        </Button>
+      </CardContent>
+    </Card>
   );
-
-  return null;
 }

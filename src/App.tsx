@@ -1,7 +1,6 @@
 import { useCallback } from "react";
 import CombinedSettingsPanel from "./components/CombinedSettingsPanel";
 import { Dropzone } from "./components/Dropzone";
-import { ExportPanel } from "./components/ExportPanel";
 import ModelView from "./components/ModelView";
 import StatsView from "./components/StatsView";
 import TextureView from "./components/TextureView";
@@ -41,7 +40,6 @@ function App() {
           <TextureView />
           <StatsView />
           <CombinedSettingsPanel />
-          <ExportPanel />
         </div>
       ) : (
         <Dropzone onDrop={onDrop} />
