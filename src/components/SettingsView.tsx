@@ -18,26 +18,26 @@ export default function SettingsView() {
       defaultValue={["viewport", "material", "export"]}
     >
       <AccordionItem value="viewport" className="border-b">
-        <AccordionTrigger className="bg-secondary hover:bg-secondary/80 px-4 py-2 rounded-t-md transition-colors">
+        <AccordionTrigger className="bg-secondary hover:bg-secondary/80 px-4 py-2 transition-colors">
           Viewport Settings
         </AccordionTrigger>
-        <AccordionContent className="px-4 py-2 bg-background rounded-b-md">
+        <AccordionContent className="px-4 py-2 bg-background">
           <ViewportSettingsPanel />
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="material" className="border-b">
-        <AccordionTrigger className="bg-secondary hover:bg-secondary/80 px-4 py-2 rounded-t-md transition-colors">
+        <AccordionTrigger className="bg-secondary hover:bg-secondary/80 px-4 py-2 transition-colors">
           Material Edit
         </AccordionTrigger>
-        <AccordionContent className="px-4 py-2 bg-background rounded-b-md">
+        <AccordionContent className="px-4 py-2 bg-background">
           <MaterialEditPanel />
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="export" className="border-b">
-        <AccordionTrigger className="bg-secondary hover:bg-secondary/80 px-4 py-2 rounded-t-md transition-colors">
+        <AccordionTrigger className="bg-secondary hover:bg-secondary/80 px-4 py-2 transition-colors">
           Export
         </AccordionTrigger>
-        <AccordionContent className="px-4 py-2 bg-background rounded-b-md">
+        <AccordionContent className="px-4 py-2 bg-background">
           <ExportPanel />
         </AccordionContent>
       </AccordionItem>
