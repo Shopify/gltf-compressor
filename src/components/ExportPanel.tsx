@@ -15,7 +15,7 @@ export function ExportPanel() {
   };
 
   return (
-    <div className="space-y-4 px-2">
+    <div className="space-y-4">
       <div className="flex items-center space-x-2">
         <Switch
           id="draco-compression"

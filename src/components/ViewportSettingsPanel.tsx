@@ -27,7 +27,7 @@ export default function ViewportSettingsPanel() {
   } = useViewportStore();
 
   return (
-    <div className="space-y-4 px-2">
+    <div className="space-y-4">
       <div className="space-y-1">
         <Label htmlFor="lighting-preset">Lighting Preset</Label>
         <Select value={lightingPreset} onValueChange={setLightingPreset}>
