@@ -35,6 +35,7 @@ export default function Grid() {
       fragmentShader,
       transparent: true,
       side: BackSide,
+      depthWrite: false,
     });
   }, []);
 
