@@ -12,7 +12,7 @@ export default function SettingsView() {
   return (
     <Accordion
       type="multiple"
-      className="w-full px-4"
+      className="w-full px-2"
       defaultValue={["viewport", "material", "export"]}
     >
       <AccordionItem value="viewport">

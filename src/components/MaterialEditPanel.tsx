@@ -114,7 +114,7 @@ export default function MaterialEditPanel() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-2">
       <div className="space-y-1">
         <Label htmlFor="material-select">Material</Label>
         <Select
