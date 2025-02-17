@@ -121,9 +121,5 @@ export default function MaterialEditPanel() {
     selectedTexture,
   ]);
 
-  useEffect(() => {
-    console.log(compressionSettings);
-  }, [compressionSettings]);
-
   return null;
 }
