@@ -14,16 +14,16 @@ import { useEffect } from "react";
 
 export default function MaterialEditPanel() {
   const {
-    compressionSettings,
-    updateTextureCompressionSettings,
+    originalDocument,
     selectedTextureSlot,
     selectedTexture,
     selectedMaterial,
+    compressionSettings,
     setSelectedMaterial,
     setSelectedTextureSlot,
     setSelectedTexture,
+    updateTextureCompressionSettings,
     updateModelStats,
-    originalDocument,
   } = useModelStore();
 
   useEffect(() => {
@@ -32,8 +32,8 @@ export default function MaterialEditPanel() {
       setSelectedMaterial(firstMaterial);
       const { slot, texture: firstTexture } =
         getTexturesFromMaterial(firstMaterial)?.[0];
-      setSelectedTexture(firstTexture);
       setSelectedTextureSlot(slot ?? "");
+      setSelectedTexture(firstTexture);
     }
   }, [originalDocument]);
 
@@ -92,7 +92,7 @@ export default function MaterialEditPanel() {
           },
         },
         compress: button(async () => {
-          const texture = originalDocument?.getRoot().listTextures()[1];
+          // const texture = originalDocument?.getRoot().listTextures()[1];
           // await compressDocumentTexture(
           //   texture,
           //   compressionSettings?.textures.get(texture)
@@ -117,8 +117,8 @@ export default function MaterialEditPanel() {
   }, [
     selectedMaterialName,
     selectedTextureSlot,
-    compressionSettings,
     selectedTexture,
+    compressionSettings,
   ]);
 
   return null;
