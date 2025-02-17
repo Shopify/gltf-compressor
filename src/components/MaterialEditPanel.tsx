@@ -19,9 +19,7 @@ import {
   getTexturesFromMaterial,
   getTextureSlotsFromMaterial,
 } from "@/utils/utils";
-import { GripVertical } from "lucide-react";
 import { useEffect, useState } from "react";
-import Draggable from "react-draggable";
 
 export default function MaterialEditPanel() {
   const {
@@ -117,67 +115,62 @@ export default function MaterialEditPanel() {
   };
 
   return (
-    <Draggable handle=".drag-handle">
-      <Card className="w-80 absolute top-4 right-4">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            Material Settings
-          </CardTitle>
-          <GripVertical className="h-4 w-4 opacity-50 cursor-move drag-handle" />
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-1">
-            <Label htmlFor="material-select">Material</Label>
-            <Select
-              value={selectedMaterial?.getName()}
-              onValueChange={handleMaterialChange}
-            >
-              <SelectTrigger id="material-select">
-                <SelectValue placeholder="Select material" />
-              </SelectTrigger>
-              <SelectContent>
-                {materialNames.map((name) => (
-                  <SelectItem key={name} value={name}>
-                    {name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm">Material Edit</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-1">
+          <Label htmlFor="material-select">Material</Label>
+          <Select
+            value={selectedMaterial?.getName()}
+            onValueChange={handleMaterialChange}
+          >
+            <SelectTrigger id="material-select">
+              <SelectValue placeholder="Select material" />
+            </SelectTrigger>
+            <SelectContent>
+              {materialNames.map((name) => (
+                <SelectItem key={name} value={name}>
+                  {name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="texture-select">Texture</Label>
-            <Select
-              value={selectedTextureSlot}
-              onValueChange={handleTextureChange}
-            >
-              <SelectTrigger id="texture-select">
-                <SelectValue placeholder="Select texture" />
-              </SelectTrigger>
-              <SelectContent>
-                {textureSlots.map((slot) => (
-                  <SelectItem key={slot} value={slot}>
-                    {slot}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="space-y-1">
+          <Label htmlFor="texture-select">Texture</Label>
+          <Select
+            value={selectedTextureSlot}
+            onValueChange={handleTextureChange}
+          >
+            <SelectTrigger id="texture-select">
+              <SelectValue placeholder="Select texture" />
+            </SelectTrigger>
+            <SelectContent>
+              {textureSlots.map((slot) => (
+                <SelectItem key={slot} value={slot}>
+                  {slot}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="compression-toggle"
-              checked={compressionEnabled}
-              onCheckedChange={handleCompressionChange}
-            />
-            <Label htmlFor="compression-toggle">Compress?</Label>
-          </div>
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="compression-toggle"
+            checked={compressionEnabled}
+            onCheckedChange={handleCompressionChange}
+          />
+          <Label htmlFor="compression-toggle">Compress?</Label>
+        </div>
 
-          <Button onClick={handleCompress} className="w-full">
-            Compress
-          </Button>
-        </CardContent>
-      </Card>
-    </Draggable>
+        <Button onClick={handleCompress} className="w-full">
+          Compress
+        </Button>
+      </CardContent>
+    </Card>
   );
 }

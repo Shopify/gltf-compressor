@@ -1,13 +1,10 @@
-import { Leva } from "leva";
 import { useCallback } from "react";
-import "./App.css";
+import CombinedSettingsPanel from "./components/CombinedSettingsPanel";
 import { Dropzone } from "./components/Dropzone";
 import { ExportPanel } from "./components/ExportPanel";
-import MaterialEditPanel from "./components/MaterialEditPanel";
 import ModelView from "./components/ModelView";
 import StatsView from "./components/StatsView";
 import TextureView from "./components/TextureView";
-import ViewportSettingsPanel from "./components/ViewportSettingsPanel";
 import { useModelStore } from "./stores/useModelStore";
 import { createDocuments } from "./utils/documentUtils";
 import { buildTextureCompressionSettings } from "./utils/utils";
@@ -39,42 +36,15 @@ function App() {
   return (
     <>
       {originalDocument ? (
-        <>
-          <Leva
-            flat
-            hideCopyButton
-            theme={{
-              sizes: {
-                rootWidth: "300px",
-                rowHeight: "20px",
-                folderTitleHeight: "20px",
-                titleBarHeight: "30px",
-              },
-              fontSizes: { root: "9px" },
-              space: {
-                sm: "5px",
-                md: "7.5px",
-                rowGap: "5px",
-                colGap: "0px",
-              },
-            }}
-            titleBar={{
-              filter: false,
-            }}
-          />
-          <div className="grid grid-cols-2 h-full">
-            <ModelView />
-            <TextureView />
-            <StatsView />
-            <ViewportSettingsPanel />
-            <MaterialEditPanel />
-            <ExportPanel />
-          </div>
-        </>
+        <div className="grid grid-cols-2 h-full">
+          <ModelView />
+          <TextureView />
+          <StatsView />
+          <CombinedSettingsPanel />
+          <ExportPanel />
+        </div>
       ) : (
-        <>
-          <Dropzone onDrop={onDrop} />
-        </>
+        <Dropzone onDrop={onDrop} />
       )}
     </>
   );
