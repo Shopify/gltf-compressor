@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -10,6 +9,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useModelStore } from "@/stores/useModelStore";
 import {
+  compressDocumentTexture,
   getAvailableMaterialNames,
   getMaterialbyName,
   getMaterialTextureBySlot,
@@ -95,22 +95,25 @@ export default function MaterialEditPanel() {
     }
   };
 
-  const handleCompressionChange = (value: boolean) => {
+  const handleCompressionChange = async (value: boolean) => {
     if (selectedMaterial && selectedTexture) {
       updateTextureCompressionSettings(selectedTexture, {
         compressionEnabled: value,
       });
       setCompressionEnabled(value);
-    }
-  };
 
-  const handleCompress = async () => {
-    // const texture = originalDocument?.getRoot().listTextures()[1];
-    // await compressDocumentTexture(
-    //   texture,
-    //   compressionSettings?.textures.get(texture)
-    // );
-    updateModelStats();
+      if (value) {
+        const texture = originalDocument?.getRoot().listTextures()[1];
+        if (texture) {
+          const textureCompressionSettings =
+            compressionSettings?.textures.get(texture);
+          if (textureCompressionSettings) {
+            await compressDocumentTexture(texture, textureCompressionSettings);
+            updateModelStats();
+          }
+        }
+      }
+    }
   };
 
   return (
@@ -158,10 +161,6 @@ export default function MaterialEditPanel() {
         />
         <Label htmlFor="compression-toggle">Compress?</Label>
       </div>
-
-      <Button onClick={handleCompress} className="w-full">
-        Compress
-      </Button>
     </div>
   );
 }
