@@ -103,14 +103,14 @@ export default function MaterialEditPanel() {
       setCompressionEnabled(value);
 
       if (value) {
-        const texture = originalDocument?.getRoot().listTextures()[1];
-        if (texture) {
-          const textureCompressionSettings =
-            compressionSettings?.textures.get(texture);
-          if (textureCompressionSettings) {
-            await compressDocumentTexture(texture, textureCompressionSettings);
-            updateModelStats();
-          }
+        const textureCompressionSettings =
+          compressionSettings?.textures.get(selectedTexture);
+        if (textureCompressionSettings) {
+          await compressDocumentTexture(
+            selectedTexture,
+            textureCompressionSettings
+          );
+          updateModelStats();
         }
       }
     }
