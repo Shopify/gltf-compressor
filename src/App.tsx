@@ -2,13 +2,14 @@ import { useCallback } from "react";
 import { Dropzone } from "./components/Dropzone";
 import ModelView from "./components/ModelView";
 import SettingsView from "./components/SettingsView";
+import StatsView from "./components/StatsView";
 import TextureView from "./components/TextureView";
 import { useModelStore } from "./stores/useModelStore";
 import { createDocuments } from "./utils/documentUtils";
 import { buildTextureCompressionSettings } from "./utils/utils";
 
 function App() {
-  const { originalDocument } = useModelStore();
+  const { originalDocument, setInitialModelStats } = useModelStore();
 
   const onDrop = useCallback(async <T extends File>(acceptedFiles: T[]) => {
     if (acceptedFiles[0]) {
@@ -28,6 +29,8 @@ function App() {
           compressionSettings,
           scene: sceneView,
         });
+
+        setInitialModelStats();
       }
     }
   }, []);
@@ -38,6 +41,7 @@ function App() {
         <div className="flex h-full">
           <div className="w-[40%] h-full">
             <ModelView />
+            <StatsView />
           </div>
           <div className="w-[40%] h-full">
             <TextureView />
