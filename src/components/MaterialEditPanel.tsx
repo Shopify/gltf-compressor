@@ -114,6 +114,14 @@ export default function MaterialEditPanel() {
           updateModelStats();
         }
       } else {
+        // If disabling compression, restore original texture
+        const compressedTexture =
+          compressionSettings?.textures.get(selectedTexture)?.compressed;
+        if (compressedTexture) {
+          compressedTexture.setImage(selectedTexture.getImage()!);
+          compressedTexture.setMimeType(selectedTexture.getMimeType()!);
+        }
+
         // If disabling compression, update immediately
         updateTextureCompressionSettings(selectedTexture, {
           compressionEnabled: value,
