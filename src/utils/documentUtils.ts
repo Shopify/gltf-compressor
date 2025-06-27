@@ -19,8 +19,12 @@ export const createDocuments = async (url: string) => {
       "draco3d.decoder": await new DracoDecoderModule(),
     });
   const originalDocument = await io.read(url);
+
+  // The modified document is the one that we will be compressing
   const modifiedDocument = cloneDocument(originalDocument);
 
+  // Create a live view of the modified document
+  // We render this live view in the ModelView component
   const modifiedDocumentView = new DocumentView(modifiedDocument);
   const sceneDef = modifiedDocument.getRoot().getDefaultScene()!;
   const sceneView = modifiedDocumentView.view(sceneDef);
