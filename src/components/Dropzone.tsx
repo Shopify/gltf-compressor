@@ -27,7 +27,7 @@ export function Dropzone({ onDrop }: DropzoneProps) {
         <p className="text-4xl font-bold">Drop the files here...</p>
       ) : (
         <p className="text-4xl font-bold">
-          Drag {"'"}n{"'"} drop your GLTF file{" "}
+          Drag and drop your GLTF file{" "}
           <button className="text-blue-800">here</button>
         </p>
       )}

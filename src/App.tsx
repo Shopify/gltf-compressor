@@ -9,6 +9,7 @@ import { buildTextureCompressionSettings } from "./utils/utils";
 
 function App() {
   const { originalDocument } = useModelStore();
+
   const onDrop = useCallback(async <T extends File>(acceptedFiles: T[]) => {
     if (acceptedFiles[0]) {
       const url = URL.createObjectURL(acceptedFiles[0]);
