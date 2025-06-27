@@ -97,9 +97,6 @@ export default function MaterialEditPanel() {
 
   const handleCompressionChange = async (value: boolean) => {
     if (selectedMaterial && selectedTexture) {
-      updateTextureCompressionSettings(selectedTexture, {
-        compressionEnabled: value,
-      });
       setCompressionEnabled(value);
 
       if (value) {
@@ -110,8 +107,17 @@ export default function MaterialEditPanel() {
             selectedTexture,
             textureCompressionSettings
           );
+          // Only update the compression settings after compression is complete
+          updateTextureCompressionSettings(selectedTexture, {
+            compressionEnabled: value,
+          });
           updateModelStats();
         }
+      } else {
+        // If disabling compression, update immediately
+        updateTextureCompressionSettings(selectedTexture, {
+          compressionEnabled: value,
+        });
       }
     }
   };

@@ -10,8 +10,14 @@ export default function TextureView() {
     const loadTexture = async () => {
       if (!selectedTexture) return;
 
+      const textureSettings =
+        compressionSettings?.textures.get(selectedTexture);
+
+      // Show compressed texture if compression is enabled and available, otherwise show original
       const texture =
-        compressionSettings?.textures.get(selectedTexture)?.compressed;
+        textureSettings?.compressionEnabled && textureSettings?.compressed
+          ? textureSettings.compressed
+          : selectedTexture;
 
       if (!texture) return;
 
@@ -44,7 +50,7 @@ export default function TextureView() {
     };
 
     loadTexture();
-  }, [selectedTexture]);
+  }, [selectedTexture, compressionSettings]);
 
   return (
     <div
