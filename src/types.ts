@@ -27,4 +27,6 @@ export interface ModelStats {
   percentOfSizeTakenByMeshes: number;
   percentOfSizeTakenByTextures: number;
   percentOfSizeTakenByAnimations: number;
+  initialSizeOfTextures: number;
+  percentChangeInTextures: number | null;
 }

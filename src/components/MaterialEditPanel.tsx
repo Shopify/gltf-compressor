@@ -126,6 +126,7 @@ export default function MaterialEditPanel() {
         updateTextureCompressionSettings(selectedTexture, {
           compressionEnabled: value,
         });
+        updateModelStats();
       }
     }
   };

@@ -116,6 +116,8 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
         percentOfSizeTakenByMeshes: percentOfSizeTakenByMeshes,
         percentOfSizeTakenByTextures: percentOfSizeTakenByTextures,
         percentOfSizeTakenByAnimations: percentOfSizeTakenByAnimations,
+        initialSizeOfTextures: sizeOfTextures,
+        percentChangeInTextures: null,
       },
       modifiedTextures,
     });
@@ -136,6 +138,13 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
     const totalSize =
       modelStats.sizeOfMeshes + sizeOfTextures + modelStats.sizeOfAnimations;
 
+    const percentChangeInTextures =
+      modelStats.initialSizeOfTextures > 0
+        ? ((modelStats.initialSizeOfTextures - sizeOfTextures) /
+            modelStats.initialSizeOfTextures) *
+          100
+        : null;
+
     set({
       modelStats: {
         ...modelStats,
@@ -144,6 +153,7 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
         percentOfSizeTakenByTextures: (sizeOfTextures / totalSize) * 100,
         percentOfSizeTakenByAnimations:
           (modelStats.sizeOfAnimations / totalSize) * 100,
+        percentChangeInTextures,
       },
     });
   },
