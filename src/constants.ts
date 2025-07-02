@@ -1,1 +1,1 @@
-export const defaultTextureQuality = 80;
+export const defaultTextureQuality = 0.8;

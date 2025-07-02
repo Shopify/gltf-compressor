@@ -1,3 +1,4 @@
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -37,6 +38,7 @@ export default function MaterialEditPanel() {
   const [materialNames, setMaterialNames] = useState<string[]>([]);
   const [textureSlots, setTextureSlots] = useState<string[]>([]);
   const [compressionEnabled, setCompressionEnabled] = useState(false);
+  const [quality, setQuality] = useState(0.8);
 
   useEffect(() => {
     if (originalDocument) {
@@ -67,10 +69,12 @@ export default function MaterialEditPanel() {
 
   useEffect(() => {
     if (selectedTexture) {
-      const isCompressed =
-        compressionSettings?.textures.get(selectedTexture)
-          ?.compressionEnabled ?? false;
+      const textureSettings =
+        compressionSettings?.textures.get(selectedTexture);
+      const isCompressed = textureSettings?.compressionEnabled ?? false;
+      const textureQuality = textureSettings?.quality ?? 0.8;
       setCompressionEnabled(isCompressed);
+      setQuality(textureQuality);
     }
   }, [selectedTexture, compressionSettings]);
 
@@ -128,6 +132,36 @@ export default function MaterialEditPanel() {
         });
         updateModelStats();
       }
+    }
+  };
+
+  const handleQualityChange = async (value: string) => {
+    const numValue = parseFloat(value);
+    if (isNaN(numValue) || numValue < 0 || numValue > 1) return;
+
+    setQuality(numValue);
+
+    if (selectedTexture && compressionEnabled) {
+      // Update the quality in compression settings
+      updateTextureCompressionSettings(selectedTexture, {
+        quality: numValue,
+      });
+
+      // Re-compress with new quality if compression is enabled
+      const textureCompressionSettings =
+        compressionSettings?.textures.get(selectedTexture);
+      if (textureCompressionSettings) {
+        await compressDocumentTexture(selectedTexture, {
+          ...textureCompressionSettings,
+          quality: numValue,
+        });
+        updateModelStats();
+      }
+    } else if (selectedTexture) {
+      // Just update the quality setting even if compression is disabled
+      updateTextureCompressionSettings(selectedTexture, {
+        quality: numValue,
+      });
     }
   };
 
@@ -191,6 +225,30 @@ export default function MaterialEditPanel() {
         >
           Compress?
         </Label>
+      </div>
+
+      <div className="space-y-1">
+        <Label
+          htmlFor="quality-input"
+          className={
+            !compressionEnabled || textureSlots.length === 0
+              ? "text-muted-foreground"
+              : ""
+          }
+        >
+          Quality
+        </Label>
+        <Input
+          id="quality-input"
+          type="number"
+          min="0"
+          max="1"
+          step="0.01"
+          value={quality}
+          onChange={(e) => handleQualityChange(e.target.value)}
+          disabled={!compressionEnabled || textureSlots.length === 0}
+          className="w-full"
+        />
       </div>
     </div>
   );

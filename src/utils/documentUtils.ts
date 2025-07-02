@@ -40,7 +40,7 @@ export const compressDocumentTexture = async (
     originalTexture.getImage()!,
     256,
     "image/jpeg",
-    0.8
+    compressionSettings.quality
   );
   if (compressionSettings.compressed) {
     compressionSettings.compressed!.setImage(compressedImageData);
