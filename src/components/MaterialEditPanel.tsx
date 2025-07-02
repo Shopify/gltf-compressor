@@ -1,5 +1,5 @@
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NumberInput } from "@/components/ui/number-input";
 import {
   Select,
   SelectContent,
@@ -135,16 +135,15 @@ export default function MaterialEditPanel() {
     }
   };
 
-  const handleQualityChange = async (value: string) => {
-    const numValue = parseFloat(value);
-    if (isNaN(numValue) || numValue < 0 || numValue > 1) return;
+  const handleQualityChange = async (value: number | undefined) => {
+    if (value === undefined || value < 0 || value > 1) return;
 
-    setQuality(numValue);
+    setQuality(value);
 
     if (selectedTexture && compressionEnabled) {
       // Update the quality in compression settings
       updateTextureCompressionSettings(selectedTexture, {
-        quality: numValue,
+        quality: value,
       });
 
       // Re-compress with new quality if compression is enabled
@@ -153,14 +152,14 @@ export default function MaterialEditPanel() {
       if (textureCompressionSettings) {
         await compressDocumentTexture(selectedTexture, {
           ...textureCompressionSettings,
-          quality: numValue,
+          quality: value,
         });
         updateModelStats();
       }
     } else if (selectedTexture) {
       // Just update the quality setting even if compression is disabled
       updateTextureCompressionSettings(selectedTexture, {
-        quality: numValue,
+        quality: value,
       });
     }
   };
@@ -238,16 +237,16 @@ export default function MaterialEditPanel() {
         >
           Quality
         </Label>
-        <Input
+        <NumberInput
           id="quality-input"
-          type="number"
-          min="0"
-          max="1"
-          step="0.01"
+          min={0}
+          max={1}
+          stepper={0.01}
           value={quality}
-          onChange={(e) => handleQualityChange(e.target.value)}
+          onValueChange={handleQualityChange}
           disabled={!compressionEnabled || textureSlots.length === 0}
-          className="w-full"
+          decimalScale={2}
+          placeholder="0.80"
         />
       </div>
     </div>
