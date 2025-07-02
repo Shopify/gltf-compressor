@@ -1,5 +1,4 @@
 import { Label } from "@/components/ui/label";
-import { NumberInput } from "@/components/ui/number-input";
 import {
   Select,
   SelectContent,
@@ -7,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useModelStore } from "@/stores/useModelStore";
 import {
@@ -135,15 +135,13 @@ export default function MaterialEditPanel() {
     }
   };
 
-  const handleQualityChange = async (value: number | undefined) => {
-    if (value === undefined || value < 0 || value > 1) return;
-
-    setQuality(value);
+  const handleQualityChange = async (value: number[]) => {
+    setQuality(value[0]);
 
     if (selectedTexture && compressionEnabled) {
       // Update the quality in compression settings
       updateTextureCompressionSettings(selectedTexture, {
-        quality: value,
+        quality: value[0],
       });
 
       // Re-compress with new quality if compression is enabled
@@ -152,14 +150,14 @@ export default function MaterialEditPanel() {
       if (textureCompressionSettings) {
         await compressDocumentTexture(selectedTexture, {
           ...textureCompressionSettings,
-          quality: value,
+          quality: value[0],
         });
         updateModelStats();
       }
     } else if (selectedTexture) {
       // Just update the quality setting even if compression is disabled
       updateTextureCompressionSettings(selectedTexture, {
-        quality: value,
+        quality: value[0],
       });
     }
   };
@@ -228,7 +226,7 @@ export default function MaterialEditPanel() {
 
       <div className="space-y-1">
         <Label
-          htmlFor="quality-input"
+          htmlFor="quality-slider"
           className={
             !compressionEnabled || textureSlots.length === 0
               ? "text-muted-foreground"
@@ -237,16 +235,17 @@ export default function MaterialEditPanel() {
         >
           Quality
         </Label>
-        <NumberInput
-          id="quality-input"
+        <Slider
+          id="quality-slider"
           min={0}
           max={1}
-          stepper={0.01}
-          value={quality}
-          onValueChange={handleQualityChange}
+          step={0.01}
+          value={[quality]}
+          onValueChange={(value: number[]) => {
+            setQuality(value[0]);
+          }}
+          onValueCommit={handleQualityChange}
           disabled={!compressionEnabled || textureSlots.length === 0}
-          decimalScale={2}
-          placeholder="0.80"
         />
       </div>
     </div>
