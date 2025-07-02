@@ -28,7 +28,6 @@ export default function MaterialEditPanel() {
     selectedTexture,
     selectedMaterial,
     compressionSettings,
-    compressingTextures,
     setSelectedMaterial,
     setSelectedTextureSlot,
     setSelectedTexture,
@@ -180,9 +179,6 @@ export default function MaterialEditPanel() {
     }
   };
 
-  const isCurrentTextureCompressing =
-    selectedTexture !== null && compressingTextures.has(selectedTexture);
-
   return (
     <div className="space-y-4">
       <div className="space-y-1">
@@ -190,7 +186,6 @@ export default function MaterialEditPanel() {
         <Select
           value={selectedMaterial?.getName()}
           onValueChange={handleMaterialChange}
-          disabled={isCurrentTextureCompressing}
         >
           <SelectTrigger id="material-select">
             <SelectValue placeholder="Select material" />
@@ -210,7 +205,7 @@ export default function MaterialEditPanel() {
         <Select
           value={selectedTextureSlot}
           onValueChange={handleTextureChange}
-          disabled={textureSlots.length === 0 || isCurrentTextureCompressing}
+          disabled={textureSlots.length === 0}
         >
           <SelectTrigger id="texture-select">
             <SelectValue
@@ -236,15 +231,11 @@ export default function MaterialEditPanel() {
           id="compression-toggle"
           checked={compressionEnabled}
           onCheckedChange={handleCompressionChange}
-          disabled={textureSlots.length === 0 || isCurrentTextureCompressing}
+          disabled={textureSlots.length === 0}
         />
         <Label
           htmlFor="compression-toggle"
-          className={
-            textureSlots.length === 0 || isCurrentTextureCompressing
-              ? "text-muted-foreground"
-              : ""
-          }
+          className={textureSlots.length === 0 ? "text-muted-foreground" : ""}
         >
           Compress?
         </Label>
@@ -254,9 +245,7 @@ export default function MaterialEditPanel() {
         <Label
           htmlFor="quality-slider"
           className={
-            !compressionEnabled ||
-            textureSlots.length === 0 ||
-            isCurrentTextureCompressing
+            !compressionEnabled || textureSlots.length === 0
               ? "text-muted-foreground"
               : ""
           }
@@ -273,11 +262,7 @@ export default function MaterialEditPanel() {
             setQuality(value[0]);
           }}
           onValueCommit={handleQualityChange}
-          disabled={
-            !compressionEnabled ||
-            textureSlots.length === 0 ||
-            isCurrentTextureCompressing
-          }
+          disabled={!compressionEnabled || textureSlots.length === 0}
         />
       </div>
     </div>
