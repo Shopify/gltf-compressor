@@ -169,17 +169,11 @@ export default function MaterialEditPanel() {
             />
           </SelectTrigger>
           <SelectContent>
-            {textureSlots.length === 0 ? (
-              <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                This material has no textures
-              </div>
-            ) : (
-              textureSlots.map((slot) => (
-                <SelectItem key={slot} value={slot}>
-                  {slot}
-                </SelectItem>
-              ))
-            )}
+            {textureSlots.map((slot) => (
+              <SelectItem key={slot} value={slot}>
+                {slot}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
