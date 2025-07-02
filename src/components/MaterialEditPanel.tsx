@@ -76,6 +76,10 @@ export default function MaterialEditPanel() {
       const textureQuality = textureSettings?.quality ?? 0.8;
       setCompressionEnabled(isCompressed);
       setQuality(textureQuality);
+    } else {
+      // Reset to default values when no texture is selected
+      setCompressionEnabled(false);
+      setQuality(0.8);
     }
   }, [selectedTexture, compressionSettings]);
 
