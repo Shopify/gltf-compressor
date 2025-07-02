@@ -154,16 +154,32 @@ export default function MaterialEditPanel() {
 
       <div className="space-y-1">
         <Label htmlFor="texture-select">Texture</Label>
-        <Select value={selectedTextureSlot} onValueChange={handleTextureChange}>
+        <Select
+          value={selectedTextureSlot}
+          onValueChange={handleTextureChange}
+          disabled={textureSlots.length === 0}
+        >
           <SelectTrigger id="texture-select">
-            <SelectValue placeholder="Select texture" />
+            <SelectValue
+              placeholder={
+                textureSlots.length === 0
+                  ? "No textures available"
+                  : "Select texture"
+              }
+            />
           </SelectTrigger>
           <SelectContent>
-            {textureSlots.map((slot) => (
-              <SelectItem key={slot} value={slot}>
-                {slot}
-              </SelectItem>
-            ))}
+            {textureSlots.length === 0 ? (
+              <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                This material has no textures
+              </div>
+            ) : (
+              textureSlots.map((slot) => (
+                <SelectItem key={slot} value={slot}>
+                  {slot}
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
       </div>
@@ -173,8 +189,14 @@ export default function MaterialEditPanel() {
           id="compression-toggle"
           checked={compressionEnabled}
           onCheckedChange={handleCompressionChange}
+          disabled={textureSlots.length === 0}
         />
-        <Label htmlFor="compression-toggle">Compress?</Label>
+        <Label
+          htmlFor="compression-toggle"
+          className={textureSlots.length === 0 ? "text-muted-foreground" : ""}
+        >
+          Compress?
+        </Label>
       </div>
     </div>
   );
