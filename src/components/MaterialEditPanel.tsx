@@ -28,11 +28,13 @@ export default function MaterialEditPanel() {
     selectedTexture,
     selectedMaterial,
     compressionSettings,
+    compressingTextures,
     setSelectedMaterial,
     setSelectedTextureSlot,
     setSelectedTexture,
     updateTextureCompressionSettings,
     updateModelStats,
+    setTextureCompressing,
   } = useModelStore();
 
   const [materialNames, setMaterialNames] = useState<string[]>([]);
@@ -107,15 +109,23 @@ export default function MaterialEditPanel() {
         const textureCompressionSettings =
           compressionSettings?.textures.get(selectedTexture);
         if (textureCompressionSettings) {
-          await compressDocumentTexture(
-            selectedTexture,
-            textureCompressionSettings
-          );
-          // Only update the compression settings after compression is complete
-          updateTextureCompressionSettings(selectedTexture, {
-            compressionEnabled: value,
-          });
-          updateModelStats();
+          // Mark texture as compressing
+          setTextureCompressing(selectedTexture, true);
+
+          try {
+            await compressDocumentTexture(
+              selectedTexture,
+              textureCompressionSettings
+            );
+            // Only update the compression settings after compression is complete
+            updateTextureCompressionSettings(selectedTexture, {
+              compressionEnabled: value,
+            });
+            updateModelStats();
+          } finally {
+            // Always mark as not compressing when done
+            setTextureCompressing(selectedTexture, false);
+          }
         }
       } else {
         // If disabling compression, restore original texture
@@ -148,11 +158,19 @@ export default function MaterialEditPanel() {
       const textureCompressionSettings =
         compressionSettings?.textures.get(selectedTexture);
       if (textureCompressionSettings) {
-        await compressDocumentTexture(selectedTexture, {
-          ...textureCompressionSettings,
-          quality: value[0],
-        });
-        updateModelStats();
+        // Mark texture as compressing
+        setTextureCompressing(selectedTexture, true);
+
+        try {
+          await compressDocumentTexture(selectedTexture, {
+            ...textureCompressionSettings,
+            quality: value[0],
+          });
+          updateModelStats();
+        } finally {
+          // Always mark as not compressing when done
+          setTextureCompressing(selectedTexture, false);
+        }
       }
     } else if (selectedTexture) {
       // Just update the quality setting even if compression is disabled
@@ -162,6 +180,9 @@ export default function MaterialEditPanel() {
     }
   };
 
+  const isCurrentTextureCompressing =
+    selectedTexture !== null && compressingTextures.has(selectedTexture);
+
   return (
     <div className="space-y-4">
       <div className="space-y-1">
@@ -169,6 +190,7 @@ export default function MaterialEditPanel() {
         <Select
           value={selectedMaterial?.getName()}
           onValueChange={handleMaterialChange}
+          disabled={isCurrentTextureCompressing}
         >
           <SelectTrigger id="material-select">
             <SelectValue placeholder="Select material" />
@@ -188,7 +210,7 @@ export default function MaterialEditPanel() {
         <Select
           value={selectedTextureSlot}
           onValueChange={handleTextureChange}
-          disabled={textureSlots.length === 0}
+          disabled={textureSlots.length === 0 || isCurrentTextureCompressing}
         >
           <SelectTrigger id="texture-select">
             <SelectValue
@@ -214,11 +236,15 @@ export default function MaterialEditPanel() {
           id="compression-toggle"
           checked={compressionEnabled}
           onCheckedChange={handleCompressionChange}
-          disabled={textureSlots.length === 0}
+          disabled={textureSlots.length === 0 || isCurrentTextureCompressing}
         />
         <Label
           htmlFor="compression-toggle"
-          className={textureSlots.length === 0 ? "text-muted-foreground" : ""}
+          className={
+            textureSlots.length === 0 || isCurrentTextureCompressing
+              ? "text-muted-foreground"
+              : ""
+          }
         >
           Compress?
         </Label>
@@ -228,7 +254,9 @@ export default function MaterialEditPanel() {
         <Label
           htmlFor="quality-slider"
           className={
-            !compressionEnabled || textureSlots.length === 0
+            !compressionEnabled ||
+            textureSlots.length === 0 ||
+            isCurrentTextureCompressing
               ? "text-muted-foreground"
               : ""
           }
@@ -245,7 +273,11 @@ export default function MaterialEditPanel() {
             setQuality(value[0]);
           }}
           onValueCommit={handleQualityChange}
-          disabled={!compressionEnabled || textureSlots.length === 0}
+          disabled={
+            !compressionEnabled ||
+            textureSlots.length === 0 ||
+            isCurrentTextureCompressing
+          }
         />
       </div>
     </div>

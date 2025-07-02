@@ -22,10 +22,25 @@ export const compressImage = async (
     img.src = blobUrl;
   });
 
-  // Create resized canvas
+  // Calculate dimensions while preserving aspect ratio
+  let width = img.width;
+  let height = img.height;
+
+  if (width > height && width > maxDimension) {
+    height = (height / width) * maxDimension;
+    width = maxDimension;
+  } else if (height > width && height > maxDimension) {
+    width = (width / height) * maxDimension;
+    height = maxDimension;
+  } else if (width === height && width > maxDimension) {
+    width = maxDimension;
+    height = maxDimension;
+  }
+
+  // Create resized canvas with proper dimensions
   const canvas = document.createElement("canvas");
-  canvas.width = maxDimension;
-  canvas.height = maxDimension;
+  canvas.width = Math.round(width);
+  canvas.height = Math.round(height);
 
   const ctx = canvas.getContext("2d");
   if (!ctx) {
@@ -44,6 +59,8 @@ export const compressImage = async (
       quality
     );
   });
+
+  URL.revokeObjectURL(blobUrl);
 
   return imageData;
 };

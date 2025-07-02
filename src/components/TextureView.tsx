@@ -2,13 +2,16 @@ import { useModelStore } from "@/stores/useModelStore";
 import { useEffect, useRef } from "react";
 
 export default function TextureView() {
-  const { selectedTexture, compressionSettings } = useModelStore();
+  const { selectedTexture, compressionSettings, compressingTextures } =
+    useModelStore();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isCompressing =
+    selectedTexture && compressingTextures.has(selectedTexture);
 
   useEffect(() => {
     const loadTexture = async () => {
-      if (!selectedTexture) return;
+      if (!selectedTexture || isCompressing) return;
 
       const textureSettings =
         compressionSettings?.textures.get(selectedTexture);
@@ -50,22 +53,59 @@ export default function TextureView() {
     };
 
     loadTexture();
-  }, [selectedTexture, compressionSettings]);
+  }, [selectedTexture, compressionSettings, isCompressing]);
 
   return (
     <div
       id="texture-view"
-      style={{ width: "100%", height: "100%", backgroundColor: "black" }}
+      style={{
+        width: "100%",
+        height: "100%",
+        backgroundColor: "black",
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
     >
       <canvas
         ref={canvasRef}
         style={{
-          display: selectedTexture ? "block" : "none",
+          display: selectedTexture && !isCompressing ? "block" : "none",
           width: "100%",
           height: "100%",
           objectFit: "contain",
         }}
       />
+      {isCompressing && (
+        <div
+          style={{
+            color: "white",
+            fontSize: "16px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "10px",
+          }}
+        >
+          <div
+            style={{
+              width: "40px",
+              height: "40px",
+              border: "3px solid rgba(255, 255, 255, 0.3)",
+              borderTopColor: "white",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+            }}
+          />
+          <span>Compressing texture...</span>
+          <style>{`
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      )}
     </div>
   );
 }

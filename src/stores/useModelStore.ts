@@ -19,6 +19,7 @@ interface ModelStore {
   selectedTexture: Texture | null;
   selectedTextureSlot: string;
   selectedMaterial: Material | null;
+  compressingTextures: Set<Texture>;
   setSelectedTexture: (texture: Texture | null) => void;
   setSelectedTextureSlot: (slot: string) => void;
   setSelectedMaterial: (material: Material | null) => void;
@@ -26,6 +27,7 @@ interface ModelStore {
     texture: Texture,
     settings: Partial<TextureCompressionSettings>
   ) => void;
+  setTextureCompressing: (texture: Texture, isCompressing: boolean) => void;
 
   modelStats: ModelStats | null;
   modifiedTextures: Texture[] | null;
@@ -42,6 +44,7 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
   selectedTexture: null,
   selectedTextureSlot: "",
   selectedMaterial: null,
+  compressingTextures: new Set<Texture>(),
   setSelectedTexture: (texture: Texture | null) =>
     set({ selectedTexture: texture }),
   setSelectedTextureSlot: (slot: string) => set({ selectedTextureSlot: slot }),
@@ -64,6 +67,17 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
           ...compressionSettings.textures.get(texture)!,
           ...settings,
         } as TextureCompressionSettings);
+      })
+    );
+  },
+  setTextureCompressing: (texture: Texture, isCompressing: boolean) => {
+    set(
+      produce((state: ModelStore) => {
+        if (isCompressing) {
+          state.compressingTextures.add(texture);
+        } else {
+          state.compressingTextures.delete(texture);
+        }
       })
     );
   },
