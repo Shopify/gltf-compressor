@@ -1,11 +1,11 @@
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { forwardRef, useCallback, useEffect, useState } from 'react';
-import { NumericFormat, NumericFormatProps } from 'react-number-format';
-import { Button } from './button';
-import { Input } from './input';
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
+import { NumericFormat, NumericFormatProps } from "react-number-format";
+import { Button } from "./button";
+import { Input } from "./input";
 
 export interface NumberInputProps
-  extends Omit<NumericFormatProps, 'value' | 'onValueChange'> {
+  extends Omit<NumericFormatProps, "value" | "onValueChange"> {
   stepper?: number;
   thousandSeparator?: string;
   placeholder?: string;
@@ -41,55 +41,45 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
     },
     ref
   ) => {
+    const internalRef = useRef<HTMLInputElement>(null); // Create an internal ref
+    const combinedRef = ref || internalRef; // Use provided ref or internal ref
     const [value, setValue] = useState<number | undefined>(
       controlledValue ?? defaultValue
     );
 
     const handleIncrement = useCallback(() => {
-      setValue((prev) => {
-        const newValue = prev === undefined ? stepper ?? 1 : Math.min(prev + (stepper ?? 1), max);
-        if (onValueChange) {
-          onValueChange(newValue);
-        }
-        return newValue;
-      });
-    }, [stepper, max, onValueChange]);
+      setValue((prev) =>
+        prev === undefined ? stepper ?? 1 : Math.min(prev + (stepper ?? 1), max)
+      );
+    }, [stepper, max]);
 
     const handleDecrement = useCallback(() => {
-      setValue((prev) => {
-        const newValue = prev === undefined
+      setValue((prev) =>
+        prev === undefined
           ? -(stepper ?? 1)
-          : Math.max(prev - (stepper ?? 1), min);
-        if (onValueChange) {
-          onValueChange(newValue);
-        }
-        return newValue;
-      });
-    }, [stepper, min, onValueChange]);
+          : Math.max(prev - (stepper ?? 1), min)
+      );
+    }, [stepper, min]);
 
     useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
         if (
-          !disabled &&
           document.activeElement ===
-          (ref as React.RefObject<HTMLInputElement>).current
+          (combinedRef as React.RefObject<HTMLInputElement>).current
         ) {
-          if (e.key === 'ArrowUp') {
-            e.preventDefault();
+          if (e.key === "ArrowUp") {
             handleIncrement();
-          } else if (e.key === 'ArrowDown') {
-            e.preventDefault();
+          } else if (e.key === "ArrowDown") {
             handleDecrement();
           }
         }
       };
 
-      window.addEventListener('keydown', handleKeyDown);
-
+      window.addEventListener("keydown", handleKeyDown);
       return () => {
-        window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener("keydown", handleKeyDown);
       };
-    }, [handleIncrement, handleDecrement, ref, disabled]);
+    }, [handleIncrement, handleDecrement, combinedRef]);
 
     useEffect(() => {
       if (controlledValue !== undefined) {
@@ -113,14 +103,12 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
       if (value !== undefined) {
         if (value < min) {
           setValue(min);
-          if (onValueChange) {
-            onValueChange(min);
-          }
+          (ref as React.RefObject<HTMLInputElement>).current!.value =
+            String(min);
         } else if (value > max) {
           setValue(max);
-          if (onValueChange) {
-            onValueChange(max);
-          }
+          (ref as React.RefObject<HTMLInputElement>).current!.value =
+            String(max);
         }
       }
     };
@@ -143,14 +131,12 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
           customInput={Input}
           placeholder={placeholder}
           className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none rounded-r-none relative"
-          getInputRef={ref}
+          getInputRef={combinedRef} // Use combined ref
           disabled={disabled}
           {...props}
         />
-
         <div className="flex flex-col">
           <Button
-            type="button"
             aria-label="Increase value"
             className="px-2 h-5 rounded-l-none rounded-br-none border-input border-l-0 border-b-[0.5px] focus-visible:relative"
             variant="outline"
@@ -160,7 +146,6 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
             <ChevronUp size={15} />
           </Button>
           <Button
-            type="button"
             aria-label="Decrease value"
             className="px-2 h-5 rounded-l-none rounded-tr-none border-input border-l-0 border-t-[0.5px] focus-visible:relative"
             variant="outline"
@@ -174,5 +159,3 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
     );
   }
 );
-
-NumberInput.displayName = 'NumberInput';
