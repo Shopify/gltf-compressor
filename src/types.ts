@@ -5,6 +5,7 @@ export interface TextureCompressionSettings {
   type: string;
   quality: number;
   compressionEnabled: boolean;
+  maxDimension: number;
 }
 
 export interface MaterialCompressionSettings {

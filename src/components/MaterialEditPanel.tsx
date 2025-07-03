@@ -42,6 +42,7 @@ export default function MaterialEditPanel() {
   const [compressionEnabled, setCompressionEnabled] = useState(false);
   const [quality, setQuality] = useState(0.8);
   const [imageFormat, setImageFormat] = useState("image/jpeg");
+  const [maxDimension, setMaxDimension] = useState(0);
 
   useEffect(() => {
     if (originalDocument) {
@@ -54,6 +55,9 @@ export default function MaterialEditPanel() {
           getTexturesFromMaterial(firstMaterial)?.[0] ?? {};
         setSelectedTextureSlot(slot ?? "");
         setSelectedTexture(firstTexture);
+        const size = firstTexture?.getSize() ?? [0, 0];
+        const maxDimension = Math.max(size[0], size[1]);
+        setMaxDimension(maxDimension);
       }
     }
   }, [
