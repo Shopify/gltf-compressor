@@ -66,7 +66,7 @@ export function buildTextureCompressionSettings(
   textures.forEach((texture, index) => {
     const textureCompressionSettings: TextureCompressionSettings = {
       compressed: modifiedTextures[index],
-      type: texture.getName(),
+      type: texture.getMimeType(),
       quality: defaultTextureQuality,
       compressionEnabled: false,
     };

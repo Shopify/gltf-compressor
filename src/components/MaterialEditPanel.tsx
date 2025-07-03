@@ -41,6 +41,7 @@ export default function MaterialEditPanel() {
   const [textureSlots, setTextureSlots] = useState<string[]>([]);
   const [compressionEnabled, setCompressionEnabled] = useState(false);
   const [quality, setQuality] = useState(0.8);
+  const [imageFormat, setImageFormat] = useState("image/jpeg");
 
   useEffect(() => {
     if (originalDocument) {
@@ -75,12 +76,15 @@ export default function MaterialEditPanel() {
         compressionSettings?.textures.get(selectedTexture);
       const isCompressed = textureSettings?.compressionEnabled ?? false;
       const textureQuality = textureSettings?.quality ?? 0.8;
+      const imageFormat = textureSettings?.type ?? "image/jpeg";
       setCompressionEnabled(isCompressed);
       setQuality(textureQuality);
+      setImageFormat(imageFormat);
     } else {
       // Reset to default values when no texture is selected
       setCompressionEnabled(false);
       setQuality(0.8);
+      setImageFormat("image/jpeg");
     }
   }, [selectedTexture, compressionSettings]);
 
