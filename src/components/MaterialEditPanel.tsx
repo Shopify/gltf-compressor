@@ -249,6 +249,42 @@ export default function MaterialEditPanel() {
     }
   };
 
+  const handleMaxDimensionChange = async (value: string) => {
+    const newMaxDimension = parseInt(value);
+    setMaxDimension(newMaxDimension);
+
+    if (selectedTexture && compressionEnabled) {
+      // Update the format in compression settings
+      updateTextureCompressionSettings(selectedTexture, {
+        maxDimension: newMaxDimension,
+      });
+
+      // Re-compress with new format if compression is enabled
+      const textureCompressionSettings =
+        compressionSettings?.textures.get(selectedTexture);
+      if (textureCompressionSettings) {
+        // Mark texture as compressing
+        setTextureCompressing(selectedTexture, true);
+
+        try {
+          await compressDocumentTexture(selectedTexture, {
+            ...textureCompressionSettings,
+            maxDimension: newMaxDimension,
+          });
+          updateModelStats();
+        } finally {
+          // Always mark as not compressing when done
+          setTextureCompressing(selectedTexture, false);
+        }
+      }
+    } else if (selectedTexture) {
+      // Just update the format setting even if compression is disabled
+      updateTextureCompressionSettings(selectedTexture, {
+        maxDimension: newMaxDimension,
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-1">
@@ -389,6 +425,7 @@ export default function MaterialEditPanel() {
         </Label>
         <Select
           value={maxDimension.toString()}
+          onValueChange={handleMaxDimensionChange}
           disabled={!compressionEnabled || textureSlots.length === 0}
         >
           <SelectTrigger id="max-dimension-select">
