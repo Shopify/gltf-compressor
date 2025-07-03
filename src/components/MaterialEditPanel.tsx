@@ -1,3 +1,4 @@
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -256,18 +257,27 @@ export default function MaterialEditPanel() {
         >
           Quality
         </Label>
-        <Slider
-          id="quality-slider"
-          min={0}
-          max={1}
-          step={0.01}
-          value={[quality]}
-          onValueChange={(value: number[]) => {
-            setQuality(value[0]);
-          }}
-          onValueCommit={handleQualityChange}
-          disabled={!compressionEnabled || textureSlots.length === 0}
-        />
+        <div className="flex items-center space-x-2">
+          <Slider
+            id="quality-slider"
+            min={0}
+            max={1}
+            step={0.01}
+            value={[quality]}
+            onValueChange={(value: number[]) => {
+              setQuality(value[0]);
+            }}
+            onValueCommit={handleQualityChange}
+            disabled={!compressionEnabled || textureSlots.length === 0}
+            className="flex-1"
+          />
+          <Input
+            value={quality.toFixed(2)}
+            readOnly
+            className="w-16 text-center"
+            disabled={!compressionEnabled || textureSlots.length === 0}
+          />
+        </div>
       </div>
     </div>
   );
