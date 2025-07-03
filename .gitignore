@@ -1,3 +1,5 @@
 node_modules
 .DS_Store
 dist
+# Stitch configuration
+stitch-config.json
