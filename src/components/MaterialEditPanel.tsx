@@ -22,6 +22,19 @@ import {
 } from "@/utils/utils";
 import { useEffect, useState } from "react";
 
+const generateMaxDimensionOptions = (maxDim: number): string[] => {
+  const options = [maxDim.toString()];
+  const standardSizes = [8192, 4096, 2048, 1024, 512, 256, 128];
+
+  for (const size of standardSizes) {
+    if (size < maxDim) {
+      options.push(size.toString());
+    }
+  }
+
+  return options;
+};
+
 export default function MaterialEditPanel() {
   const {
     originalDocument,
@@ -43,6 +56,7 @@ export default function MaterialEditPanel() {
   const [quality, setQuality] = useState(0.8);
   const [imageFormat, setImageFormat] = useState("image/jpeg");
   const [maxDimension, setMaxDimension] = useState(0);
+  const [maxDimensionOptions, setMaxDimensionOptions] = useState<string[]>([]);
 
   useEffect(() => {
     if (originalDocument) {
@@ -58,6 +72,7 @@ export default function MaterialEditPanel() {
         const size = firstTexture?.getSize() ?? [0, 0];
         const maxDimension = Math.max(size[0], size[1]);
         setMaxDimension(maxDimension);
+        setMaxDimensionOptions(generateMaxDimensionOptions(maxDimension));
       }
     }
   }, [
@@ -82,16 +97,20 @@ export default function MaterialEditPanel() {
       const textureQuality = textureSettings?.quality ?? 0.8;
       const imageFormat = textureSettings?.type ?? "image/jpeg";
       const maxDimension = textureSettings?.maxDimension ?? 0;
+      const size = selectedTexture.getSize() ?? [0, 0];
+      const originalMaxDimension = Math.max(size[0], size[1]);
       setCompressionEnabled(isCompressed);
       setQuality(textureQuality);
       setImageFormat(imageFormat);
       setMaxDimension(maxDimension);
+      setMaxDimensionOptions(generateMaxDimensionOptions(originalMaxDimension));
     } else {
       // Reset to default values when no texture is selected
       setCompressionEnabled(false);
       setQuality(0.8);
       setImageFormat("image/jpeg");
       setMaxDimension(0);
+      setMaxDimensionOptions(["0"]);
     }
   }, [selectedTexture, compressionSettings]);
 
@@ -252,7 +271,12 @@ export default function MaterialEditPanel() {
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="texture-select">Texture</Label>
+        <Label
+          htmlFor="texture-select"
+          className={textureSlots.length === 0 ? "text-muted-foreground" : ""}
+        >
+          Texture
+        </Label>
         <Select
           value={selectedTextureSlot}
           onValueChange={handleTextureChange}
@@ -350,6 +374,34 @@ export default function MaterialEditPanel() {
             disabled={!compressionEnabled || textureSlots.length === 0}
           />
         </div>
+      </div>
+
+      <div className="space-y-1">
+        <Label
+          htmlFor="max-dimension-select"
+          className={
+            !compressionEnabled || textureSlots.length === 0
+              ? "text-muted-foreground"
+              : ""
+          }
+        >
+          Max Dimension
+        </Label>
+        <Select
+          value={maxDimension.toString()}
+          disabled={!compressionEnabled || textureSlots.length === 0}
+        >
+          <SelectTrigger id="max-dimension-select">
+            <SelectValue placeholder="Select max dimension" />
+          </SelectTrigger>
+          <SelectContent>
+            {maxDimensionOptions.map((option) => (
+              <SelectItem key={option} value={option.toString()}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
