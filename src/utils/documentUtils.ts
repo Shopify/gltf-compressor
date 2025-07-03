@@ -36,15 +36,16 @@ export const compressDocumentTexture = async (
   originalTexture: Texture,
   compressionSettings: TextureCompressionSettings
 ) => {
+  const format = compressionSettings.type || "image/jpeg";
   const compressedImageData = await compressImage(
     originalTexture.getImage()!,
     256,
-    "image/jpeg",
+    format,
     compressionSettings.quality
   );
   if (compressionSettings.compressed) {
     compressionSettings.compressed!.setImage(compressedImageData);
-    compressionSettings.compressed!.setMimeType("image/jpeg");
+    compressionSettings.compressed!.setMimeType(format);
   }
 };
 

@@ -188,6 +188,41 @@ export default function MaterialEditPanel() {
     }
   };
 
+  const handleFormatChange = async (value: string) => {
+    setImageFormat(value);
+
+    if (selectedTexture && compressionEnabled) {
+      // Update the format in compression settings
+      updateTextureCompressionSettings(selectedTexture, {
+        type: value,
+      });
+
+      // Re-compress with new format if compression is enabled
+      const textureCompressionSettings =
+        compressionSettings?.textures.get(selectedTexture);
+      if (textureCompressionSettings) {
+        // Mark texture as compressing
+        setTextureCompressing(selectedTexture, true);
+
+        try {
+          await compressDocumentTexture(selectedTexture, {
+            ...textureCompressionSettings,
+            type: value,
+          });
+          updateModelStats();
+        } finally {
+          // Always mark as not compressing when done
+          setTextureCompressing(selectedTexture, false);
+        }
+      }
+    } else if (selectedTexture) {
+      // Just update the format setting even if compression is disabled
+      updateTextureCompressionSettings(selectedTexture, {
+        type: value,
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-1">
@@ -248,6 +283,32 @@ export default function MaterialEditPanel() {
         >
           Compress?
         </Label>
+      </div>
+
+      <div className="space-y-1">
+        <Label
+          htmlFor="format-select"
+          className={
+            !compressionEnabled || textureSlots.length === 0
+              ? "text-muted-foreground"
+              : ""
+          }
+        >
+          Format
+        </Label>
+        <Select
+          value={imageFormat}
+          onValueChange={handleFormatChange}
+          disabled={!compressionEnabled || textureSlots.length === 0}
+        >
+          <SelectTrigger id="format-select">
+            <SelectValue placeholder="Select format" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="image/jpeg">JPEG</SelectItem>
+            <SelectItem value="image/png">PNG</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-1">
