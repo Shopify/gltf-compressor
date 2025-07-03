@@ -81,14 +81,17 @@ export default function MaterialEditPanel() {
       const isCompressed = textureSettings?.compressionEnabled ?? false;
       const textureQuality = textureSettings?.quality ?? 0.8;
       const imageFormat = textureSettings?.type ?? "image/jpeg";
+      const maxDimension = textureSettings?.maxDimension ?? 0;
       setCompressionEnabled(isCompressed);
       setQuality(textureQuality);
       setImageFormat(imageFormat);
+      setMaxDimension(maxDimension);
     } else {
       // Reset to default values when no texture is selected
       setCompressionEnabled(false);
       setQuality(0.8);
       setImageFormat("image/jpeg");
+      setMaxDimension(0);
     }
   }, [selectedTexture, compressionSettings]);
 
