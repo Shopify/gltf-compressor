@@ -16,23 +16,11 @@ import {
   getMaterialTextureBySlot,
 } from "@/utils/documentUtils";
 import {
+  generateMaxDimensionOptions,
   getTexturesFromMaterial,
   getTextureSlotsFromMaterial,
 } from "@/utils/utils";
 import { useEffect, useState } from "react";
-
-const generateMaxDimensionOptions = (maxDim: number): string[] => {
-  const options = [maxDim.toString()];
-  const standardSizes = [8192, 4096, 2048, 1024, 512, 256, 128];
-
-  for (const size of standardSizes) {
-    if (size < maxDim) {
-      options.push(size.toString());
-    }
-  }
-
-  return options;
-};
 
 export default function MaterialEditPanel() {
   const {

@@ -130,3 +130,16 @@ export function getUniqueTexturesFromDocument(document: Document): Texture[] {
 
   return Array.from(uniqueTextures);
 }
+
+export function generateMaxDimensionOptions(maxDim: number): string[] {
+  const options = [maxDim.toString()];
+  const standardSizes = [8192, 4096, 2048, 1024, 512, 256, 128];
+
+  for (const size of standardSizes) {
+    if (size < maxDim) {
+      options.push(size.toString());
+    }
+  }
+
+  return options;
+}
