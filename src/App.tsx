@@ -53,6 +53,11 @@ function App() {
       ) : (
         <Dropzone onDrop={onDrop} />
       )}
+
+      {/* Logo in bottom left corner */}
+      <div className="fixed bottom-4 left-4">
+        <img src="/logo.svg" alt="Logo" className="w-20 h-20" />
+      </div>
     </>
   );
 }
