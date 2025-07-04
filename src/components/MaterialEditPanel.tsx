@@ -373,6 +373,7 @@ export default function MaterialEditPanel() {
           <SelectContent>
             <SelectItem value="image/jpeg">JPEG</SelectItem>
             <SelectItem value="image/png">PNG</SelectItem>
+            <SelectItem value="image/webp">WEBP</SelectItem>
           </SelectContent>
         </Select>
       </div>

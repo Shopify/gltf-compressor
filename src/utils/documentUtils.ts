@@ -2,6 +2,7 @@ import { TextureCompressionSettings } from "@/types";
 import { Document, Material, Texture, WebIO } from "@gltf-transform/core";
 import {
   ALL_EXTENSIONS,
+  EXTTextureWebP,
   KHRDracoMeshCompression,
 } from "@gltf-transform/extensions";
 import { cloneDocument } from "@gltf-transform/functions";
@@ -103,6 +104,24 @@ export const exportDocument = async (
   } else {
     // TODO: Figure out how to remove the KHRDracoMeshCompression extension if createExtension has already been called
     // Right now if you export with draco compression enabled, all future exports will be draco compressed
+  }
+
+  const documentHasWebPTexture = documentToExport
+    .getRoot()
+    .listTextures()
+    .some((texture) => texture.getMimeType() === "image/webp");
+  if (documentHasWebPTexture) {
+    // Add EXT_texture_webp
+    documentToExport.createExtension(EXTTextureWebP).setRequired(true);
+  } else {
+    // Remove EXT_texture_webp if it exists
+    const ext = documentToExport
+      .getRoot()
+      .listExtensionsUsed()
+      .find((ext) => ext.extensionName === "EXT_texture_webp");
+    if (ext) {
+      ext.dispose();
+    }
   }
 
   const compressedArrayBuffer = await io.writeBinary(documentToExport);
