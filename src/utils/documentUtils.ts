@@ -94,6 +94,7 @@ export const exportDocument = async (
     });
 
   if (useDracoCompression) {
+    // Add KHR_draco_mesh_compression
     documentToExport
       .createExtension(KHRDracoMeshCompression)
       .setRequired(true)
@@ -102,8 +103,14 @@ export const exportDocument = async (
         encodeSpeed: 5,
       });
   } else {
-    // TODO: Figure out how to remove the KHRDracoMeshCompression extension if createExtension has already been called
-    // Right now if you export with draco compression enabled, all future exports will be draco compressed
+    // Remove KHR_draco_mesh_compression if it exists
+    const ext = documentToExport
+      .getRoot()
+      .listExtensionsUsed()
+      .find((ext) => ext.extensionName === "KHR_draco_mesh_compression");
+    if (ext) {
+      ext.dispose();
+    }
   }
 
   const documentHasWebPTexture = documentToExport
