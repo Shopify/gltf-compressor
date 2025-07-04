@@ -16,6 +16,7 @@ import {
   getMaterialTextureBySlot,
 } from "@/utils/documentUtils";
 import {
+  formatSize,
   generateMaxDimensionOptions,
   getTexturesFromMaterial,
   getTextureSlotsFromMaterial,
@@ -44,6 +45,8 @@ export default function MaterialEditPanel() {
   const [imageFormat, setImageFormat] = useState("image/jpeg");
   const [maxDimension, setMaxDimension] = useState(0);
   const [maxDimensionOptions, setMaxDimensionOptions] = useState<string[]>([]);
+  const [originalImageWeight, setOriginalImageWeight] = useState(0);
+  const [compressedImageWeight, setCompressedImageWeight] = useState(0);
 
   useEffect(() => {
     if (originalDocument) {
@@ -58,8 +61,14 @@ export default function MaterialEditPanel() {
         setSelectedTexture(firstTexture);
         const size = firstTexture?.getSize() ?? [0, 0];
         const maxDimension = Math.max(size[0], size[1]);
+        const imageData = firstTexture?.getImage();
+        let weight = 0;
+        if (imageData?.byteLength) {
+          weight = imageData.byteLength / 1000;
+        }
         setMaxDimension(maxDimension);
         setMaxDimensionOptions(generateMaxDimensionOptions(maxDimension));
+        setOriginalImageWeight(weight);
       }
     }
   }, [
@@ -86,11 +95,23 @@ export default function MaterialEditPanel() {
       const maxDimension = textureSettings?.maxDimension ?? 0;
       const size = selectedTexture.getSize() ?? [0, 0];
       const originalMaxDimension = Math.max(size[0], size[1]);
+      const imageData = selectedTexture.getImage();
+      let weight = 0;
+      if (imageData?.byteLength) {
+        weight = imageData.byteLength / 1000;
+      }
+      const compressedImageData = textureSettings?.compressed?.getImage();
+      let compressedWeight = 0;
+      if (compressedImageData?.byteLength) {
+        compressedWeight = compressedImageData.byteLength / 1000;
+      }
       setCompressionEnabled(isCompressed);
       setQuality(textureQuality);
       setImageFormat(imageFormat);
       setMaxDimension(maxDimension);
       setMaxDimensionOptions(generateMaxDimensionOptions(originalMaxDimension));
+      setOriginalImageWeight(weight);
+      setCompressedImageWeight(compressedWeight);
     } else {
       // Reset to default values when no texture is selected
       setCompressionEnabled(false);
@@ -98,6 +119,8 @@ export default function MaterialEditPanel() {
       setImageFormat("image/jpeg");
       setMaxDimension(0);
       setMaxDimensionOptions(["0"]);
+      setOriginalImageWeight(0);
+      setCompressedImageWeight(0);
     }
   }, [selectedTexture, compressionSettings]);
 
@@ -146,6 +169,12 @@ export default function MaterialEditPanel() {
           } finally {
             // Always mark as not compressing when done
             setTextureCompressing(selectedTexture, false);
+            const imageData = textureCompressionSettings.compressed?.getImage();
+            let weight = 0;
+            if (imageData?.byteLength) {
+              weight = imageData.byteLength / 1000;
+            }
+            setCompressedImageWeight(weight);
           }
         }
       } else {
@@ -191,6 +220,12 @@ export default function MaterialEditPanel() {
         } finally {
           // Always mark as not compressing when done
           setTextureCompressing(selectedTexture, false);
+          const imageData = textureCompressionSettings.compressed?.getImage();
+          let weight = 0;
+          if (imageData?.byteLength) {
+            weight = imageData.byteLength / 1000;
+          }
+          setCompressedImageWeight(weight);
         }
       }
     } else if (selectedTexture) {
@@ -226,6 +261,12 @@ export default function MaterialEditPanel() {
         } finally {
           // Always mark as not compressing when done
           setTextureCompressing(selectedTexture, false);
+          const imageData = textureCompressionSettings.compressed?.getImage();
+          let weight = 0;
+          if (imageData?.byteLength) {
+            weight = imageData.byteLength / 1000;
+          }
+          setCompressedImageWeight(weight);
         }
       }
     } else if (selectedTexture) {
@@ -262,6 +303,12 @@ export default function MaterialEditPanel() {
         } finally {
           // Always mark as not compressing when done
           setTextureCompressing(selectedTexture, false);
+          const imageData = textureCompressionSettings.compressed?.getImage();
+          let weight = 0;
+          if (imageData?.byteLength) {
+            weight = imageData.byteLength / 1000;
+          }
+          setCompressedImageWeight(weight);
         }
       }
     } else if (selectedTexture) {
@@ -403,7 +450,7 @@ export default function MaterialEditPanel() {
               : ""
           }
         >
-          Max Dimension
+          Max Width or Height in Pixels
         </Label>
         <Select
           value={maxDimension.toString()}
@@ -421,6 +468,32 @@ export default function MaterialEditPanel() {
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label
+          htmlFor="original-image-weight"
+          className={
+            !compressionEnabled || textureSlots.length === 0
+              ? "text-muted-foreground"
+              : ""
+          }
+        >
+          Original Image Size: {formatSize(originalImageWeight)}
+        </Label>
+      </div>
+
+      <div className="space-y-2">
+        <Label
+          htmlFor="new-image-weight"
+          className={
+            !compressionEnabled || textureSlots.length === 0
+              ? "text-muted-foreground"
+              : ""
+          }
+        >
+          New Image Size: {formatSize(compressedImageWeight)}
+        </Label>
       </div>
     </div>
   );
