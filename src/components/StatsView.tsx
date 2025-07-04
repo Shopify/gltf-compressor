@@ -26,6 +26,13 @@ export default function StatsView() {
               ↓ {modelStats.percentChangeInTextures.toFixed(1)}%
             </span>
           )}
+        {modelStats.percentChangeInTextures !== null &&
+          modelStats.percentChangeInTextures < 0 && (
+            <span className="text-red-400">
+              {" "}
+              ↑ {Math.abs(modelStats.percentChangeInTextures).toFixed(1)}%
+            </span>
+          )}
       </div>
       <div>
         Anim Clips: {modelStats.sizeOfAnimations.toFixed(2)} KB (
