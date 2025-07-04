@@ -71,7 +71,7 @@ export default function ViewportSettingsPanel() {
         </Select>
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-2">
         <Label htmlFor="light-intensity">
           Light Intensity: {lightIntensity.toFixed(1)}
         </Label>

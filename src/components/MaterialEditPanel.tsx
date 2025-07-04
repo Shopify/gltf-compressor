@@ -377,7 +377,7 @@ export default function MaterialEditPanel() {
         </Select>
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-2">
         <Label
           htmlFor="quality-slider"
           className={
