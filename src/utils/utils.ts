@@ -143,3 +143,10 @@ export function generateMaxDimensionOptions(maxDim: number): string[] {
 
   return options;
 }
+
+export function formatSize(sizeInKB: number): string {
+  if (sizeInKB >= 1000) {
+    return `${(sizeInKB / 1000).toFixed(1)} MB`;
+  }
+  return `${sizeInKB.toFixed(1)} KB`;
+}

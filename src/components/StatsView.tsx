@@ -1,4 +1,5 @@
 import { useModelStore } from "@/stores/useModelStore";
+import { formatSize } from "@/utils/utils";
 
 export default function StatsView() {
   const { modelStats } = useModelStore();
@@ -13,12 +14,12 @@ export default function StatsView() {
       <div>Anim Clips: {modelStats.numAnimationClips}</div>
       <br />
       <div>
-        Meshes: {modelStats.sizeOfMeshes.toFixed(2)} KB (
-        {modelStats.percentOfSizeTakenByMeshes.toFixed(2)}%)
+        Meshes: {formatSize(modelStats.sizeOfMeshes)} (
+        {modelStats.percentOfSizeTakenByMeshes.toFixed(1)}%)
       </div>
       <div>
-        Textures: {modelStats.sizeOfTextures.toFixed(2)} KB (
-        {modelStats.percentOfSizeTakenByTextures.toFixed(2)}%)
+        Textures: {formatSize(modelStats.sizeOfTextures)} (
+        {modelStats.percentOfSizeTakenByTextures.toFixed(1)}%)
         {modelStats.percentChangeInTextures !== null &&
           modelStats.percentChangeInTextures > 0 && (
             <span className="text-green-400">
@@ -35,8 +36,8 @@ export default function StatsView() {
           )}
       </div>
       <div>
-        Anim Clips: {modelStats.sizeOfAnimations.toFixed(2)} KB (
-        {modelStats.percentOfSizeTakenByAnimations.toFixed(2)}%)
+        Anim Clips: {formatSize(modelStats.sizeOfAnimations)} (
+        {modelStats.percentOfSizeTakenByAnimations.toFixed(1)}%)
       </div>
     </div>
   );
