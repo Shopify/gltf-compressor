@@ -27,7 +27,7 @@ export default function ViewportSettingsPanel() {
   } = useViewportStore();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="space-y-1">
         <Label htmlFor="lighting-preset">Lighting Preset</Label>
         <Select value={lightingPreset} onValueChange={setLightingPreset}>
@@ -85,7 +85,7 @@ export default function ViewportSettingsPanel() {
         />
       </div>
 
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 pt-1">
         <Switch
           id="contact-shadows"
           checked={contactShadows}
@@ -94,12 +94,12 @@ export default function ViewportSettingsPanel() {
         <Label htmlFor="contact-shadows">Contact Shadows</Label>
       </div>
 
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 pt-1">
         <Switch id="grid" checked={grid} onCheckedChange={setGrid} />
         <Label htmlFor="grid">Grid</Label>
       </div>
 
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 pt-1">
         <Switch
           id="auto-rotate"
           checked={autoRotate}

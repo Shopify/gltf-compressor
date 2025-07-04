@@ -1,4 +1,3 @@
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -286,7 +285,7 @@ export default function MaterialEditPanel() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="space-y-1">
         <Label htmlFor="material-select">Material</Label>
         <Select
@@ -337,7 +336,7 @@ export default function MaterialEditPanel() {
         </Select>
       </div>
 
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 pt-1">
         <Switch
           id="compression-toggle"
           checked={compressionEnabled}
@@ -387,7 +386,7 @@ export default function MaterialEditPanel() {
               : ""
           }
         >
-          Quality
+          Quality: {quality.toFixed(2)}
         </Label>
         <div className="flex items-center space-x-2">
           <Slider
@@ -402,12 +401,6 @@ export default function MaterialEditPanel() {
             onValueCommit={handleQualityChange}
             disabled={!compressionEnabled || textureSlots.length === 0}
             className="flex-1"
-          />
-          <Input
-            value={quality.toFixed(2)}
-            readOnly
-            className="w-16 text-center"
-            disabled={!compressionEnabled || textureSlots.length === 0}
           />
         </div>
       </div>

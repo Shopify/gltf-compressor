@@ -7,8 +7,8 @@ export default function StatsView() {
 
   return (
     <div className="absolute top-4 left-4 text-white font-mono text-xs pointer-events-none">
-      <div>Objects: {modelStats.numMeshes}</div>
-      <div>Verts: {modelStats.numVertices}</div>
+      <div>Meshes: {modelStats.numMeshes}</div>
+      <div>Vertices: {modelStats.numVertices}</div>
       <div>Textures: {modelStats.numTextures}</div>
       <div>Anim Clips: {modelStats.numAnimationClips}</div>
       <br />
