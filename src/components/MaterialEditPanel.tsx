@@ -16,6 +16,7 @@ import {
   getMaterialTextureBySlot,
 } from "@/utils/documentUtils";
 import {
+  calculateTextureWeight,
   formatSize,
   generateMaxDimensionOptions,
   getTexturesFromMaterial,
@@ -61,11 +62,7 @@ export default function MaterialEditPanel() {
         setSelectedTexture(firstTexture);
         const size = firstTexture?.getSize() ?? [0, 0];
         const maxDimension = Math.max(size[0], size[1]);
-        const imageData = firstTexture?.getImage();
-        let weight = 0;
-        if (imageData?.byteLength) {
-          weight = imageData.byteLength / 1000;
-        }
+        const weight = calculateTextureWeight(firstTexture);
         setMaxDimension(maxDimension);
         setMaxDimensionOptions(generateMaxDimensionOptions(maxDimension));
         setOriginalImageWeight(weight);
@@ -95,16 +92,10 @@ export default function MaterialEditPanel() {
       const maxDimension = textureSettings?.maxDimension ?? 0;
       const size = selectedTexture.getSize() ?? [0, 0];
       const originalMaxDimension = Math.max(size[0], size[1]);
-      const imageData = selectedTexture.getImage();
-      let weight = 0;
-      if (imageData?.byteLength) {
-        weight = imageData.byteLength / 1000;
-      }
-      const compressedImageData = textureSettings?.compressed?.getImage();
-      let compressedWeight = 0;
-      if (compressedImageData?.byteLength) {
-        compressedWeight = compressedImageData.byteLength / 1000;
-      }
+      const weight = calculateTextureWeight(selectedTexture);
+      const compressedWeight = calculateTextureWeight(
+        textureSettings?.compressed
+      );
       setCompressionEnabled(isCompressed);
       setQuality(textureQuality);
       setImageFormat(imageFormat);
@@ -169,11 +160,9 @@ export default function MaterialEditPanel() {
           } finally {
             // Always mark as not compressing when done
             setTextureCompressing(selectedTexture, false);
-            const imageData = textureCompressionSettings.compressed?.getImage();
-            let weight = 0;
-            if (imageData?.byteLength) {
-              weight = imageData.byteLength / 1000;
-            }
+            const weight = calculateTextureWeight(
+              textureCompressionSettings.compressed
+            );
             setCompressedImageWeight(weight);
           }
         }
@@ -220,11 +209,9 @@ export default function MaterialEditPanel() {
         } finally {
           // Always mark as not compressing when done
           setTextureCompressing(selectedTexture, false);
-          const imageData = textureCompressionSettings.compressed?.getImage();
-          let weight = 0;
-          if (imageData?.byteLength) {
-            weight = imageData.byteLength / 1000;
-          }
+          const weight = calculateTextureWeight(
+            textureCompressionSettings.compressed
+          );
           setCompressedImageWeight(weight);
         }
       }
@@ -261,11 +248,9 @@ export default function MaterialEditPanel() {
         } finally {
           // Always mark as not compressing when done
           setTextureCompressing(selectedTexture, false);
-          const imageData = textureCompressionSettings.compressed?.getImage();
-          let weight = 0;
-          if (imageData?.byteLength) {
-            weight = imageData.byteLength / 1000;
-          }
+          const weight = calculateTextureWeight(
+            textureCompressionSettings.compressed
+          );
           setCompressedImageWeight(weight);
         }
       }
@@ -303,11 +288,9 @@ export default function MaterialEditPanel() {
         } finally {
           // Always mark as not compressing when done
           setTextureCompressing(selectedTexture, false);
-          const imageData = textureCompressionSettings.compressed?.getImage();
-          let weight = 0;
-          if (imageData?.byteLength) {
-            weight = imageData.byteLength / 1000;
-          }
+          const weight = calculateTextureWeight(
+            textureCompressionSettings.compressed
+          );
           setCompressedImageWeight(weight);
         }
       }

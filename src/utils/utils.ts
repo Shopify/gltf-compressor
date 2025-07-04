@@ -150,3 +150,19 @@ export function formatSize(sizeInKB: number): string {
   }
   return `${sizeInKB.toFixed(1)} KB`;
 }
+
+/**
+ * Calculates the weight of a texture's image data in kilobytes
+ * @param texture The texture to calculate weight for
+ * @returns The weight in kilobytes, or 0 if no image data is available
+ */
+export function calculateTextureWeight(
+  texture: Texture | null | undefined
+): number {
+  if (!texture) return 0;
+
+  const imageData = texture.getImage();
+  if (!imageData?.byteLength) return 0;
+
+  return imageData.byteLength / 1000;
+}
