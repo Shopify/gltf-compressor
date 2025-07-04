@@ -41,7 +41,6 @@ function App() {
         <div className="flex h-full">
           <div className="w-[40%] h-full">
             <ModelView />
-            <StatsView />
           </div>
           <div className="w-[40%] h-full">
             <TextureView />
@@ -49,15 +48,14 @@ function App() {
           <div className="w-[20%] h-full overflow-y-auto">
             <SettingsView />
           </div>
+          <StatsView />
+          <div className="absolute bottom-4 left-4 pointer-events-none">
+            <img src="/logo.svg" alt="Logo" className="w-20 h-20" />
+          </div>
         </div>
       ) : (
         <Dropzone onDrop={onDrop} />
       )}
-
-      {/* Logo in bottom left corner */}
-      <div className="fixed bottom-4 left-4">
-        <img src="/logo.svg" alt="Logo" className="w-20 h-20" />
-      </div>
     </>
   );
 }

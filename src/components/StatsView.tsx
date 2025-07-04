@@ -6,7 +6,7 @@ export default function StatsView() {
   if (!modelStats) return null;
 
   return (
-    <div className="absolute top-4 left-4 p-4 text-white font-mono text-xs select-none pointer-events-none">
+    <div className="absolute top-4 left-4 text-white font-mono text-xs pointer-events-none">
       <div>Objects: {modelStats.numMeshes}</div>
       <div>Verts: {modelStats.numVertices}</div>
       <div>Textures: {modelStats.numTextures}</div>
