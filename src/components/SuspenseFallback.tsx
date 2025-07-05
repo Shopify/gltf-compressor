@@ -1,15 +1,6 @@
 import { Html } from "@react-three/drei";
-import { useEffect } from "react";
 
 function SuspenseFallback() {
-  useEffect(() => {
-    console.log("*** Mounted SuspenseFallback");
-
-    return () => {
-      console.log("*** Unmounted SuspenseFallback");
-    };
-  }, []);
-
   return (
     <Html
       center

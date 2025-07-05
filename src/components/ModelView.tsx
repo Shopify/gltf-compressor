@@ -1,4 +1,4 @@
-import { SuspenseFallback } from "@/custom_drei_components/SuspenseFallback";
+import { SuspenseFallback } from "@/components/SuspenseFallback";
 import { useModelStore } from "@/stores/useModelStore";
 import { GizmoHelper, GizmoViewport } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
