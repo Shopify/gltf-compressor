@@ -18,9 +18,9 @@ export default function ModelView() {
           <Stage>
             <primitive object={scene} />
           </Stage>
+          <Grid />
         </Suspense>
         <CameraControls />
-        <Grid />
         <GizmoHelper alignment="bottom-right" margin={[63.5, 63.5]}>
           <GizmoViewport
             axisColors={["#9d4b4b", "#2f7f4f", "#3b5b9d"]}

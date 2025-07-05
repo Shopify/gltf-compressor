@@ -153,7 +153,8 @@ export default function Grid() {
         const maxDimension = Math.max(modelDimensions[0], modelDimensions[2]);
         // Update the fade distance of the grid
         gridMaterial.uniforms.fadeDistance.value = maxDimension + 4.5;
-      }
+      },
+      { fireImmediately: true }
     );
 
     return () => {
