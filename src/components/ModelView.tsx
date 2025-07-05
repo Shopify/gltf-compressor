@@ -1,5 +1,6 @@
+import { SuspenseFallback } from "@/custom_drei_components/SuspenseFallback";
 import { useModelStore } from "@/stores/useModelStore";
-import { GizmoHelper, GizmoViewport, Html } from "@react-three/drei";
+import { GizmoHelper, GizmoViewport } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
 import { Grid } from "../custom_drei_components/Grid";
@@ -14,22 +15,7 @@ export default function ModelView() {
   return (
     <div id="view-3d">
       <Canvas camera={{ position: [0, 0, 150], fov: 50 }}>
-        <Suspense
-          fallback={
-            <Html
-              center
-              style={{
-                color: "white",
-                fontFamily:
-                  "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace",
-                fontSize: "0.75rem",
-                lineHeight: "1rem",
-              }}
-            >
-              Loading...
-            </Html>
-          }
-        >
+        <Suspense fallback={<SuspenseFallback />}>
           <Stage>
             <primitive object={scene} />
           </Stage>
