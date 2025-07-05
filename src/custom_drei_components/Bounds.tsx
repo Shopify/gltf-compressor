@@ -1,5 +1,6 @@
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
 import { createContext, useContext, useMemo, useRef, useState } from "react";
+import { easings, useSpring } from "react-spring";
 import { Box3, Group, Object3D, Vector3 } from "three";
 
 export type SizeProps = {
@@ -18,7 +19,6 @@ export type BoundsApi = {
 };
 
 export type BoundsProps = JSX.IntrinsicElements["group"] & {
-  maxDuration?: number;
   margin?: number;
   observe?: boolean;
   fit?: boolean;
@@ -27,27 +27,14 @@ export type BoundsProps = JSX.IntrinsicElements["group"] & {
   onFit?: (data: SizeProps) => void;
 };
 
-enum AnimationStateEnum {
-  NONE = 0,
-  START = 1,
-  ACTIVE = 2,
-}
-
-const AnimationState = (function (AnimationState: { [key: string]: any }) {
-  AnimationState[AnimationState.NONE] = "NONE";
-  AnimationState[AnimationState.START] = "START";
-  AnimationState[AnimationState.ACTIVE] = "ACTIVE";
-  return AnimationState;
-})(AnimationStateEnum || {});
 const interpolateFuncDefault = (t: number) => {
-  // Imitates the previously used MathUtils.damp
   return 1 - Math.exp(-5 * t) + 0.007 * t;
 };
+
 const context = createContext<BoundsApi | null>(null);
 
 function Bounds({
   children,
-  maxDuration = 1.0,
   margin = 1.2,
   interpolateFunc = interpolateFuncDefault,
 }: BoundsProps) {
@@ -67,10 +54,35 @@ function Bounds({
     camZoom: undefined,
     target: undefined,
   });
-  const animationState = useRef(AnimationState.NONE);
-  const t = useRef(0); // represent animation state from 0 to 1
 
   const [box] = useState(() => new Box3());
+
+  const [cameraSpring, cameraSpringAPI] = useSpring(() => ({
+    progress: 0.0,
+    config: {
+      easing: easings.linear,
+      duration: 1000,
+    },
+    onChange: () => {
+      const currProgress = cameraSpring.progress.get();
+      const k = interpolateFunc(currProgress);
+      goal.current.camPos &&
+        camera.position.lerpVectors(
+          origin.current.camPos,
+          goal.current.camPos,
+          k
+        );
+      camera.lookAt(new Vector3(0, 0, 0));
+      camera.updateMatrixWorld();
+      camera.updateProjectionMatrix();
+    },
+    onRest: () => {
+      goal.current.camPos && camera.position.copy(goal.current.camPos);
+      camera.lookAt(new Vector3(0, 0, 0));
+      camera.updateMatrixWorld();
+      camera.updateProjectionMatrix();
+    },
+  }));
 
   const api = useMemo(() => {
     function getSize() {
@@ -118,8 +130,10 @@ function Bounds({
           .clone()
           .addScaledVector(direction, distance);
         goal.current.target = center.clone();
-        animationState.current = AnimationState.START;
-        t.current = 0;
+        cameraSpringAPI.start({
+          from: { progress: 0.0 },
+          to: { progress: 1.0 },
+        });
         return this;
       },
       fit() {
@@ -140,32 +154,6 @@ function Bounds({
       },
     };
   }, [box, camera, controls, margin]);
-
-  useFrame((_state, delta) => {
-    if (animationState.current === AnimationState.START) {
-      animationState.current = AnimationState.ACTIVE;
-    } else if (animationState.current === AnimationState.ACTIVE) {
-      t.current += delta / maxDuration;
-      if (t.current >= 1) {
-        goal.current.camPos && camera.position.copy(goal.current.camPos);
-        camera.lookAt(new Vector3(0, 0, 0));
-        camera.updateMatrixWorld();
-        camera.updateProjectionMatrix();
-        animationState.current = AnimationState.NONE;
-      } else {
-        const k = interpolateFunc(t.current);
-        goal.current.camPos &&
-          camera.position.lerpVectors(
-            origin.current.camPos,
-            goal.current.camPos,
-            k
-          );
-        camera.lookAt(new Vector3(0, 0, 0));
-        camera.updateMatrixWorld();
-        camera.updateProjectionMatrix();
-      }
-    }
-  });
 
   return (
     <group ref={ref}>

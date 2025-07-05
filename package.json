@@ -35,6 +35,7 @@
     "react-draggable": "^4.4.6",
     "react-dropzone": "^14.3.5",
     "react-number-format": "^5.4.4",
+    "react-spring": "^9.7.5",
     "react-use-measure": "^2.1.1",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
