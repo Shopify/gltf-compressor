@@ -304,19 +304,18 @@ export default function MaterialEditPanel() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code === "Space") {
+      if (event.code === "Space" && !event.repeat) {
         event.preventDefault();
 
         // Toggle between original image and compressed image
         if (selectedTexture) {
-          console.log("Here1");
           const textureCompressionSettings =
             compressionSettings?.textures.get(selectedTexture);
           if (textureCompressionSettings) {
-            console.log("Here2");
             if (textureCompressionSettings.compressed) {
-              console.log("Here3");
               console.log("*** Restoring original image");
+              console.log(selectedTexture.getImage());
+              console.log(selectedTexture.getMimeType());
               textureCompressionSettings.compressed.setImage(
                 selectedTexture.getImage()!
               );
@@ -329,10 +328,37 @@ export default function MaterialEditPanel() {
       }
     };
 
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.code === "Space") {
+        event.preventDefault();
+
+        // Display compressed image when spacebar is released
+        if (selectedTexture) {
+          const textureCompressionSettings =
+            compressionSettings?.textures.get(selectedTexture);
+          if (textureCompressionSettings) {
+            if (textureCompressionSettings.compressed) {
+              console.log("*** Displaying compressed image");
+              console.log(textureCompressionSettings.compressedImageData);
+              console.log(textureCompressionSettings.mimeType);
+              textureCompressionSettings.compressed.setImage(
+                textureCompressionSettings.compressedImageData!
+              );
+              textureCompressionSettings.compressed.setMimeType(
+                textureCompressionSettings.mimeType!
+              );
+            }
+          }
+        }
+      }
+    };
+
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, [selectedTexture, compressionSettings]);
 

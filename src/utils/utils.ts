@@ -69,6 +69,7 @@ export function buildTextureCompressionSettings(
 
     const textureCompressionSettings: TextureCompressionSettings = {
       compressed: modifiedTextures[index],
+      compressedImageData: texture.getImage()?.slice() ?? null,
       mimeType: texture.getMimeType(),
       quality: defaultTextureQuality,
       compressionEnabled: false,
