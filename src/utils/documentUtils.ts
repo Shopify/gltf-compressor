@@ -37,7 +37,7 @@ export const compressDocumentTexture = async (
   originalTexture: Texture,
   compressionSettings: TextureCompressionSettings
 ) => {
-  const format = compressionSettings.type || "image/jpeg";
+  const format = compressionSettings.mimeType || "image/jpeg";
   const compressedImageData = await compressImage(
     originalTexture.getImage()!,
     compressionSettings.maxDimension,

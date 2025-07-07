@@ -88,7 +88,7 @@ export default function MaterialEditPanel() {
         compressionSettings?.textures.get(selectedTexture);
       const isCompressed = textureSettings?.compressionEnabled ?? false;
       const textureQuality = textureSettings?.quality ?? 0.8;
-      const imageFormat = textureSettings?.type ?? "image/jpeg";
+      const imageFormat = textureSettings?.mimeType ?? "image/jpeg";
       const maxDimension = textureSettings?.maxDimension ?? 0;
       const size = selectedTexture.getSize() ?? [0, 0];
       const originalMaxDimension = Math.max(size[0], size[1]);
@@ -301,6 +301,40 @@ export default function MaterialEditPanel() {
       });
     }
   };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.code === "Space") {
+        event.preventDefault();
+
+        // Toggle between original image and compressed image
+        if (selectedTexture) {
+          console.log("Here1");
+          const textureCompressionSettings =
+            compressionSettings?.textures.get(selectedTexture);
+          if (textureCompressionSettings) {
+            console.log("Here2");
+            if (textureCompressionSettings.compressed) {
+              console.log("Here3");
+              console.log("*** Restoring original image");
+              textureCompressionSettings.compressed.setImage(
+                selectedTexture.getImage()!
+              );
+              textureCompressionSettings.compressed.setMimeType(
+                selectedTexture.getMimeType()!
+              );
+            }
+          }
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedTexture, compressionSettings]);
 
   return (
     <div className="space-y-2">
