@@ -9,7 +9,7 @@ import { createDocuments } from "./utils/documentUtils";
 import { buildTextureCompressionSettings } from "./utils/utils";
 
 function App() {
-  const { originalDocument, setInitialModelStats } = useModelStore();
+  const { originalDocument, setInitialModelStats, selectedTexture } = useModelStore();
 
   const onDrop = useCallback(async <T extends File>(acceptedFiles: T[]) => {
     if (acceptedFiles[0]) {
@@ -39,12 +39,14 @@ function App() {
     <>
       {originalDocument ? (
         <div className="flex h-full">
-          <div className="w-[40%] h-full">
+          <div className={`${selectedTexture ? 'w-[40%]' : 'w-[80%]'} h-full`}>
             <ModelView />
           </div>
-          <div className="w-[40%] h-full">
-            <TextureView />
-          </div>
+          {selectedTexture && (
+            <div className="w-[40%] h-full">
+              <TextureView />
+            </div>
+          )}
           <div className="w-[20%] h-full overflow-y-auto">
             <SettingsView />
           </div>
