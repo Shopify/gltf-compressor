@@ -2,7 +2,7 @@ import { useModelStore } from "@/stores/useModelStore";
 import { useEffect, useRef } from "react";
 
 export default function TextureView() {
-  const { selectedTexture, compressionSettings, compressingTextures } =
+  const { selectedTexture, compressionSettings, compressingTextures, textureViewKey } =
     useModelStore();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -53,7 +53,7 @@ export default function TextureView() {
     };
 
     loadTexture();
-  }, [selectedTexture, compressionSettings, isCompressing]);
+  }, [selectedTexture, compressionSettings, isCompressing, textureViewKey]);
 
   return (
     <div
