@@ -18,7 +18,7 @@ export default function SettingsView() {
       defaultValue={["viewport", "material", "export"]}
     >
       <AccordionItem value="viewport" className="border-b">
-        <AccordionTrigger className="bg-secondary hover:bg-secondary/80 px-4 py-2 transition-colors">
+        <AccordionTrigger className="bg-secondary px-4 py-2">
           Viewport Settings
         </AccordionTrigger>
         <AccordionContent className="px-4 py-2 bg-background">
@@ -26,7 +26,7 @@ export default function SettingsView() {
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="material" className="border-b">
-        <AccordionTrigger className="bg-secondary hover:bg-secondary/80 px-4 py-2 transition-colors">
+        <AccordionTrigger className="bg-secondary px-4 py-2">
           Material Edit
         </AccordionTrigger>
         <AccordionContent className="px-4 py-2 bg-background">
@@ -34,7 +34,7 @@ export default function SettingsView() {
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="export" className="border-b">
-        <AccordionTrigger className="bg-secondary hover:bg-secondary/80 px-4 py-2 transition-colors">
+        <AccordionTrigger className="bg-secondary px-4 py-2">
           Export
         </AccordionTrigger>
         <AccordionContent className="px-4 py-2 bg-background">
