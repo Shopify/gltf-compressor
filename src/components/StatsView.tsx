@@ -2,7 +2,8 @@ import { useModelStore } from "@/stores/useModelStore";
 import { formatSize } from "@/utils/utils";
 
 export default function StatsView() {
-  const { modelStats, showingCompressedTexture } = useModelStore();
+  const { modelStats, showingCompressedTexture, selectedTexture } =
+    useModelStore();
 
   if (!modelStats) return null;
 
@@ -40,9 +41,11 @@ export default function StatsView() {
         {modelStats.percentOfSizeTakenByAnimations.toFixed(1)}%)
       </div>
       <br />
-      <div>
-        Showing {showingCompressedTexture ? "compressed" : "original"} texture
-      </div>
+      {selectedTexture && (
+        <div>
+          Showing {showingCompressedTexture ? "compressed" : "original"} texture
+        </div>
+      )}
     </div>
   );
 }
