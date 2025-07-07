@@ -38,6 +38,7 @@ export default function MaterialEditPanel() {
     updateModelStats,
     setTextureCompressing,
     forceTextureViewUpdate,
+    setShowingCompressedTexture,
   } = useModelStore();
 
   const [materialNames, setMaterialNames] = useState<string[]>([]);
@@ -169,6 +170,7 @@ export default function MaterialEditPanel() {
               textureCompressionSettings.compressed
             );
             setCompressedImageWeight(weight);
+            setShowingCompressedTexture(true);
           }
         }
       } else {
@@ -185,6 +187,7 @@ export default function MaterialEditPanel() {
           compressionEnabled: value,
         });
         updateModelStats();
+        setShowingCompressedTexture(false);
       }
     }
   };
@@ -312,30 +315,34 @@ export default function MaterialEditPanel() {
       if (event.code === "Space" && !event.repeat) {
         event.preventDefault();
 
-        // Toggle between original image and compressed image
         if (selectedTexture) {
           const textureCompressionSettings =
             compressionSettings?.textures.get(selectedTexture);
-          if (textureCompressionSettings?.compressed && textureCompressionSettings.compressionEnabled) {
+          if (
+            textureCompressionSettings?.compressed &&
+            textureCompressionSettings.compressionEnabled
+          ) {
             // Save the current compressed image data before switching to original
             const compressedTexture = textureCompressionSettings.compressed;
             const currentImageData = compressedTexture.getImage();
             const currentMimeType = compressedTexture.getMimeType();
-            
+
             if (currentImageData) {
               // Store the compressed data
               setSavedCompressedData({
                 imageData: currentImageData.slice(),
-                mimeType: currentMimeType
+                mimeType: currentMimeType,
               });
-              
+
               console.log("*** Showing original image");
               // Set to original image
               compressedTexture.setImage(selectedTexture.getImage()!);
               compressedTexture.setMimeType(selectedTexture.getMimeType()!);
-              
+
               // Force TextureView to re-render
               forceTextureViewUpdate();
+
+              setShowingCompressedTexture(false);
             }
           }
         }
@@ -350,18 +357,27 @@ export default function MaterialEditPanel() {
         if (selectedTexture && savedCompressedData) {
           const textureCompressionSettings =
             compressionSettings?.textures.get(selectedTexture);
-          if (textureCompressionSettings?.compressed && textureCompressionSettings.compressionEnabled) {
+          if (
+            textureCompressionSettings?.compressed &&
+            textureCompressionSettings.compressionEnabled
+          ) {
             console.log("*** Restoring compressed image");
-            
+
             // Restore the saved compressed image data
-            textureCompressionSettings.compressed.setImage(savedCompressedData.imageData!);
-            textureCompressionSettings.compressed.setMimeType(savedCompressedData.mimeType);
-            
+            textureCompressionSettings.compressed.setImage(
+              savedCompressedData.imageData!
+            );
+            textureCompressionSettings.compressed.setMimeType(
+              savedCompressedData.mimeType
+            );
+
             // Clear saved data
             setSavedCompressedData(null);
-            
+
             // Force TextureView to re-render
             forceTextureViewUpdate();
+
+            setShowingCompressedTexture(true);
           }
         }
       }
@@ -374,7 +390,12 @@ export default function MaterialEditPanel() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [selectedTexture, compressionSettings, savedCompressedData, forceTextureViewUpdate]);
+  }, [
+    selectedTexture,
+    compressionSettings,
+    savedCompressedData,
+    forceTextureViewUpdate,
+  ]);
 
   return (
     <div className="space-y-2">
