@@ -69,7 +69,7 @@ export function buildTextureCompressionSettings(
 
     const textureCompressionSettings: TextureCompressionSettings = {
       compressed: modifiedTextures[index],
-      type: texture.getMimeType(),
+      mimeType: texture.getMimeType(),
       quality: defaultTextureQuality,
       compressionEnabled: false,
       maxDimension: maxDimension,

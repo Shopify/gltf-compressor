@@ -229,7 +229,7 @@ export default function MaterialEditPanel() {
     if (selectedTexture && compressionEnabled) {
       // Update the format in compression settings
       updateTextureCompressionSettings(selectedTexture, {
-        type: value,
+        mimeType: value,
       });
 
       // Re-compress with new format if compression is enabled
@@ -242,7 +242,7 @@ export default function MaterialEditPanel() {
         try {
           await compressDocumentTexture(selectedTexture, {
             ...textureCompressionSettings,
-            type: value,
+            mimeType: value,
           });
           updateModelStats();
         } finally {
@@ -257,7 +257,7 @@ export default function MaterialEditPanel() {
     } else if (selectedTexture) {
       // Just update the format setting even if compression is disabled
       updateTextureCompressionSettings(selectedTexture, {
-        type: value,
+        mimeType: value,
       });
     }
   };
