@@ -61,9 +61,8 @@ html,
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
     --color-resize-bar-background: #222222;
-    --color-resize-bar: #515b6a;
-    --color-resize-bar-active: #b1bdd0;
-    --color-resize-bar-hover: #515b6a;
+    --color-resize-bar: #777777;
+    --color-resize-bar-active: #999999;
   }
   .dark {
     --background: 0 0% 10.1961%;
@@ -93,6 +92,7 @@ html,
     --radius: 0.35rem;
     --color-resize-bar-background: #222222;
     --color-resize-bar: #777777;
+    --color-resize-bar-active: #999999;
   }
 }
 
@@ -113,4 +113,8 @@ html,
   outline: none;
   color: var(--color-resize-bar);
   background-color: var(--color-resize-bar-background);
+}
+
+.ResizeHandle[data-resize-handle-active] {
+  color: var(--color-resize-bar-active);
 }
