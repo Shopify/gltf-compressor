@@ -15,6 +15,7 @@ export default function ModelView() {
   return (
     <div id="view-3d">
       <Canvas camera={{ position: [0, 0, 150], fov: 50 }}>
+        <color attach="background" args={["#444444"]} />
         <Suspense fallback={<SuspenseFallback />}>
           <Stage>
             <primitive object={scene} />
