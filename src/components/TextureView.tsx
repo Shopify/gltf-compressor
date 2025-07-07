@@ -81,29 +81,14 @@ export default function TextureView() {
         <div
           style={{
             color: "white",
-            fontSize: "16px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "10px",
+            fontFamily:
+              "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace",
+            fontSize: "0.75rem",
+            lineHeight: "1rem",
+            whiteSpace: "nowrap",
           }}
         >
-          <div
-            style={{
-              width: "40px",
-              height: "40px",
-              border: "3px solid rgba(255, 255, 255, 0.3)",
-              borderTopColor: "white",
-              borderRadius: "50%",
-              animation: "spin 1s linear infinite",
-            }}
-          />
           <span>Compressing texture...</span>
-          <style>{`
-            @keyframes spin {
-              to { transform: rotate(360deg); }
-            }
-          `}</style>
         </div>
       )}
     </div>

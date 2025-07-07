@@ -10,9 +10,10 @@ function SuspenseFallback() {
           "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace",
         fontSize: "0.75rem",
         lineHeight: "1rem",
+        whiteSpace: "nowrap",
       }}
     >
-      Loading...
+      Loading model...
     </Html>
   );
 }
