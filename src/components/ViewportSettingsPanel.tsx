@@ -9,8 +9,11 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useViewportStore } from "@/stores/useViewportStore";
+import { useTheme } from "./ThemeProvider";
 
 export default function ViewportSettingsPanel() {
+  const { theme, setTheme } = useTheme();
+
   const {
     lightingPreset,
     environmentPreset,
@@ -28,6 +31,22 @@ export default function ViewportSettingsPanel() {
 
   return (
     <div className="space-y-2">
+      <div className="space-y-1">
+        <Label htmlFor="theme">Theme</Label>
+        <Select value={theme} onValueChange={setTheme}>
+          <SelectTrigger id="theme">
+            <SelectValue placeholder="Select theme" />
+          </SelectTrigger>
+          <SelectContent>
+            {["light", "dark", "system"].map((t) => (
+              <SelectItem key={t} value={t}>
+                {t}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="space-y-1">
         <Label htmlFor="lighting-preset">Lighting Preset</Label>
         <Select value={lightingPreset} onValueChange={setLightingPreset}>

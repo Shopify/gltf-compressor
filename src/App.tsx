@@ -5,6 +5,7 @@ import ModelView from "./components/ModelView";
 import SettingsView from "./components/SettingsView";
 import StatsView from "./components/StatsView";
 import TextureView from "./components/TextureView";
+import { ThemeProvider } from "./components/ThemeProvider";
 import { useModelStore } from "./stores/useModelStore";
 import { createDocuments } from "./utils/documentUtils";
 import { buildTextureCompressionSettings } from "./utils/utils";
@@ -37,7 +38,7 @@ function App() {
   }, []);
 
   return (
-    <>
+    <ThemeProvider>
       {originalDocument ? (
         <div className="flex h-full">
           <div className="w-[80%] h-full">
@@ -66,7 +67,7 @@ function App() {
       ) : (
         <Dropzone onDrop={onDrop} />
       )}
-    </>
+    </ThemeProvider>
   );
 }
 
