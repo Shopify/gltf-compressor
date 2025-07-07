@@ -116,9 +116,7 @@ html,
     --chart-5: 0 0% 25.098%;
     --radius: 0.35rem;
     --color-resize-bar-background: #222222;
-    --color-resize-bar: #515b6a;
-    --color-resize-bar-active: #b1bdd0;
-    --color-resize-bar-hover: #515b6a;
+    --color-resize-bar: #777777;
   }
 }
 
@@ -139,26 +137,4 @@ html,
   outline: none;
   color: var(--color-resize-bar);
   background-color: var(--color-resize-bar-background);
-}
-.ResizeHandle:hover {
-  color: var(--color-resize-bar-hover);
-}
-.ResizeHandle[data-resize-handle-active] {
-  color: var(--color-resize-bar-active);
-}
-
-.ResizeHandle .ResizeHandleThumb[data-direction="vertical"] {
-  rotate: 90deg;
-}
-
-@media (pointer: coarse) {
-  .ResizeHandle {
-    flex: 0 0 2rem;
-  }
-
-  .ResizeHandle .ResizeHandleThumb {
-    flex: 0 0 1.25rem;
-    height: 1.25rem;
-    width: 1.25rem;
-  }
 }
