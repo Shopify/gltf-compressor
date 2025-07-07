@@ -2,8 +2,12 @@ import { useModelStore } from "@/stores/useModelStore";
 import { useEffect, useRef } from "react";
 
 export default function TextureView() {
-  const { selectedTexture, compressionSettings, compressingTextures, textureViewKey } =
-    useModelStore();
+  const {
+    selectedTexture,
+    compressionSettings,
+    compressingTextures,
+    textureViewKey,
+  } = useModelStore();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isCompressing =
@@ -89,6 +93,20 @@ export default function TextureView() {
           }}
         >
           <span>Compressing texture...</span>
+        </div>
+      )}
+      {!selectedTexture && (
+        <div
+          style={{
+            color: "white",
+            fontFamily:
+              "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace",
+            fontSize: "0.75rem",
+            lineHeight: "1rem",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <span>No texture selected</span>
         </div>
       )}
     </div>

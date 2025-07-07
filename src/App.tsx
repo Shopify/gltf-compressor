@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { Dropzone } from "./components/Dropzone";
 import ModelView from "./components/ModelView";
 import SettingsView from "./components/SettingsView";
@@ -7,10 +8,9 @@ import TextureView from "./components/TextureView";
 import { useModelStore } from "./stores/useModelStore";
 import { createDocuments } from "./utils/documentUtils";
 import { buildTextureCompressionSettings } from "./utils/utils";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 function App() {
-  const { originalDocument, setInitialModelStats, selectedTexture } = useModelStore();
+  const { originalDocument, setInitialModelStats } = useModelStore();
 
   const onDrop = useCallback(async <T extends File>(acceptedFiles: T[]) => {
     if (acceptedFiles[0]) {
@@ -42,21 +42,17 @@ function App() {
         <div className="flex h-full">
           <div className="w-[80%] h-full">
             <PanelGroup direction="horizontal">
-              <Panel defaultSize={selectedTexture ? 50 : 100} minSize={30}>
+              <Panel defaultSize={50} minSize={0}>
                 <ModelView />
               </Panel>
-              {selectedTexture && (
-                <>
-                  <PanelResizeHandle className="ResizeHandle">
-                    <div className="ResizeHandleThumb" data-direction="horizontal">
-                      ⋮
-                    </div>
-                  </PanelResizeHandle>
-                  <Panel defaultSize={50} minSize={20}>
-                    <TextureView />
-                  </Panel>
-                </>
-              )}
+              <PanelResizeHandle className="ResizeHandle">
+                <div className="ResizeHandleThumb" data-direction="horizontal">
+                  ⋮
+                </div>
+              </PanelResizeHandle>
+              <Panel defaultSize={50} minSize={0}>
+                <TextureView />
+              </Panel>
             </PanelGroup>
           </div>
           <div className="w-[20%] h-full overflow-y-auto">
