@@ -14,12 +14,14 @@ interface ModelStore {
   originalDocument: Document | null;
   modifiedDocument: Document | null;
   scene: Group | null;
-
   compressionSettings: ModelCompressionSettings | null;
   selectedTexture: Texture | null;
   selectedTextureSlot: string;
   selectedMaterial: Material | null;
   compressingTextures: Set<Texture>;
+  modelStats: ModelStats | null;
+  modifiedTextures: Texture[] | null;
+
   setSelectedTexture: (texture: Texture | null) => void;
   setSelectedTextureSlot: (slot: string) => void;
   setSelectedMaterial: (material: Material | null) => void;
@@ -28,9 +30,6 @@ interface ModelStore {
     settings: Partial<TextureCompressionSettings>
   ) => void;
   setTextureCompressing: (texture: Texture, isCompressing: boolean) => void;
-
-  modelStats: ModelStats | null;
-  modifiedTextures: Texture[] | null;
   setInitialModelStats: () => void;
   updateModelStats: () => void;
 }
@@ -39,12 +38,14 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
   originalDocument: null,
   modifiedDocument: null,
   scene: null,
-
   compressionSettings: null,
   selectedTexture: null,
   selectedTextureSlot: "",
   selectedMaterial: null,
   compressingTextures: new Set<Texture>(),
+  modelStats: null,
+  modifiedTextures: null,
+
   setSelectedTexture: (texture: Texture | null) =>
     set({ selectedTexture: texture }),
   setSelectedTextureSlot: (slot: string) => set({ selectedTextureSlot: slot }),
@@ -81,9 +82,6 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
       })
     );
   },
-
-  modelStats: null,
-  modifiedTextures: null,
   setInitialModelStats: () => {
     const { originalDocument, modifiedDocument } = get();
 
