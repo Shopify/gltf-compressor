@@ -109,6 +109,7 @@ export default function MaterialEditPanel() {
       setMaxDimensionOptions(generateMaxDimensionOptions(originalMaxDimension));
       setOriginalImageWeight(weight);
       setCompressedImageWeight(compressedWeight);
+      setShowingCompressedTexture(isCompressed);
     } else {
       // Reset to default values when no texture is selected
       setCompressionEnabled(false);
@@ -118,6 +119,7 @@ export default function MaterialEditPanel() {
       setMaxDimensionOptions(["0"]);
       setOriginalImageWeight(0);
       setCompressedImageWeight(0);
+      setShowingCompressedTexture(false);
     }
   }, [selectedTexture, compressionSettings]);
 
