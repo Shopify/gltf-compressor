@@ -7,6 +7,7 @@ import TextureView from "./components/TextureView";
 import { useModelStore } from "./stores/useModelStore";
 import { createDocuments } from "./utils/documentUtils";
 import { buildTextureCompressionSettings } from "./utils/utils";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 function App() {
   const { originalDocument, setInitialModelStats, selectedTexture } = useModelStore();
@@ -39,14 +40,21 @@ function App() {
     <>
       {originalDocument ? (
         <div className="flex h-full">
-          <div className={`${selectedTexture ? 'w-[40%]' : 'w-[80%]'} h-full`}>
-            <ModelView />
+          <div className="w-[80%] h-full">
+            <PanelGroup direction="horizontal">
+              <Panel defaultSize={selectedTexture ? 50 : 100} minSize={30}>
+                <ModelView />
+              </Panel>
+              {selectedTexture && (
+                <>
+                  <PanelResizeHandle className="w-2 bg-gray-200 hover:bg-gray-300 transition-colors cursor-col-resize" />
+                  <Panel defaultSize={50} minSize={20}>
+                    <TextureView />
+                  </Panel>
+                </>
+              )}
+            </PanelGroup>
           </div>
-          {selectedTexture && (
-            <div className="w-[40%] h-full">
-              <TextureView />
-            </div>
-          )}
           <div className="w-[20%] h-full overflow-y-auto">
             <SettingsView />
           </div>
