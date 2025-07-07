@@ -312,7 +312,7 @@ export default function MaterialEditPanel() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code === "Space" && !event.repeat) {
+      if (event.code === "KeyC" && !event.repeat) {
         event.preventDefault();
 
         if (selectedTexture) {
@@ -350,7 +350,7 @@ export default function MaterialEditPanel() {
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.code === "Space") {
+      if (event.code === "KeyC") {
         event.preventDefault();
 
         // Restore compressed image when spacebar is released
