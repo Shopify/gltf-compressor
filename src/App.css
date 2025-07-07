@@ -84,6 +84,10 @@ html,
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --color-resize-bar-background: #222222;
+    --color-resize-bar: #515b6a;
+    --color-resize-bar-active: #b1bdd0;
+    --color-resize-bar-hover: #515b6a;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -110,6 +114,10 @@ html,
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --color-resize-bar-background: #222222;
+    --color-resize-bar: #515b6a;
+    --color-resize-bar-active: #b1bdd0;
+    --color-resize-bar-hover: #515b6a;
   }
 }
 
@@ -119,5 +127,37 @@ html,
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.ResizeHandle {
+  flex: 0 0 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  outline: none;
+  color: var(--color-resize-bar);
+  background-color: var(--color-resize-bar-background);
+}
+.ResizeHandle:hover {
+  color: var(--color-resize-bar-hover);
+}
+.ResizeHandle[data-resize-handle-active] {
+  color: var(--color-resize-bar-active);
+}
+
+.ResizeHandle .ResizeHandleThumb[data-direction="vertical"] {
+  rotate: 90deg;
+}
+
+@media (pointer: coarse) {
+  .ResizeHandle {
+    flex: 0 0 2rem;
+  }
+
+  .ResizeHandle .ResizeHandleThumb {
+    flex: 0 0 1.25rem;
+    height: 1.25rem;
+    width: 1.25rem;
   }
 }

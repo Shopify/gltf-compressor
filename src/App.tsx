@@ -47,7 +47,11 @@ function App() {
               </Panel>
               {selectedTexture && (
                 <>
-                  <PanelResizeHandle className="w-2 bg-gray-200 hover:bg-gray-300 transition-colors cursor-col-resize" />
+                  <PanelResizeHandle className="ResizeHandle">
+                    <div className="ResizeHandleThumb" data-direction="horizontal">
+                      ⋮
+                    </div>
+                  </PanelResizeHandle>
                   <Panel defaultSize={50} minSize={20}>
                     <TextureView />
                   </Panel>
