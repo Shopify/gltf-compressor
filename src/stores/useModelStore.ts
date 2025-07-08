@@ -62,9 +62,6 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
   ) => {
     const { compressionSettings } = get();
     if (!compressionSettings) return;
-
-    console.log("Updating", get().selectedTexture?.getName(), settings);
-
     set(
       produce((state: ModelStore) => {
         state.compressionSettings!.textures.set(texture, {

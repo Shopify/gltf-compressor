@@ -2,9 +2,9 @@ import { Texture } from "@gltf-transform/core";
 
 export interface TextureCompressionSettings {
   compressedTexture: Texture | null;
-  mimeType: string;
-  quality: number;
   compressionEnabled: boolean;
+  quality: number;
+  mimeType: string;
   maxDimension: number;
 }
 
