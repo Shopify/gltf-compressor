@@ -8,12 +8,7 @@ export interface TextureCompressionSettings {
   maxDimension: number;
 }
 
-export interface MaterialCompressionSettings {
-  [mapName: string]: TextureCompressionSettings;
-}
-
 export interface ModelCompressionSettings {
-  materials: { [materialName: string]: MaterialCompressionSettings };
   textures: Map<Texture, TextureCompressionSettings>;
 }
 

@@ -12,7 +12,6 @@ export function buildTextureCompressionSettings(
   modifiedDocument: Document
 ): ModelCompressionSettings {
   const compressionSettings: ModelCompressionSettings = {
-    materials: {},
     textures: new Map(),
   };
 
