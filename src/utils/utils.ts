@@ -7,7 +7,7 @@ import {
   Texture,
 } from "@gltf-transform/core";
 
-export function buildTextureCompressionSettings(
+export function buildModelCompressionSettings(
   document: Document,
   modifiedDocument: Document
 ): ModelCompressionSettings {

@@ -9,7 +9,7 @@ import TextureView from "./components/TextureView";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useModelStore } from "./stores/useModelStore";
 import { createDocuments } from "./utils/documentUtils";
-import { buildTextureCompressionSettings } from "./utils/utils";
+import { buildModelCompressionSettings } from "./utils/utils";
 
 function App() {
   const { originalDocument, setInitialModelStats } = useModelStore();
@@ -21,7 +21,7 @@ function App() {
         const { originalDocument, modifiedDocument, sceneView } =
           await createDocuments(url);
 
-        const modelCompressionSettings = buildTextureCompressionSettings(
+        const modelCompressionSettings = buildModelCompressionSettings(
           originalDocument,
           modifiedDocument
         );
