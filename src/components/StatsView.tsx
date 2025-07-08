@@ -14,13 +14,9 @@ export default function StatsView() {
       <div>Textures: {modelStats.numTextures}</div>
       <div>Anim Clips: {modelStats.numAnimationClips}</div>
       <br />
+      <div>Meshes: {formatSize(modelStats.sizeOfMeshes)}</div>
       <div>
-        Meshes: {formatSize(modelStats.sizeOfMeshes)} (
-        {modelStats.percentOfSizeTakenByMeshes.toFixed(1)}%)
-      </div>
-      <div>
-        Textures: {formatSize(modelStats.sizeOfTextures)} (
-        {modelStats.percentOfSizeTakenByTextures.toFixed(1)}%)
+        Textures: {formatSize(modelStats.sizeOfTextures)}
         {modelStats.percentChangeInTextures !== null &&
           modelStats.percentChangeInTextures > 0 && (
             <span className="text-green-400">
@@ -36,10 +32,7 @@ export default function StatsView() {
             </span>
           )}
       </div>
-      <div>
-        Anim Clips: {formatSize(modelStats.sizeOfAnimations)} (
-        {modelStats.percentOfSizeTakenByAnimations.toFixed(1)}%)
-      </div>
+      <div>Anim Clips: {formatSize(modelStats.sizeOfAnimations)}</div>
       <br />
       {selectedTexture && (
         <div>
