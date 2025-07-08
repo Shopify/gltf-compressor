@@ -312,76 +312,82 @@ export default function MaterialEditPanel() {
     }
   };
 
+  const handleShowCompressedTexture = () => {
+    if (selectedTexture && savedCompressedData) {
+      const textureCompressionSettings =
+        compressionSettings?.textures.get(selectedTexture);
+      if (
+        textureCompressionSettings?.compressed &&
+        textureCompressionSettings.compressionEnabled
+      ) {
+        console.log("*** Restoring compressed image");
+
+        // Restore the saved compressed image data
+        textureCompressionSettings.compressed.setImage(
+          savedCompressedData.imageData!
+        );
+        textureCompressionSettings.compressed.setMimeType(
+          savedCompressedData.mimeType
+        );
+
+        // Clear saved data
+        setSavedCompressedData(null);
+
+        // Force TextureView to re-render
+        forceTextureViewUpdate();
+
+        setShowingCompressedTexture(true);
+      }
+    }
+  };
+
+  const handleShowUncompressedTexture = () => {
+    if (selectedTexture) {
+      const textureCompressionSettings =
+        compressionSettings?.textures.get(selectedTexture);
+      if (
+        textureCompressionSettings?.compressed &&
+        textureCompressionSettings.compressionEnabled
+      ) {
+        // Save the current compressed image data before switching to original
+        const compressedTexture = textureCompressionSettings.compressed;
+        const currentImageData = compressedTexture.getImage();
+        const currentMimeType = compressedTexture.getMimeType();
+
+        if (currentImageData) {
+          // Store the compressed data
+          setSavedCompressedData({
+            imageData: currentImageData.slice(),
+            mimeType: currentMimeType,
+          });
+
+          console.log("*** Showing original image");
+          // Set to original image
+          compressedTexture.setImage(selectedTexture.getImage()!);
+          compressedTexture.setMimeType(selectedTexture.getMimeType()!);
+
+          // Force TextureView to re-render
+          forceTextureViewUpdate();
+
+          setShowingCompressedTexture(false);
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.code === "KeyC" && !event.repeat) {
         event.preventDefault();
-
-        if (selectedTexture) {
-          const textureCompressionSettings =
-            compressionSettings?.textures.get(selectedTexture);
-          if (
-            textureCompressionSettings?.compressed &&
-            textureCompressionSettings.compressionEnabled
-          ) {
-            // Save the current compressed image data before switching to original
-            const compressedTexture = textureCompressionSettings.compressed;
-            const currentImageData = compressedTexture.getImage();
-            const currentMimeType = compressedTexture.getMimeType();
-
-            if (currentImageData) {
-              // Store the compressed data
-              setSavedCompressedData({
-                imageData: currentImageData.slice(),
-                mimeType: currentMimeType,
-              });
-
-              console.log("*** Showing original image");
-              // Set to original image
-              compressedTexture.setImage(selectedTexture.getImage()!);
-              compressedTexture.setMimeType(selectedTexture.getMimeType()!);
-
-              // Force TextureView to re-render
-              forceTextureViewUpdate();
-
-              setShowingCompressedTexture(false);
-            }
-          }
-        }
+        handleShowUncompressedTexture();
       }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
       if (event.code === "KeyC") {
         event.preventDefault();
-
         // Restore compressed image when spacebar is released
-        if (selectedTexture && savedCompressedData) {
-          const textureCompressionSettings =
-            compressionSettings?.textures.get(selectedTexture);
-          if (
-            textureCompressionSettings?.compressed &&
-            textureCompressionSettings.compressionEnabled
-          ) {
-            console.log("*** Restoring compressed image");
-
-            // Restore the saved compressed image data
-            textureCompressionSettings.compressed.setImage(
-              savedCompressedData.imageData!
-            );
-            textureCompressionSettings.compressed.setMimeType(
-              savedCompressedData.mimeType
-            );
-
-            // Clear saved data
-            setSavedCompressedData(null);
-
-            // Force TextureView to re-render
-            forceTextureViewUpdate();
-
-            setShowingCompressedTexture(true);
-          }
-        }
+        handleShowCompressedTexture();
       }
     };
 
@@ -392,12 +398,7 @@ export default function MaterialEditPanel() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [
-    selectedTexture,
-    compressionSettings,
-    savedCompressedData,
-    forceTextureViewUpdate,
-  ]);
+  }, [handleShowCompressedTexture, handleShowUncompressedTexture]);
 
   return (
     <div className="space-y-2">
