@@ -12,18 +12,38 @@ import { Switch } from "@/components/ui/switch";
 import { useModelStore } from "@/stores/useModelStore";
 import {
   compressTexture,
+  formatSize,
   getMaterialByName,
   getMaterialNames,
   getTextureBySlotName,
   getTexturesFromMaterial,
   getTextureSlotsFromMaterial,
 } from "@/utils/documentUtils";
-import {
-  calculateTextureWeight,
-  formatSize,
-  generateMaxDimensionOptions,
-} from "@/utils/utils";
+import { Texture } from "@gltf-transform/core";
 import { useEffect, useState } from "react";
+
+function generateMaxDimensionOptions(maxDim: number): string[] {
+  const options = [maxDim.toString()];
+  const standardSizes = [8192, 4096, 2048, 1024, 512, 256, 128];
+
+  for (const size of standardSizes) {
+    if (size < maxDim) {
+      options.push(size.toString());
+    }
+  }
+
+  return options;
+}
+
+function calculateTextureWeight(texture: Texture | null | undefined): number {
+  if (!texture) return 0;
+
+  const imageData = texture.getImage();
+  if (!imageData?.byteLength) return 0;
+
+  // Return weight in kilobytes
+  return imageData.byteLength / 1000;
+}
 
 export default function MaterialEditPanel() {
   const {

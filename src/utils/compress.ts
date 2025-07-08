@@ -1,9 +1,9 @@
 /**
- * Compresses an image to a specified MIME type and quality
+ * This function compresses an image to a specified size, MIME type and quality
  * @param image - The image data to compress
- * @param maxDimension - The max width or height of the image (whichever is larger)
- * @param mimeType - The MIME type of the image
- * @param quality - The quality of the image (0-1)
+ * @param maxDimension - The desired max width or height of the image (whichever is larger)
+ * @param mimeType - The desired MIME type of the image
+ * @param quality - The desired quality of the image (0-1)
  * @returns Promise<Uint8Array> - The compressed image data as a Uint8Array
  */
 export const compressImage = async (
