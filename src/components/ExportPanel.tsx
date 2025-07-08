@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useModelStore } from "@/stores/useModelStore";
-import { exportDocument } from "@/utils/documentUtils";
+import { exportDocument } from "@/utils/utils";
 import { useState } from "react";
 
 export function ExportPanel() {

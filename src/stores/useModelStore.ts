@@ -1,5 +1,5 @@
 import { ModelStats, TextureCompressionSettings } from "@/types";
-import { getUniqueTextures } from "@/utils/documentUtils";
+import { getUniqueTextures } from "@/utils/utils";
 import { Document, Material, Texture } from "@gltf-transform/core";
 import { inspect } from "@gltf-transform/functions";
 import { produce } from "immer";

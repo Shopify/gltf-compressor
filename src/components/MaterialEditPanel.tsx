@@ -15,35 +15,13 @@ import {
   formatSize,
   getMaterialByName,
   getMaterialNames,
+  getMaxDimensionOptions,
   getTextureBySlotName,
   getTexturesFromMaterial,
   getTextureSlotsFromMaterial,
-} from "@/utils/documentUtils";
-import { Texture } from "@gltf-transform/core";
+  getTextureWeightInKB,
+} from "@/utils/utils";
 import { useEffect, useState } from "react";
-
-function generateMaxDimensionOptions(maxDim: number): string[] {
-  const options = [maxDim.toString()];
-  const standardSizes = [8192, 4096, 2048, 1024, 512, 256, 128];
-
-  for (const size of standardSizes) {
-    if (size < maxDim) {
-      options.push(size.toString());
-    }
-  }
-
-  return options;
-}
-
-function calculateTextureWeight(texture: Texture | null | undefined): number {
-  if (!texture) return 0;
-
-  const imageData = texture.getImage();
-  if (!imageData?.byteLength) return 0;
-
-  // Return weight in kilobytes
-  return imageData.byteLength / 1000;
-}
 
 export default function MaterialEditPanel() {
   const {
@@ -88,9 +66,9 @@ export default function MaterialEditPanel() {
         setSelectedTexture(firstTexture);
         const size = firstTexture?.getSize() ?? [0, 0];
         const maxDimension = Math.max(size[0], size[1]);
-        const weight = calculateTextureWeight(firstTexture);
+        const weight = getTextureWeightInKB(firstTexture);
         setMaxDimension(maxDimension);
-        setMaxDimensionOptions(generateMaxDimensionOptions(maxDimension));
+        setMaxDimensionOptions(getMaxDimensionOptions(maxDimension));
         setOriginalImageWeight(weight);
       }
     }
@@ -119,15 +97,15 @@ export default function MaterialEditPanel() {
       const maxDimension = textureCompressionSettings?.maxDimension ?? 0;
       const size = selectedTexture.getSize() ?? [0, 0];
       const originalMaxDimension = Math.max(size[0], size[1]);
-      const weight = calculateTextureWeight(selectedTexture);
-      const compressedWeight = calculateTextureWeight(
+      const weight = getTextureWeightInKB(selectedTexture);
+      const compressedWeight = getTextureWeightInKB(
         textureCompressionSettings?.compressedTexture
       );
       setCompressionEnabled(isCompressed);
       setQuality(textureQuality);
       setImageFormat(imageFormat);
       setMaxDimension(maxDimension);
-      setMaxDimensionOptions(generateMaxDimensionOptions(originalMaxDimension));
+      setMaxDimensionOptions(getMaxDimensionOptions(originalMaxDimension));
       setOriginalImageWeight(weight);
       setCompressedImageWeight(compressedWeight);
       setShowingCompressedTexture(isCompressed);
@@ -186,7 +164,7 @@ export default function MaterialEditPanel() {
           } finally {
             // Always mark as not compressing when done
             setTextureCompressing(selectedTexture, false);
-            const weight = calculateTextureWeight(
+            const weight = getTextureWeightInKB(
               textureCompressionSettings.compressedTexture
             );
             setCompressedImageWeight(weight);
@@ -239,7 +217,7 @@ export default function MaterialEditPanel() {
         } finally {
           // Always mark as not compressing when done
           setTextureCompressing(selectedTexture, false);
-          const weight = calculateTextureWeight(
+          const weight = getTextureWeightInKB(
             textureCompressionSettings.compressedTexture
           );
           setCompressedImageWeight(weight);
@@ -278,7 +256,7 @@ export default function MaterialEditPanel() {
         } finally {
           // Always mark as not compressing when done
           setTextureCompressing(selectedTexture, false);
-          const weight = calculateTextureWeight(
+          const weight = getTextureWeightInKB(
             textureCompressionSettings.compressedTexture
           );
           setCompressedImageWeight(weight);
@@ -318,7 +296,7 @@ export default function MaterialEditPanel() {
         } finally {
           // Always mark as not compressing when done
           setTextureCompressing(selectedTexture, false);
-          const weight = calculateTextureWeight(
+          const weight = getTextureWeightInKB(
             textureCompressionSettings.compressedTexture
           );
           setCompressedImageWeight(weight);

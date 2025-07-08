@@ -1,5 +1,5 @@
 import { useModelStore } from "@/stores/useModelStore";
-import { formatSize } from "@/utils/documentUtils";
+import { formatSize } from "@/utils/utils";
 
 export default function StatsView() {
   const { modelStats, showingCompressedTexture, selectedTexture } =

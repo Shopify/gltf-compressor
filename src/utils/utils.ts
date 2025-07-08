@@ -230,6 +230,30 @@ export function getUniqueTextures(document: Document): Texture[] {
   return Array.from(uniqueTextures);
 }
 
+export function getMaxDimensionOptions(maxDim: number): string[] {
+  const options = [maxDim.toString()];
+  const standardSizes = [8192, 4096, 2048, 1024, 512, 256, 128];
+
+  for (const size of standardSizes) {
+    if (size < maxDim) {
+      options.push(size.toString());
+    }
+  }
+
+  return options;
+}
+
+export function getTextureWeightInKB(
+  texture: Texture | null | undefined
+): number {
+  if (!texture) return 0;
+
+  const imageData = texture.getImage();
+  if (!imageData?.byteLength) return 0;
+
+  return imageData.byteLength / 1000;
+}
+
 export function formatSize(sizeInKB: number): string {
   if (sizeInKB >= 1000) {
     return `${(sizeInKB / 1000).toFixed(1)} MB`;

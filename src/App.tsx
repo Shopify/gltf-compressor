@@ -11,7 +11,7 @@ import { useModelStore } from "./stores/useModelStore";
 import {
   buildTextureCompressionSettingsMap,
   createDocumentsAndScene,
-} from "./utils/documentUtils";
+} from "./utils/utils";
 
 function App() {
   const { originalDocument, setInitialModelStats } = useModelStore();
