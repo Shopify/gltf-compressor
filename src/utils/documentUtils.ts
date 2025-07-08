@@ -45,7 +45,6 @@ export const compressDocumentTexture = async (
     compressionSettings.quality
   );
   if (compressionSettings.compressedTexture) {
-    compressionSettings.compressedImageData = compressedImageData.slice();
     compressionSettings.compressedTexture!.setImage(compressedImageData);
     compressionSettings.compressedTexture!.setMimeType(format);
   }
