@@ -10,7 +10,10 @@ interface ModelStore {
   originalDocument: Document | null;
   modifiedDocument: Document | null;
   scene: Group | null;
-  modelCompressionSettings: Map<Texture, TextureCompressionSettings> | null;
+  textureCompressionSettingsMap: Map<
+    Texture,
+    TextureCompressionSettings
+  > | null;
   selectedTexture: Texture | null;
   selectedTextureSlot: string;
   selectedMaterial: Material | null;
@@ -36,7 +39,7 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
   originalDocument: null,
   modifiedDocument: null,
   scene: null,
-  modelCompressionSettings: null,
+  textureCompressionSettingsMap: null,
   selectedTexture: null,
   selectedTextureSlot: "",
   selectedMaterial: null,
@@ -56,12 +59,12 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
     texture: Texture,
     settings: Partial<TextureCompressionSettings>
   ) => {
-    const { modelCompressionSettings } = get();
-    if (!modelCompressionSettings) return;
+    const { textureCompressionSettingsMap } = get();
+    if (!textureCompressionSettingsMap) return;
     set(
       produce((state: ModelStore) => {
-        state.modelCompressionSettings!.set(texture, {
-          ...modelCompressionSettings.get(texture)!,
+        state.textureCompressionSettingsMap!.set(texture, {
+          ...textureCompressionSettingsMap.get(texture)!,
           ...settings,
         } as TextureCompressionSettings);
       })
