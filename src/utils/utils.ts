@@ -12,22 +12,6 @@ import {
 } from "@gltf-transform/core";
 
 /**
- * Given model compression settings, returns an array of material names that have textures set
- * @param modelCompressionSettings The model compression settings to filter
- * @returns An array of material names that have textures set
- */
-export function filterMaterialNamesWithTextures(
-  modelCompressionSettings: ModelCompressionSettings
-): string[] {
-  return Object.keys(modelCompressionSettings.materials).filter(
-    (materialName) =>
-      getFirstAvailableTextureName(
-        modelCompressionSettings.materials[materialName]
-      )
-  );
-}
-
-/**
  * Filters the material compression settings to only include maps that have textures
  * @param materialCompressionSettings The material compression settings to filter
  * @returns An object containing the maps that have textures
