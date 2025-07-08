@@ -36,6 +36,36 @@ export const createDocumentsAndScene = async (url: string) => {
   return { originalDocument, modifiedDocument, scene };
 };
 
+export function buildTextureCompressionSettingsMap(
+  document: Document,
+  modifiedDocument: Document
+): Map<Texture, TextureCompressionSettings> {
+  const textureCompressionSettingsMap = new Map<
+    Texture,
+    TextureCompressionSettings
+  >();
+
+  const textures = document.getRoot().listTextures();
+
+  const modifiedTextures = modifiedDocument.getRoot().listTextures();
+
+  textures.forEach((texture, index) => {
+    const size = texture.getSize() ?? [0, 0];
+    const maxDimension = Math.max(size[0], size[1]);
+
+    const textureCompressionSettings: TextureCompressionSettings = {
+      compressedTexture: modifiedTextures[index],
+      mimeType: texture.getMimeType(),
+      quality: 0.8,
+      compressionEnabled: false,
+      maxDimension: maxDimension,
+    };
+    textureCompressionSettingsMap.set(texture, textureCompressionSettings);
+  });
+
+  return textureCompressionSettingsMap;
+}
+
 export const compressTexture = async (
   originalTexture: Texture,
   compressionSettings: TextureCompressionSettings

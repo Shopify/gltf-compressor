@@ -1,36 +1,4 @@
-import { defaultTextureQuality } from "@/constants";
-import { TextureCompressionSettings } from "@/types";
-import { Document, Texture } from "@gltf-transform/core";
-
-export function buildTextureCompressionSettingsMap(
-  document: Document,
-  modifiedDocument: Document
-): Map<Texture, TextureCompressionSettings> {
-  const textureCompressionSettingsMap = new Map<
-    Texture,
-    TextureCompressionSettings
-  >();
-
-  const textures = document.getRoot().listTextures();
-
-  const modifiedTextures = modifiedDocument.getRoot().listTextures();
-
-  textures.forEach((texture, index) => {
-    const size = texture.getSize() ?? [0, 0];
-    const maxDimension = Math.max(size[0], size[1]);
-
-    const textureCompressionSettings: TextureCompressionSettings = {
-      compressedTexture: modifiedTextures[index],
-      mimeType: texture.getMimeType(),
-      quality: defaultTextureQuality,
-      compressionEnabled: false,
-      maxDimension: maxDimension,
-    };
-    textureCompressionSettingsMap.set(texture, textureCompressionSettings);
-  });
-
-  return textureCompressionSettingsMap;
-}
+import { Texture } from "@gltf-transform/core";
 
 export function generateMaxDimensionOptions(maxDim: number): string[] {
   const options = [maxDim.toString()];
@@ -52,11 +20,6 @@ export function formatSize(sizeInKB: number): string {
   return `${sizeInKB.toFixed(1)} KB`;
 }
 
-/**
- * Calculates the weight of a texture's image data in kilobytes
- * @param texture The texture to calculate weight for
- * @returns The weight in kilobytes, or 0 if no image data is available
- */
 export function calculateTextureWeight(
   texture: Texture | null | undefined
 ): number {
@@ -65,5 +28,6 @@ export function calculateTextureWeight(
   const imageData = texture.getImage();
   if (!imageData?.byteLength) return 0;
 
+  // Return weight in kilobytes
   return imageData.byteLength / 1000;
 }

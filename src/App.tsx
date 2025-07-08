@@ -8,8 +8,10 @@ import StatsView from "./components/StatsView";
 import TextureView from "./components/TextureView";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useModelStore } from "./stores/useModelStore";
-import { createDocumentsAndScene } from "./utils/documentUtils";
-import { buildTextureCompressionSettingsMap } from "./utils/utils";
+import {
+  buildTextureCompressionSettingsMap,
+  createDocumentsAndScene,
+} from "./utils/documentUtils";
 
 function App() {
   const { originalDocument, setInitialModelStats } = useModelStore();
