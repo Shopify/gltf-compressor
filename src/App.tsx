@@ -21,7 +21,7 @@ function App() {
         const { originalDocument, modifiedDocument, sceneView } =
           await createDocuments(url);
 
-        const compressionSettings = buildTextureCompressionSettings(
+        const modelCompressionSettings = buildTextureCompressionSettings(
           originalDocument,
           modifiedDocument
         );
@@ -29,7 +29,7 @@ function App() {
         useModelStore.setState({
           originalDocument,
           modifiedDocument,
-          compressionSettings,
+          modelCompressionSettings,
           scene: sceneView,
         });
 

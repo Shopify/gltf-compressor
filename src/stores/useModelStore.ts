@@ -14,7 +14,7 @@ interface ModelStore {
   originalDocument: Document | null;
   modifiedDocument: Document | null;
   scene: Group | null;
-  compressionSettings: ModelCompressionSettings | null;
+  modelCompressionSettings: ModelCompressionSettings | null;
   selectedTexture: Texture | null;
   selectedTextureSlot: string;
   selectedMaterial: Material | null;
@@ -40,7 +40,7 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
   originalDocument: null,
   modifiedDocument: null,
   scene: null,
-  compressionSettings: null,
+  modelCompressionSettings: null,
   selectedTexture: null,
   selectedTextureSlot: "",
   selectedMaterial: null,
@@ -60,12 +60,12 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
     texture: Texture,
     settings: Partial<TextureCompressionSettings>
   ) => {
-    const { compressionSettings } = get();
-    if (!compressionSettings) return;
+    const { modelCompressionSettings } = get();
+    if (!modelCompressionSettings) return;
     set(
       produce((state: ModelStore) => {
-        state.compressionSettings!.textures.set(texture, {
-          ...compressionSettings.textures.get(texture)!,
+        state.modelCompressionSettings!.textures.set(texture, {
+          ...modelCompressionSettings.textures.get(texture)!,
           ...settings,
         } as TextureCompressionSettings);
       })

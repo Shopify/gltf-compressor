@@ -11,7 +11,7 @@ export function buildTextureCompressionSettings(
   document: Document,
   modifiedDocument: Document
 ): ModelCompressionSettings {
-  const compressionSettings: ModelCompressionSettings = {
+  const modelCompressionSettings: ModelCompressionSettings = {
     textures: new Map(),
   };
 
@@ -30,10 +30,10 @@ export function buildTextureCompressionSettings(
       compressionEnabled: false,
       maxDimension: maxDimension,
     };
-    compressionSettings.textures.set(texture, textureCompressionSettings);
+    modelCompressionSettings.textures.set(texture, textureCompressionSettings);
   });
 
-  return compressionSettings;
+  return modelCompressionSettings;
 }
 
 export function getTexturesFromMaterial(

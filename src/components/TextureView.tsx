@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 export default function TextureView() {
   const {
     selectedTexture,
-    compressionSettings,
+    modelCompressionSettings,
     compressingTextures,
     showingCompressedTexture,
   } = useModelStore();
@@ -18,7 +18,7 @@ export default function TextureView() {
       if (!selectedTexture || isCompressing) return;
 
       const textureSettings =
-        compressionSettings?.textures.get(selectedTexture);
+        modelCompressionSettings?.textures.get(selectedTexture);
 
       // Show compressed texture if compression is enabled and available, otherwise show original
       const texture =
@@ -60,7 +60,7 @@ export default function TextureView() {
     loadTexture();
   }, [
     selectedTexture,
-    compressionSettings,
+    modelCompressionSettings,
     isCompressing,
     showingCompressedTexture,
   ]);

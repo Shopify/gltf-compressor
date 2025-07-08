@@ -31,7 +31,7 @@ export default function MaterialEditPanel() {
     selectedTextureSlot,
     selectedTexture,
     selectedMaterial,
-    compressionSettings,
+    modelCompressionSettings,
     setSelectedMaterial,
     setSelectedTextureSlot,
     setSelectedTexture,
@@ -91,7 +91,7 @@ export default function MaterialEditPanel() {
   useEffect(() => {
     if (selectedTexture) {
       const textureSettings =
-        compressionSettings?.textures.get(selectedTexture);
+        modelCompressionSettings?.textures.get(selectedTexture);
       const isCompressed = textureSettings?.compressionEnabled ?? false;
       const textureQuality = textureSettings?.quality ?? 0.8;
       const imageFormat = textureSettings?.mimeType ?? "image/jpeg";
@@ -121,7 +121,7 @@ export default function MaterialEditPanel() {
       setCompressedImageWeight(0);
       setShowingCompressedTexture(false);
     }
-  }, [selectedTexture, compressionSettings]);
+  }, [selectedTexture, modelCompressionSettings]);
 
   const handleMaterialChange = (value: string) => {
     if (value && originalDocument) {
@@ -150,7 +150,7 @@ export default function MaterialEditPanel() {
 
       if (value) {
         const textureCompressionSettings =
-          compressionSettings?.textures.get(selectedTexture);
+          modelCompressionSettings?.textures.get(selectedTexture);
         if (textureCompressionSettings) {
           // Mark texture as compressing
           setTextureCompressing(selectedTexture, true);
@@ -178,7 +178,9 @@ export default function MaterialEditPanel() {
       } else {
         // If disabling compression, restore original texture
         const compressedTexture =
-          compressionSettings?.textures.get(selectedTexture)?.compressedTexture;
+          modelCompressionSettings?.textures.get(
+            selectedTexture
+          )?.compressedTexture;
         if (compressedTexture) {
           compressedTexture.setImage(selectedTexture.getImage()!);
           compressedTexture.setMimeType(selectedTexture.getMimeType()!);
@@ -205,7 +207,7 @@ export default function MaterialEditPanel() {
 
       // Re-compress with new quality if compression is enabled
       const textureCompressionSettings =
-        compressionSettings?.textures.get(selectedTexture);
+        modelCompressionSettings?.textures.get(selectedTexture);
       if (textureCompressionSettings) {
         // Mark texture as compressing
         setTextureCompressing(selectedTexture, true);
@@ -244,7 +246,7 @@ export default function MaterialEditPanel() {
 
       // Re-compress with new format if compression is enabled
       const textureCompressionSettings =
-        compressionSettings?.textures.get(selectedTexture);
+        modelCompressionSettings?.textures.get(selectedTexture);
       if (textureCompressionSettings) {
         // Mark texture as compressing
         setTextureCompressing(selectedTexture, true);
@@ -284,7 +286,7 @@ export default function MaterialEditPanel() {
 
       // Re-compress with new format if compression is enabled
       const textureCompressionSettings =
-        compressionSettings?.textures.get(selectedTexture);
+        modelCompressionSettings?.textures.get(selectedTexture);
       if (textureCompressionSettings) {
         // Mark texture as compressing
         setTextureCompressing(selectedTexture, true);
@@ -315,7 +317,7 @@ export default function MaterialEditPanel() {
   const handleShowCompressedTexture = () => {
     if (selectedTexture && savedCompressedData) {
       const textureCompressionSettings =
-        compressionSettings?.textures.get(selectedTexture);
+        modelCompressionSettings?.textures.get(selectedTexture);
       if (
         textureCompressionSettings?.compressedTexture &&
         textureCompressionSettings.compressionEnabled
@@ -341,7 +343,7 @@ export default function MaterialEditPanel() {
   const handleShowUncompressedTexture = () => {
     if (selectedTexture) {
       const textureCompressionSettings =
-        compressionSettings?.textures.get(selectedTexture);
+        modelCompressionSettings?.textures.get(selectedTexture);
       if (
         textureCompressionSettings?.compressedTexture &&
         textureCompressionSettings.compressionEnabled
