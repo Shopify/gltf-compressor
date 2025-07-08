@@ -43,7 +43,14 @@ export default function StatsView() {
       <br />
       {selectedTexture && (
         <div>
-          Showing {showingCompressedTexture ? "compressed" : "original"} texture
+          Showing
+          {showingCompressedTexture && (
+            <span className="text-green-400"> Compressed </span>
+          )}
+          {!showingCompressedTexture && (
+            <span className="text-blue-400"> Original </span>
+          )}
+          Texture
         </div>
       )}
     </div>
