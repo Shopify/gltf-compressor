@@ -1,5 +1,5 @@
 import { ModelStats, TextureCompressionSettings } from "@/types";
-import { getUniqueTexturesFromDocument } from "@/utils/utils";
+import { getUniqueTextures } from "@/utils/documentUtils";
 import { Document, Material, Texture } from "@gltf-transform/core";
 import { inspect } from "@gltf-transform/functions";
 import { produce } from "immer";
@@ -113,7 +113,7 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
     const percentOfSizeTakenByTextures = (sizeOfTextures / totalSize) * 100;
     const percentOfSizeTakenByAnimations = (sizeOfAnimations / totalSize) * 100;
 
-    const modifiedTextures = getUniqueTexturesFromDocument(modifiedDocument);
+    const modifiedTextures = getUniqueTextures(modifiedDocument);
 
     set({
       modelStats: {

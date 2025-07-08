@@ -1,11 +1,6 @@
 import { defaultTextureQuality } from "@/constants";
 import { TextureCompressionSettings } from "@/types";
-import {
-  Document,
-  ExtensionProperty,
-  Material,
-  Texture,
-} from "@gltf-transform/core";
+import { Document, Texture } from "@gltf-transform/core";
 
 export function buildTextureCompressionSettingsMap(
   document: Document,
@@ -35,57 +30,6 @@ export function buildTextureCompressionSettingsMap(
   });
 
   return textureCompressionSettingsMap;
-}
-
-export function getTexturesFromMaterial(
-  material: Material
-): { slot: string; texture: Texture }[] {
-  const extensions = new Set<ExtensionProperty>(material.listExtensions());
-  return material
-    .getGraph()
-    .listEdges()
-    .filter((ref) => {
-      const child = ref.getChild();
-      const parent = ref.getParent();
-      if (child instanceof Texture && parent === material) {
-        return true;
-      }
-      if (
-        child instanceof Texture &&
-        parent instanceof ExtensionProperty &&
-        extensions.has(parent)
-      ) {
-        return true;
-      }
-      return false;
-    })
-    .map((ref) => {
-      return {
-        slot: ref.getName() || "",
-        texture: (ref.getChild() as Texture) || null,
-      };
-    });
-}
-
-export function getTextureSlotsFromMaterial(material: Material): string[] {
-  return getTexturesFromMaterial(material).map(({ slot }) => slot);
-}
-
-export function getUniqueTexturesFromDocument(document: Document): Texture[] {
-  const uniqueTextures = new Set<Texture>();
-
-  document
-    .getRoot()
-    .listMaterials()
-    .forEach((material) => {
-      const materialTextures = getTexturesFromMaterial(material);
-
-      materialTextures.forEach(({ texture }) => {
-        uniqueTextures.add(texture);
-      });
-    });
-
-  return Array.from(uniqueTextures);
 }
 
 export function generateMaxDimensionOptions(maxDim: number): string[] {

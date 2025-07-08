@@ -15,13 +15,13 @@ import {
   getMaterialByName,
   getMaterialNames,
   getTextureBySlotName,
+  getTexturesFromMaterial,
+  getTextureSlotsFromMaterial,
 } from "@/utils/documentUtils";
 import {
   calculateTextureWeight,
   formatSize,
   generateMaxDimensionOptions,
-  getTexturesFromMaterial,
-  getTextureSlotsFromMaterial,
 } from "@/utils/utils";
 import { useEffect, useState } from "react";
 

@@ -1,5 +1,11 @@
 import { TextureCompressionSettings } from "@/types";
-import { Document, Material, Texture, WebIO } from "@gltf-transform/core";
+import {
+  Document,
+  ExtensionProperty,
+  Material,
+  Texture,
+  WebIO,
+} from "@gltf-transform/core";
 import {
   ALL_EXTENSIONS,
   EXTTextureWebP,
@@ -8,7 +14,6 @@ import {
 import { cloneDocument } from "@gltf-transform/functions";
 import { DocumentView } from "@gltf-transform/view";
 import { compressImage } from "./compress";
-import { getTexturesFromMaterial } from "./utils";
 
 export const createDocumentsAndScene = async (url: string) => {
   const io = new WebIO()
@@ -133,6 +138,40 @@ export const getMaterialByName = (
   );
 };
 
+export function getTexturesFromMaterial(
+  material: Material
+): { slot: string; texture: Texture }[] {
+  const extensions = new Set<ExtensionProperty>(material.listExtensions());
+  return material
+    .getGraph()
+    .listEdges()
+    .filter((ref) => {
+      const child = ref.getChild();
+      const parent = ref.getParent();
+      if (child instanceof Texture && parent === material) {
+        return true;
+      }
+      if (
+        child instanceof Texture &&
+        parent instanceof ExtensionProperty &&
+        extensions.has(parent)
+      ) {
+        return true;
+      }
+      return false;
+    })
+    .map((ref) => {
+      return {
+        slot: ref.getName() || "",
+        texture: (ref.getChild() as Texture) || null,
+      };
+    });
+}
+
+export function getTextureSlotsFromMaterial(material: Material): string[] {
+  return getTexturesFromMaterial(material).map(({ slot }) => slot);
+}
+
 export const getTextureBySlotName = (
   material: Material,
   slot: string
@@ -143,3 +182,20 @@ export const getTextureBySlotName = (
     )?.texture || null
   );
 };
+
+export function getUniqueTextures(document: Document): Texture[] {
+  const uniqueTextures = new Set<Texture>();
+
+  document
+    .getRoot()
+    .listMaterials()
+    .forEach((material) => {
+      const materialTextures = getTexturesFromMaterial(material);
+
+      materialTextures.forEach(({ texture }) => {
+        uniqueTextures.add(texture);
+      });
+    });
+
+  return Array.from(uniqueTextures);
+}
