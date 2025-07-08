@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import logoSvg from "./assets/logo.svg";
 import { Dropzone } from "./components/Dropzone";
 import ModelView from "./components/ModelView";
 import SettingsView from "./components/SettingsView";
@@ -61,7 +62,7 @@ function App() {
           </div>
           <StatsView />
           <div className="absolute bottom-4 left-4 pointer-events-none">
-            <img src="/logo.svg" alt="Logo" className="w-20 h-20" />
+            <img src={logoSvg} alt="Logo" className="w-20 h-20" />
           </div>
         </div>
       ) : (
