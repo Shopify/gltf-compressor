@@ -21,7 +21,6 @@ interface ModelStore {
   compressingTextures: Set<Texture>;
   modelStats: ModelStats | null;
   modifiedTextures: Texture[] | null;
-  textureViewKey: number;
   showingCompressedTexture: boolean;
 
   setSelectedTexture: (texture: Texture | null) => void;
@@ -34,7 +33,6 @@ interface ModelStore {
   setTextureCompressing: (texture: Texture, isCompressing: boolean) => void;
   setInitialModelStats: () => void;
   updateModelStats: () => void;
-  forceTextureViewUpdate: () => void;
   setShowingCompressedTexture: (showingCompressedTexture: boolean) => void;
 }
 
@@ -49,7 +47,6 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
   compressingTextures: new Set<Texture>(),
   modelStats: null,
   modifiedTextures: null,
-  textureViewKey: 0,
   showingCompressedTexture: false,
 
   setSelectedTexture: (texture: Texture | null) =>
@@ -174,9 +171,6 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
         percentChangeInTextures,
       },
     });
-  },
-  forceTextureViewUpdate: () => {
-    set((state) => ({ textureViewKey: state.textureViewKey + 1 }));
   },
   setShowingCompressedTexture: (showingCompressedTexture: boolean) => {
     set({ showingCompressedTexture });

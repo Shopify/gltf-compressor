@@ -38,7 +38,6 @@ export default function MaterialEditPanel() {
     updateTextureCompressionSettings,
     updateModelStats,
     setTextureCompressing,
-    forceTextureViewUpdate,
     setShowingCompressedTexture,
   } = useModelStore();
 
@@ -334,9 +333,6 @@ export default function MaterialEditPanel() {
         // Clear saved data
         setSavedCompressedData(null);
 
-        // Force TextureView to re-render
-        forceTextureViewUpdate();
-
         setShowingCompressedTexture(true);
       }
     }
@@ -366,9 +362,6 @@ export default function MaterialEditPanel() {
           // Set to original image
           compressedTexture.setImage(selectedTexture.getImage()!);
           compressedTexture.setMimeType(selectedTexture.getMimeType()!);
-
-          // Force TextureView to re-render
-          forceTextureViewUpdate();
 
           setShowingCompressedTexture(false);
         }

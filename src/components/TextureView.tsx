@@ -6,7 +6,7 @@ export default function TextureView() {
     selectedTexture,
     compressionSettings,
     compressingTextures,
-    textureViewKey,
+    showingCompressedTexture,
   } = useModelStore();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -57,7 +57,12 @@ export default function TextureView() {
     };
 
     loadTexture();
-  }, [selectedTexture, compressionSettings, isCompressing, textureViewKey]);
+  }, [
+    selectedTexture,
+    compressionSettings,
+    isCompressing,
+    showingCompressedTexture,
+  ]);
 
   return (
     <div
