@@ -64,10 +64,15 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
     if (!modelCompressionSettings) return;
     set(
       produce((state: ModelStore) => {
-        state.modelCompressionSettings!.textures.set(texture, {
-          ...modelCompressionSettings.textures.get(texture)!,
-          ...settings,
-        } as TextureCompressionSettings);
+        state.modelCompressionSettings!.textureCompressionSettingsMap.set(
+          texture,
+          {
+            ...modelCompressionSettings.textureCompressionSettingsMap.get(
+              texture
+            )!,
+            ...settings,
+          } as TextureCompressionSettings
+        );
       })
     );
   },

@@ -12,7 +12,7 @@ export function buildModelCompressionSettings(
   modifiedDocument: Document
 ): ModelCompressionSettings {
   const modelCompressionSettings: ModelCompressionSettings = {
-    textures: new Map(),
+    textureCompressionSettingsMap: new Map(),
   };
 
   const textures = document.getRoot().listTextures();
@@ -30,7 +30,10 @@ export function buildModelCompressionSettings(
       compressionEnabled: false,
       maxDimension: maxDimension,
     };
-    modelCompressionSettings.textures.set(texture, textureCompressionSettings);
+    modelCompressionSettings.textureCompressionSettingsMap.set(
+      texture,
+      textureCompressionSettings
+    );
   });
 
   return modelCompressionSettings;

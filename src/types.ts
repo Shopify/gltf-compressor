@@ -9,7 +9,7 @@ export interface TextureCompressionSettings {
 }
 
 export interface ModelCompressionSettings {
-  textures: Map<Texture, TextureCompressionSettings>;
+  textureCompressionSettingsMap: Map<Texture, TextureCompressionSettings>;
 }
 
 export interface ModelStats {
