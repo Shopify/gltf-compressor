@@ -3,9 +3,9 @@ import { useModelStore } from "@/stores/useModelStore";
 import { GizmoHelper, GizmoViewport } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
-import { Grid } from "../custom_drei_components/Grid";
-import { Stage } from "../custom_drei_components/Stage";
 import CameraControls from "./CameraControls";
+import { Grid } from "./Grid";
+import { Stage } from "./Stage";
 
 export default function ModelView() {
   const { scene } = useModelStore();
