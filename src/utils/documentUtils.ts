@@ -44,10 +44,10 @@ export const compressDocumentTexture = async (
     format,
     compressionSettings.quality
   );
-  if (compressionSettings.compressed) {
+  if (compressionSettings.compressedTexture) {
     compressionSettings.compressedImageData = compressedImageData.slice();
-    compressionSettings.compressed!.setImage(compressedImageData);
-    compressionSettings.compressed!.setMimeType(format);
+    compressionSettings.compressedTexture!.setImage(compressedImageData);
+    compressionSettings.compressedTexture!.setMimeType(format);
   }
 };
 

@@ -68,7 +68,7 @@ export function buildTextureCompressionSettings(
     const maxDimension = Math.max(size[0], size[1]);
 
     const textureCompressionSettings: TextureCompressionSettings = {
-      compressed: modifiedTextures[index],
+      compressedTexture: modifiedTextures[index],
       compressedImageData: texture.getImage()?.slice() ?? null,
       mimeType: texture.getMimeType(),
       quality: defaultTextureQuality,

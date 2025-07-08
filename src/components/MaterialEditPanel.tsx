@@ -100,7 +100,7 @@ export default function MaterialEditPanel() {
       const originalMaxDimension = Math.max(size[0], size[1]);
       const weight = calculateTextureWeight(selectedTexture);
       const compressedWeight = calculateTextureWeight(
-        textureSettings?.compressed
+        textureSettings?.compressedTexture
       );
       setCompressionEnabled(isCompressed);
       setQuality(textureQuality);
@@ -169,7 +169,7 @@ export default function MaterialEditPanel() {
             // Always mark as not compressing when done
             setTextureCompressing(selectedTexture, false);
             const weight = calculateTextureWeight(
-              textureCompressionSettings.compressed
+              textureCompressionSettings.compressedTexture
             );
             setCompressedImageWeight(weight);
             setShowingCompressedTexture(true);
@@ -178,7 +178,7 @@ export default function MaterialEditPanel() {
       } else {
         // If disabling compression, restore original texture
         const compressedTexture =
-          compressionSettings?.textures.get(selectedTexture)?.compressed;
+          compressionSettings?.textures.get(selectedTexture)?.compressedTexture;
         if (compressedTexture) {
           compressedTexture.setImage(selectedTexture.getImage()!);
           compressedTexture.setMimeType(selectedTexture.getMimeType()!);
@@ -220,7 +220,7 @@ export default function MaterialEditPanel() {
           // Always mark as not compressing when done
           setTextureCompressing(selectedTexture, false);
           const weight = calculateTextureWeight(
-            textureCompressionSettings.compressed
+            textureCompressionSettings.compressedTexture
           );
           setCompressedImageWeight(weight);
         }
@@ -259,7 +259,7 @@ export default function MaterialEditPanel() {
           // Always mark as not compressing when done
           setTextureCompressing(selectedTexture, false);
           const weight = calculateTextureWeight(
-            textureCompressionSettings.compressed
+            textureCompressionSettings.compressedTexture
           );
           setCompressedImageWeight(weight);
         }
@@ -299,7 +299,7 @@ export default function MaterialEditPanel() {
           // Always mark as not compressing when done
           setTextureCompressing(selectedTexture, false);
           const weight = calculateTextureWeight(
-            textureCompressionSettings.compressed
+            textureCompressionSettings.compressedTexture
           );
           setCompressedImageWeight(weight);
         }
@@ -317,16 +317,16 @@ export default function MaterialEditPanel() {
       const textureCompressionSettings =
         compressionSettings?.textures.get(selectedTexture);
       if (
-        textureCompressionSettings?.compressed &&
+        textureCompressionSettings?.compressedTexture &&
         textureCompressionSettings.compressionEnabled
       ) {
         console.log("*** Restoring compressed image");
 
         // Restore the saved compressed image data
-        textureCompressionSettings.compressed.setImage(
+        textureCompressionSettings.compressedTexture.setImage(
           savedCompressedData.imageData!
         );
-        textureCompressionSettings.compressed.setMimeType(
+        textureCompressionSettings.compressedTexture.setMimeType(
           savedCompressedData.mimeType
         );
 
@@ -343,11 +343,11 @@ export default function MaterialEditPanel() {
       const textureCompressionSettings =
         compressionSettings?.textures.get(selectedTexture);
       if (
-        textureCompressionSettings?.compressed &&
+        textureCompressionSettings?.compressedTexture &&
         textureCompressionSettings.compressionEnabled
       ) {
         // Save the current compressed image data before switching to original
-        const compressedTexture = textureCompressionSettings.compressed;
+        const compressedTexture = textureCompressionSettings.compressedTexture;
         const currentImageData = compressedTexture.getImage();
         const currentMimeType = compressedTexture.getMimeType();
 

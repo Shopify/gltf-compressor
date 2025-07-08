@@ -22,8 +22,9 @@ export default function TextureView() {
 
       // Show compressed texture if compression is enabled and available, otherwise show original
       const texture =
-        textureSettings?.compressionEnabled && textureSettings?.compressed
-          ? textureSettings.compressed
+        textureSettings?.compressionEnabled &&
+        textureSettings?.compressedTexture
+          ? textureSettings.compressedTexture
           : selectedTexture;
 
       if (!texture) return;

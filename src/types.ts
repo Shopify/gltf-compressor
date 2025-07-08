@@ -1,7 +1,7 @@
 import { Texture } from "@gltf-transform/core";
 
 export interface TextureCompressionSettings {
-  compressed: Texture | null;
+  compressedTexture: Texture | null;
   compressedImageData: Uint8Array | null;
   mimeType: string;
   quality: number;
