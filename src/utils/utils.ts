@@ -1,38 +1,11 @@
 import { defaultTextureQuality } from "@/constants";
-import {
-  MaterialCompressionSettings,
-  ModelCompressionSettings,
-  TextureCompressionSettings,
-} from "@/types";
+import { ModelCompressionSettings, TextureCompressionSettings } from "@/types";
 import {
   Document,
   ExtensionProperty,
   Material,
   Texture,
 } from "@gltf-transform/core";
-
-/**
- * Filters the material compression settings to only include maps that have textures
- * @param materialCompressionSettings The material compression settings to filter
- * @returns An object containing the maps that have textures
- */
-export function filterMapNamesWithTextures(
-  materialCompressionSettings: MaterialCompressionSettings
-): string[] {
-  return Object.keys(materialCompressionSettings);
-}
-
-/**
- * Returns the first available texture name from material compression settings
- * @param materialCompressionSettings The material compression settings to extract textures from
- * @returns The first available texture name or null if no texture is found
- */
-export function getFirstAvailableTextureName(
-  materialCompressionSettings: MaterialCompressionSettings
-): string | null {
-  const textureNames = Object.keys(materialCompressionSettings);
-  return textureNames.length > 0 ? textureNames[0] : null;
-}
 
 export function buildTextureCompressionSettings(
   document: Document,
