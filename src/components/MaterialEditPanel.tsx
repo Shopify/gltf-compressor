@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -575,6 +576,18 @@ export default function MaterialEditPanel() {
         >
           New Image Size: {formatSize(compressedImageWeight)}
         </Label>
+      </div>
+
+      <div className="space-y-2">
+        <Button
+          onMouseDown={handleShowUncompressedTexture}
+          onMouseUp={handleShowCompressedTexture}
+          onMouseLeave={handleShowCompressedTexture}
+          disabled={!compressionEnabled || textureSlots.length === 0}
+          className="w-full"
+        >
+          Hold to Show Uncompressed Texture
+        </Button>
       </div>
     </div>
   );
