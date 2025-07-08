@@ -8,7 +8,7 @@ import StatsView from "./components/StatsView";
 import TextureView from "./components/TextureView";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useModelStore } from "./stores/useModelStore";
-import { createDocuments } from "./utils/documentUtils";
+import { createDocumentsAndScene } from "./utils/documentUtils";
 import { buildTextureCompressionSettingsMap } from "./utils/utils";
 
 function App() {
@@ -18,8 +18,8 @@ function App() {
     if (acceptedFiles[0]) {
       const url = URL.createObjectURL(acceptedFiles[0]);
       if (url) {
-        const { originalDocument, modifiedDocument, sceneView } =
-          await createDocuments(url);
+        const { originalDocument, modifiedDocument, scene } =
+          await createDocumentsAndScene(url);
 
         const textureCompressionSettingsMap =
           buildTextureCompressionSettingsMap(
@@ -31,7 +31,7 @@ function App() {
           originalDocument,
           modifiedDocument,
           textureCompressionSettingsMap,
-          scene: sceneView,
+          scene,
         });
 
         setInitialModelStats();

@@ -11,10 +11,10 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useModelStore } from "@/stores/useModelStore";
 import {
-  compressDocumentTexture,
-  getAvailableMaterialNames,
-  getMaterialbyName,
-  getMaterialTextureBySlot,
+  compressTexture,
+  getMaterialByName,
+  getMaterialNames,
+  getTextureBySlotName,
 } from "@/utils/documentUtils";
 import {
   calculateTextureWeight,
@@ -57,7 +57,7 @@ export default function MaterialEditPanel() {
 
   useEffect(() => {
     if (originalDocument) {
-      const names = getAvailableMaterialNames(originalDocument);
+      const names = getMaterialNames(originalDocument);
       setMaterialNames(names);
       const firstMaterial = originalDocument.getRoot().listMaterials()[0];
       if (firstMaterial) {
@@ -126,7 +126,7 @@ export default function MaterialEditPanel() {
 
   const handleMaterialChange = (value: string) => {
     if (value && originalDocument) {
-      const material = getMaterialbyName(originalDocument, value);
+      const material = getMaterialByName(originalDocument, value);
       if (material) {
         const textures = getTexturesFromMaterial(material);
         const { slot, texture: firstTexture } = textures?.[0] ?? {};
@@ -139,7 +139,7 @@ export default function MaterialEditPanel() {
 
   const handleTextureChange = (value: string) => {
     if (value && originalDocument && selectedMaterial) {
-      const texture = getMaterialTextureBySlot(selectedMaterial, value);
+      const texture = getTextureBySlotName(selectedMaterial, value);
       setSelectedTexture(texture);
       setSelectedTextureSlot(value);
     }
@@ -157,10 +157,7 @@ export default function MaterialEditPanel() {
           setTextureCompressing(selectedTexture, true);
 
           try {
-            await compressDocumentTexture(
-              selectedTexture,
-              textureCompressionSettings
-            );
+            await compressTexture(selectedTexture, textureCompressionSettings);
             // Only update the compression settings after compression is complete
             updateTextureCompressionSettings(selectedTexture, {
               compressionEnabled: value,
@@ -214,7 +211,7 @@ export default function MaterialEditPanel() {
         setTextureCompressing(selectedTexture, true);
 
         try {
-          await compressDocumentTexture(selectedTexture, {
+          await compressTexture(selectedTexture, {
             ...textureCompressionSettings,
             quality: value[0],
           });
@@ -253,7 +250,7 @@ export default function MaterialEditPanel() {
         setTextureCompressing(selectedTexture, true);
 
         try {
-          await compressDocumentTexture(selectedTexture, {
+          await compressTexture(selectedTexture, {
             ...textureCompressionSettings,
             mimeType: value,
           });
@@ -293,7 +290,7 @@ export default function MaterialEditPanel() {
         setTextureCompressing(selectedTexture, true);
 
         try {
-          await compressDocumentTexture(selectedTexture, {
+          await compressTexture(selectedTexture, {
             ...textureCompressionSettings,
             maxDimension: newMaxDimension,
           });

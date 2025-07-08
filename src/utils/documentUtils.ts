@@ -10,7 +10,7 @@ import { DocumentView } from "@gltf-transform/view";
 import { compressImage } from "./compress";
 import { getTexturesFromMaterial } from "./utils";
 
-export const createDocuments = async (url: string) => {
+export const createDocumentsAndScene = async (url: string) => {
   const io = new WebIO()
     .registerExtensions(ALL_EXTENSIONS)
     .registerDependencies({
@@ -20,20 +20,18 @@ export const createDocuments = async (url: string) => {
       "draco3d.decoder": await new DracoDecoderModule(),
     });
   const originalDocument = await io.read(url);
-
-  // The modified document is the one that we will be compressing
   const modifiedDocument = cloneDocument(originalDocument);
 
   // Create a live view of the modified document
   // We render this live view in the ModelView component
   const modifiedDocumentView = new DocumentView(modifiedDocument);
-  const sceneDef = modifiedDocument.getRoot().getDefaultScene()!;
-  const sceneView = modifiedDocumentView.view(sceneDef);
+  const sceneDefinition = modifiedDocument.getRoot().getDefaultScene()!;
+  const scene = modifiedDocumentView.view(sceneDefinition);
 
-  return { originalDocument, modifiedDocument, sceneView };
+  return { originalDocument, modifiedDocument, scene };
 };
 
-export const compressDocumentTexture = async (
+export const compressTexture = async (
   originalTexture: Texture,
   compressionSettings: TextureCompressionSettings
 ) => {
@@ -48,36 +46,6 @@ export const compressDocumentTexture = async (
     compressionSettings.compressedTexture!.setImage(compressedImageData);
     compressionSettings.compressedTexture!.setMimeType(format);
   }
-};
-
-export const getAvailableMaterialNames = (document: Document) => {
-  return document
-    .getRoot()
-    .listMaterials()
-    .map((m) => m.getName());
-};
-
-export const getMaterialbyName = (
-  document: Document,
-  name: string
-): Material | null => {
-  return (
-    document
-      .getRoot()
-      .listMaterials()
-      .find((m) => m.getName() === name) || null
-  );
-};
-
-export const getMaterialTextureBySlot = (
-  material: Material,
-  slot: string
-): Texture | null => {
-  return (
-    getTexturesFromMaterial(material).find(
-      ({ slot: textureSlot }) => textureSlot === slot
-    )?.texture || null
-  );
 };
 
 export const exportDocument = async (
@@ -144,4 +112,34 @@ export const exportDocument = async (
   document.body.appendChild(a);
   a.click();
   URL.revokeObjectURL(url);
+};
+
+export const getMaterialNames = (document: Document) => {
+  return document
+    .getRoot()
+    .listMaterials()
+    .map((m) => m.getName());
+};
+
+export const getMaterialByName = (
+  document: Document,
+  name: string
+): Material | null => {
+  return (
+    document
+      .getRoot()
+      .listMaterials()
+      .find((m) => m.getName() === name) || null
+  );
+};
+
+export const getTextureBySlotName = (
+  material: Material,
+  slot: string
+): Texture | null => {
+  return (
+    getTexturesFromMaterial(material).find(
+      ({ slot: textureSlot }) => textureSlot === slot
+    )?.texture || null
+  );
 };
