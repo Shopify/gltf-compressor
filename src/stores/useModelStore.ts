@@ -1,8 +1,4 @@
-import {
-  ModelCompressionSettings,
-  ModelStats,
-  TextureCompressionSettings,
-} from "@/types";
+import { ModelStats, TextureCompressionSettings } from "@/types";
 import { getUniqueTexturesFromDocument } from "@/utils/utils";
 import { Document, Material, Texture } from "@gltf-transform/core";
 import { inspect } from "@gltf-transform/functions";
@@ -14,7 +10,7 @@ interface ModelStore {
   originalDocument: Document | null;
   modifiedDocument: Document | null;
   scene: Group | null;
-  modelCompressionSettings: ModelCompressionSettings | null;
+  modelCompressionSettings: Map<Texture, TextureCompressionSettings> | null;
   selectedTexture: Texture | null;
   selectedTextureSlot: string;
   selectedMaterial: Material | null;
@@ -64,15 +60,10 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
     if (!modelCompressionSettings) return;
     set(
       produce((state: ModelStore) => {
-        state.modelCompressionSettings!.textureCompressionSettingsMap.set(
-          texture,
-          {
-            ...modelCompressionSettings.textureCompressionSettingsMap.get(
-              texture
-            )!,
-            ...settings,
-          } as TextureCompressionSettings
-        );
+        state.modelCompressionSettings!.set(texture, {
+          ...modelCompressionSettings.get(texture)!,
+          ...settings,
+        } as TextureCompressionSettings);
       })
     );
   },

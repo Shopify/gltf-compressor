@@ -1,5 +1,5 @@
 import { defaultTextureQuality } from "@/constants";
-import { ModelCompressionSettings, TextureCompressionSettings } from "@/types";
+import { TextureCompressionSettings } from "@/types";
 import {
   Document,
   ExtensionProperty,
@@ -10,10 +10,11 @@ import {
 export function buildModelCompressionSettings(
   document: Document,
   modifiedDocument: Document
-): ModelCompressionSettings {
-  const modelCompressionSettings: ModelCompressionSettings = {
-    textureCompressionSettingsMap: new Map(),
-  };
+): Map<Texture, TextureCompressionSettings> {
+  const textureCompressionSettingsMap = new Map<
+    Texture,
+    TextureCompressionSettings
+  >();
 
   const textures = document.getRoot().listTextures();
 
@@ -30,13 +31,10 @@ export function buildModelCompressionSettings(
       compressionEnabled: false,
       maxDimension: maxDimension,
     };
-    modelCompressionSettings.textureCompressionSettingsMap.set(
-      texture,
-      textureCompressionSettings
-    );
+    textureCompressionSettingsMap.set(texture, textureCompressionSettings);
   });
 
-  return modelCompressionSettings;
+  return textureCompressionSettingsMap;
 }
 
 export function getTexturesFromMaterial(

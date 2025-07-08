@@ -8,10 +8,6 @@ export interface TextureCompressionSettings {
   maxDimension: number;
 }
 
-export interface ModelCompressionSettings {
-  textureCompressionSettingsMap: Map<Texture, TextureCompressionSettings>;
-}
-
 export interface ModelStats {
   numMeshes: number;
   numVertices: number;
