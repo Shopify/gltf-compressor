@@ -26,9 +26,9 @@ import { useEffect, useState } from "react";
 export default function MaterialEditPanel() {
   const {
     originalDocument,
+    selectedMaterial,
     selectedTextureSlot,
     selectedTexture,
-    selectedMaterial,
     textureCompressionSettingsMap,
     setSelectedMaterial,
     setSelectedTextureSlot,
@@ -54,24 +54,35 @@ export default function MaterialEditPanel() {
   } | null>(null);
 
   useEffect(() => {
-    if (originalDocument) {
-      const names = getMaterialNames(originalDocument);
-      setMaterialNames(names);
-      const firstMaterial = originalDocument.getRoot().listMaterials()[0];
-      if (firstMaterial) {
-        setSelectedMaterial(firstMaterial);
-        const { slot, texture: firstTexture } =
-          getTexturesFromMaterial(firstMaterial)?.[0] ?? {};
-        setSelectedTextureSlot(slot ?? "");
-        setSelectedTexture(firstTexture);
-        const size = firstTexture?.getSize() ?? [0, 0];
-        const maxDimension = Math.max(size[0], size[1]);
-        const weight = getTextureWeightInKB(firstTexture);
-        setMaxDimension(maxDimension);
-        setMaxDimensionOptions(getMaxDimensionOptions(maxDimension));
-        setOriginalImageWeight(weight);
-      }
+    if (!originalDocument) {
+      return;
     }
+
+    const names = getMaterialNames(originalDocument);
+    setMaterialNames(names);
+    const firstMaterial = originalDocument.getRoot().listMaterials()[0];
+
+    if (!firstMaterial) {
+      return;
+    }
+
+    setSelectedMaterial(firstMaterial);
+
+    const textures = getTexturesFromMaterial(firstMaterial);
+
+    const { slot, texture: firstTexture } = textures[0] ?? {
+      slot: "",
+      texture: null,
+    };
+
+    setSelectedTextureSlot(slot ?? "");
+    setSelectedTexture(firstTexture ?? null);
+    const size = firstTexture?.getSize() ?? [0, 0];
+    const maxDimension = Math.max(size[0], size[1]);
+    const weight = getTextureWeightInKB(firstTexture);
+    setMaxDimension(maxDimension);
+    setMaxDimensionOptions(getMaxDimensionOptions(maxDimension));
+    setOriginalImageWeight(weight);
   }, [
     originalDocument,
     setSelectedMaterial,
@@ -123,24 +134,30 @@ export default function MaterialEditPanel() {
   }, [selectedTexture, textureCompressionSettingsMap]);
 
   const handleMaterialChange = (value: string) => {
-    if (value && originalDocument) {
-      const material = getMaterialByName(originalDocument, value);
-      if (material) {
-        const textures = getTexturesFromMaterial(material);
-        const { slot, texture: firstTexture } = textures?.[0] ?? {};
-        setSelectedMaterial(material);
-        setSelectedTexture(firstTexture);
-        setSelectedTextureSlot(slot ?? "");
-      }
+    if (!originalDocument) {
+      return;
     }
+
+    const material = getMaterialByName(originalDocument, value);
+    if (!material) {
+      return;
+    }
+
+    const textures = getTexturesFromMaterial(material);
+    const { slot, texture: firstTexture } = textures[0] ?? {};
+    setSelectedMaterial(material);
+    setSelectedTexture(firstTexture ?? null);
+    setSelectedTextureSlot(slot ?? "");
   };
 
   const handleTextureChange = (value: string) => {
-    if (value && originalDocument && selectedMaterial) {
-      const texture = getTextureBySlot(selectedMaterial, value);
-      setSelectedTexture(texture);
-      setSelectedTextureSlot(value);
+    if (!selectedMaterial) {
+      return;
     }
+
+    const texture = getTextureBySlot(selectedMaterial, value);
+    setSelectedTexture(texture);
+    setSelectedTextureSlot(value);
   };
 
   const handleCompressionChange = async (value: boolean) => {
