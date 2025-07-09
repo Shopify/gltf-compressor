@@ -215,30 +215,34 @@ export default function MaterialEditPanel() {
     }
   };
 
-  const handleQualityChange = async (value: number[]) => {
-    setQuality(value[0]);
+  const handleCompressionSettingChange = async <T,>(
+    value: T,
+    stateSetter: (value: T) => void,
+    settingKey: string
+  ) => {
+    stateSetter(value);
 
     if (selectedTexture && compressionEnabled) {
-      // Update the quality in compression settings
+      // Update compression setting
       updateTextureCompressionSettings(selectedTexture, {
-        quality: value[0],
+        [settingKey]: value,
       });
 
-      // Re-compress with new quality if compression is enabled
+      // Re-compress with new setting
       const textureCompressionSettings =
         textureCompressionSettingsMap.get(selectedTexture);
       if (textureCompressionSettings) {
-        // Mark texture as compressing
+        // Flag texture as compressing
         updateTexturesBeingCompressed(selectedTexture, true);
 
         try {
           await compressTexture(selectedTexture, {
             ...textureCompressionSettings,
-            quality: value[0],
+            [settingKey]: value,
           });
           updateModelStats();
         } finally {
-          // Always mark as not compressing when done
+          // Flag texture as done compressing
           updateTexturesBeingCompressed(selectedTexture, false);
           const weight = getTextureWeightInKB(
             textureCompressionSettings.compressedTexture
@@ -247,90 +251,27 @@ export default function MaterialEditPanel() {
         }
       }
     } else if (selectedTexture) {
-      // Just update the quality setting even if compression is disabled
+      // Update compression setting
       updateTextureCompressionSettings(selectedTexture, {
-        quality: value[0],
+        [settingKey]: value,
       });
     }
+  };
+
+  const handleQualityChange = async (value: number[]) => {
+    await handleCompressionSettingChange(value[0], setQuality, "quality");
   };
 
   const handleFormatChange = async (value: string) => {
-    setImageFormat(value);
-
-    if (selectedTexture && compressionEnabled) {
-      // Update the format in compression settings
-      updateTextureCompressionSettings(selectedTexture, {
-        mimeType: value,
-      });
-
-      // Re-compress with new format if compression is enabled
-      const textureCompressionSettings =
-        textureCompressionSettingsMap.get(selectedTexture);
-      if (textureCompressionSettings) {
-        // Mark texture as compressing
-        updateTexturesBeingCompressed(selectedTexture, true);
-
-        try {
-          await compressTexture(selectedTexture, {
-            ...textureCompressionSettings,
-            mimeType: value,
-          });
-          updateModelStats();
-        } finally {
-          // Always mark as not compressing when done
-          updateTexturesBeingCompressed(selectedTexture, false);
-          const weight = getTextureWeightInKB(
-            textureCompressionSettings.compressedTexture
-          );
-          setCompressedImageWeight(weight);
-        }
-      }
-    } else if (selectedTexture) {
-      // Just update the format setting even if compression is disabled
-      updateTextureCompressionSettings(selectedTexture, {
-        mimeType: value,
-      });
-    }
+    await handleCompressionSettingChange(value, setImageFormat, "mimeType");
   };
 
   const handleMaxDimensionChange = async (value: string) => {
-    const newMaxDimension = parseInt(value);
-    setMaxDimension(newMaxDimension);
-
-    if (selectedTexture && compressionEnabled) {
-      // Update the format in compression settings
-      updateTextureCompressionSettings(selectedTexture, {
-        maxDimension: newMaxDimension,
-      });
-
-      // Re-compress with new format if compression is enabled
-      const textureCompressionSettings =
-        textureCompressionSettingsMap.get(selectedTexture);
-      if (textureCompressionSettings) {
-        // Mark texture as compressing
-        updateTexturesBeingCompressed(selectedTexture, true);
-
-        try {
-          await compressTexture(selectedTexture, {
-            ...textureCompressionSettings,
-            maxDimension: newMaxDimension,
-          });
-          updateModelStats();
-        } finally {
-          // Always mark as not compressing when done
-          updateTexturesBeingCompressed(selectedTexture, false);
-          const weight = getTextureWeightInKB(
-            textureCompressionSettings.compressedTexture
-          );
-          setCompressedImageWeight(weight);
-        }
-      }
-    } else if (selectedTexture) {
-      // Just update the format setting even if compression is disabled
-      updateTextureCompressionSettings(selectedTexture, {
-        maxDimension: newMaxDimension,
-      });
-    }
+    await handleCompressionSettingChange(
+      parseInt(value),
+      setMaxDimension,
+      "maxDimension"
+    );
   };
 
   const handleShowCompressedTexture = () => {
