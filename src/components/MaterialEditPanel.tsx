@@ -395,7 +395,7 @@ export default function MaterialEditPanel() {
       <div className="space-y-1">
         <Label htmlFor="material-select">Material</Label>
         <Select
-          value={selectedMaterial?.getName()}
+          value={selectedMaterial?.getName() ?? ""}
           onValueChange={handleMaterialChange}
           disabled={materialNames.length === 0}
         >
