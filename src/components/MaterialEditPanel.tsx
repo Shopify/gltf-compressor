@@ -89,7 +89,7 @@ export default function MaterialEditPanel() {
   useEffect(() => {
     if (selectedTexture) {
       const textureCompressionSettings =
-        textureCompressionSettingsMap?.get(selectedTexture);
+        textureCompressionSettingsMap.get(selectedTexture);
       const isCompressed =
         textureCompressionSettings?.compressionEnabled ?? false;
       const textureQuality = textureCompressionSettings?.quality ?? 0.8;
@@ -149,7 +149,7 @@ export default function MaterialEditPanel() {
 
       if (value) {
         const textureCompressionSettings =
-          textureCompressionSettingsMap?.get(selectedTexture);
+          textureCompressionSettingsMap.get(selectedTexture);
         if (textureCompressionSettings) {
           // Mark texture as compressing
           updateTexturesBeingCompressed(selectedTexture, true);
@@ -174,9 +174,7 @@ export default function MaterialEditPanel() {
       } else {
         // If disabling compression, restore original texture
         const compressedTexture =
-          textureCompressionSettingsMap?.get(
-            selectedTexture
-          )?.compressedTexture;
+          textureCompressionSettingsMap.get(selectedTexture)?.compressedTexture;
         if (compressedTexture) {
           compressedTexture.setImage(selectedTexture.getImage()!);
           compressedTexture.setMimeType(selectedTexture.getMimeType()!);
@@ -203,7 +201,7 @@ export default function MaterialEditPanel() {
 
       // Re-compress with new quality if compression is enabled
       const textureCompressionSettings =
-        textureCompressionSettingsMap?.get(selectedTexture);
+        textureCompressionSettingsMap.get(selectedTexture);
       if (textureCompressionSettings) {
         // Mark texture as compressing
         updateTexturesBeingCompressed(selectedTexture, true);
@@ -242,7 +240,7 @@ export default function MaterialEditPanel() {
 
       // Re-compress with new format if compression is enabled
       const textureCompressionSettings =
-        textureCompressionSettingsMap?.get(selectedTexture);
+        textureCompressionSettingsMap.get(selectedTexture);
       if (textureCompressionSettings) {
         // Mark texture as compressing
         updateTexturesBeingCompressed(selectedTexture, true);
@@ -282,7 +280,7 @@ export default function MaterialEditPanel() {
 
       // Re-compress with new format if compression is enabled
       const textureCompressionSettings =
-        textureCompressionSettingsMap?.get(selectedTexture);
+        textureCompressionSettingsMap.get(selectedTexture);
       if (textureCompressionSettings) {
         // Mark texture as compressing
         updateTexturesBeingCompressed(selectedTexture, true);
@@ -313,7 +311,7 @@ export default function MaterialEditPanel() {
   const handleShowCompressedTexture = () => {
     if (selectedTexture && savedCompressedData) {
       const textureCompressionSettings =
-        textureCompressionSettingsMap?.get(selectedTexture);
+        textureCompressionSettingsMap.get(selectedTexture);
       if (
         textureCompressionSettings?.compressedTexture &&
         textureCompressionSettings.compressionEnabled
@@ -339,7 +337,7 @@ export default function MaterialEditPanel() {
   const handleShowUncompressedTexture = () => {
     if (selectedTexture) {
       const textureCompressionSettings =
-        textureCompressionSettingsMap?.get(selectedTexture);
+        textureCompressionSettingsMap.get(selectedTexture);
       if (
         textureCompressionSettings?.compressedTexture &&
         textureCompressionSettings.compressionEnabled

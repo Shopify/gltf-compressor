@@ -9,20 +9,17 @@ interface ModelStore {
   originalDocument: Document | null;
   modifiedDocument: Document | null;
   scene: Group | null;
-  textureCompressionSettingsMap: Map<
-    Texture,
-    TextureCompressionSettings
-  > | null;
-  selectedTexture: Texture | null;
-  selectedTextureSlot: string;
+  textureCompressionSettingsMap: Map<Texture, TextureCompressionSettings>;
   selectedMaterial: Material | null;
+  selectedTextureSlot: string;
+  selectedTexture: Texture | null;
   texturesBeingCompressed: Set<Texture>;
   modelStats: ModelStats | null;
   showingCompressedTexture: boolean;
 
-  setSelectedTexture: (texture: Texture | null) => void;
-  setSelectedTextureSlot: (slot: string) => void;
   setSelectedMaterial: (material: Material | null) => void;
+  setSelectedTextureSlot: (slot: string) => void;
+  setSelectedTexture: (texture: Texture | null) => void;
   updateTextureCompressionSettings: (
     texture: Texture,
     settings: Partial<TextureCompressionSettings>
@@ -40,30 +37,29 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
   originalDocument: null,
   modifiedDocument: null,
   scene: null,
-  textureCompressionSettingsMap: null,
-  selectedTexture: null,
-  selectedTextureSlot: "",
+  textureCompressionSettingsMap: new Map<Texture, TextureCompressionSettings>(),
   selectedMaterial: null,
+  selectedTextureSlot: "",
+  selectedTexture: null,
   texturesBeingCompressed: new Set<Texture>(),
   modelStats: null,
   showingCompressedTexture: false,
 
-  setSelectedTexture: (texture: Texture | null) =>
-    set({ selectedTexture: texture }),
-  setSelectedTextureSlot: (slot: string) => set({ selectedTextureSlot: slot }),
   setSelectedMaterial: (material: Material | null) => {
     if (!material) return;
     set({ selectedMaterial: material });
   },
+  setSelectedTextureSlot: (slot: string) => set({ selectedTextureSlot: slot }),
+  setSelectedTexture: (texture: Texture | null) =>
+    set({ selectedTexture: texture }),
   updateTextureCompressionSettings: (
     texture: Texture,
     settings: Partial<TextureCompressionSettings>
   ) => {
     const { textureCompressionSettingsMap } = get();
-    if (!textureCompressionSettingsMap) return;
     set(
       produce((state: ModelStore) => {
-        state.textureCompressionSettingsMap!.set(texture, {
+        state.textureCompressionSettingsMap.set(texture, {
           ...textureCompressionSettingsMap.get(texture)!,
           ...settings,
         } as TextureCompressionSettings);
