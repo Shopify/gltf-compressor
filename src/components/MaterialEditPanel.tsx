@@ -160,49 +160,56 @@ export default function MaterialEditPanel() {
   };
 
   const handleCompressionChange = async (value: boolean) => {
-    if (selectedMaterial && selectedTexture) {
-      setCompressionEnabled(value);
+    if (!selectedMaterial || !selectedTexture) {
+      return;
+    }
 
-      if (value) {
-        const textureCompressionSettings =
-          textureCompressionSettingsMap.get(selectedTexture);
-        if (textureCompressionSettings) {
-          // Mark texture as compressing
-          updateTexturesBeingCompressed(selectedTexture, true);
+    setCompressionEnabled(value);
 
-          try {
-            await compressTexture(selectedTexture, textureCompressionSettings);
-            // Only update the compression settings after compression is complete
-            updateTextureCompressionSettings(selectedTexture, {
-              compressionEnabled: value,
-            });
-            updateModelStats();
-          } finally {
-            // Always mark as not compressing when done
-            updateTexturesBeingCompressed(selectedTexture, false);
-            const weight = getTextureWeightInKB(
-              textureCompressionSettings.compressedTexture
-            );
-            setCompressedImageWeight(weight);
-            setShowingCompressedTexture(true);
-          }
+    if (value) {
+      const textureCompressionSettings =
+        textureCompressionSettingsMap.get(selectedTexture);
+      if (textureCompressionSettings) {
+        // Flag texture as compressing
+        updateTexturesBeingCompressed(selectedTexture, true);
+
+        try {
+          await compressTexture(selectedTexture, textureCompressionSettings);
+        } finally {
+          // Flag texture as done compressing
+          updateTexturesBeingCompressed(selectedTexture, false);
+
+          // Update user interface
+          const weight = getTextureWeightInKB(
+            textureCompressionSettings.compressedTexture
+          );
+          setCompressedImageWeight(weight);
+          setShowingCompressedTexture(true);
+
+          // Update compression settings and model stats
+          updateTextureCompressionSettings(selectedTexture, {
+            compressionEnabled: value,
+          });
+          updateModelStats();
         }
-      } else {
-        // If disabling compression, restore original texture
-        const compressedTexture =
-          textureCompressionSettingsMap.get(selectedTexture)?.compressedTexture;
-        if (compressedTexture) {
-          compressedTexture.setImage(selectedTexture.getImage()!);
-          compressedTexture.setMimeType(selectedTexture.getMimeType()!);
-        }
-
-        // If disabling compression, update immediately
-        updateTextureCompressionSettings(selectedTexture, {
-          compressionEnabled: value,
-        });
-        updateModelStats();
-        setShowingCompressedTexture(false);
       }
+    } else {
+      // Restore original texture because compression is being disabled
+      const compressedTexture =
+        textureCompressionSettingsMap.get(selectedTexture)?.compressedTexture;
+      if (compressedTexture) {
+        compressedTexture.setImage(selectedTexture.getImage()!);
+        compressedTexture.setMimeType(selectedTexture.getMimeType()!);
+      }
+
+      // Update user interface
+      setShowingCompressedTexture(false);
+
+      // Update compression settings and model stats
+      updateTextureCompressionSettings(selectedTexture, {
+        compressionEnabled: value,
+      });
+      updateModelStats();
     }
   };
 
