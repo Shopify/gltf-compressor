@@ -17,7 +17,7 @@ interface ModelStore {
   modelStats: ModelStats | null;
   showingCompressedTexture: boolean;
 
-  setSelectedMaterial: (material: Material | null) => void;
+  setSelectedMaterial: (material: Material) => void;
   setSelectedTextureSlot: (slot: string) => void;
   setSelectedTexture: (texture: Texture | null) => void;
   updateTextureCompressionSettings: (
@@ -45,8 +45,7 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
   modelStats: null,
   showingCompressedTexture: false,
 
-  setSelectedMaterial: (material: Material | null) => {
-    if (!material) return;
+  setSelectedMaterial: (material: Material) => {
     set({ selectedMaterial: material });
   },
   setSelectedTextureSlot: (slot: string) => set({ selectedTextureSlot: slot }),

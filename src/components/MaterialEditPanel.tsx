@@ -397,9 +397,16 @@ export default function MaterialEditPanel() {
         <Select
           value={selectedMaterial?.getName()}
           onValueChange={handleMaterialChange}
+          disabled={materialNames.length === 0}
         >
           <SelectTrigger id="material-select">
-            <SelectValue placeholder="Select material" />
+            <SelectValue
+              placeholder={
+                materialNames.length === 0
+                  ? "No materials available"
+                  : "Select material"
+              }
+            />
           </SelectTrigger>
           <SelectContent>
             {materialNames.map((name) => (

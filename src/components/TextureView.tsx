@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 
 export default function TextureView() {
   const {
+    selectedMaterial,
     selectedTexture,
     textureCompressionSettingsMap,
     texturesBeingCompressed,
@@ -101,7 +102,21 @@ export default function TextureView() {
           <span>Updating texture...</span>
         </div>
       )}
-      {!selectedTexture && (
+      {!selectedMaterial && (
+        <div
+          style={{
+            color: "white",
+            fontFamily:
+              "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace",
+            fontSize: "0.75rem",
+            lineHeight: "1rem",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <span>No material selected</span>
+        </div>
+      )}
+      {selectedMaterial && !selectedTexture && (
         <div
           style={{
             color: "white",
