@@ -69,32 +69,34 @@ export default function MaterialEditPanel() {
 
     setSelectedMaterial(firstMaterial);
 
+    const slots = getTextureSlotsFromMaterial(firstMaterial);
     const textures = getTexturesFromMaterial(firstMaterial);
-
-    const { slot, texture: firstTexture } = textures[0] ?? {
-      slot: "",
-      texture: null,
-    };
-
+    const { slot: firstSlot, texture: firstTexture } = textures[0] ?? {};
     const size = firstTexture?.getSize() ?? [0, 0];
     const maxDimension = Math.max(size[0], size[1]);
     const weight = getTextureWeightInKB(firstTexture);
 
-    setSelectedTextureSlot(slot ?? "");
+    setTextureSlots(slots ?? []);
+    setSelectedTextureSlot(firstSlot ?? "");
     setSelectedTexture(firstTexture ?? null);
     setMaxDimension(maxDimension);
     setMaxDimensionOptions(getMaxDimensionOptions(maxDimension));
     setOriginalImageWeight(weight);
   }, [originalDocument]);
 
-  // Update texture slots when material changes
+  // Update texture slots and the selected slot/texture when material changes
   useEffect(() => {
     if (!selectedMaterial) {
       return;
     }
 
     const slots = getTextureSlotsFromMaterial(selectedMaterial);
+    const textures = getTexturesFromMaterial(selectedMaterial);
+    const { slot: firstSlot, texture: firstTexture } = textures[0] ?? {};
+
     setTextureSlots(slots ?? []);
+    setSelectedTextureSlot(firstSlot ?? "");
+    setSelectedTexture(firstTexture ?? null);
   }, [selectedMaterial]);
 
   // Update compression settings when texture changes
@@ -144,11 +146,7 @@ export default function MaterialEditPanel() {
       return;
     }
 
-    const textures = getTexturesFromMaterial(material);
-    const { slot, texture: firstTexture } = textures[0] ?? {};
     setSelectedMaterial(material);
-    setSelectedTexture(firstTexture ?? null);
-    setSelectedTextureSlot(slot ?? "");
   };
 
   const handleTextureChange = (value: string) => {
@@ -157,8 +155,8 @@ export default function MaterialEditPanel() {
     }
 
     const texture = getTextureBySlot(selectedMaterial, value);
-    setSelectedTexture(texture);
     setSelectedTextureSlot(value);
+    setSelectedTexture(texture);
   };
 
   const handleCompressionChange = async (value: boolean) => {
