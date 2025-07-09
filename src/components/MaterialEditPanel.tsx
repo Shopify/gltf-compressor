@@ -161,11 +161,16 @@ export default function MaterialEditPanel() {
   };
 
   const handleCompressionChange = async (value: boolean) => {
-    if (!selectedMaterial || !selectedTexture) {
+    if (!selectedTexture) {
       return;
     }
 
     setCompressionEnabled(value);
+
+    // Update compression setting
+    updateTextureCompressionSettings(selectedTexture, {
+      compressionEnabled: value,
+    });
 
     if (value) {
       const textureCompressionSettings =
@@ -186,11 +191,6 @@ export default function MaterialEditPanel() {
           );
           setCompressedImageWeight(weight);
           setShowingCompressedTexture(true);
-
-          // Update compression settings and model stats
-          updateTextureCompressionSettings(selectedTexture, {
-            compressionEnabled: value,
-          });
           updateModelStats();
         }
       }
@@ -203,11 +203,6 @@ export default function MaterialEditPanel() {
           () => {
             // Update user interface
             setShowingCompressedTexture(false);
-
-            // Update compression settings and model stats
-            updateTextureCompressionSettings(selectedTexture, {
-              compressionEnabled: value,
-            });
             updateModelStats();
           }
         );
@@ -220,14 +215,18 @@ export default function MaterialEditPanel() {
     stateSetter: (value: T) => void,
     settingKey: string
   ) => {
+    if (!selectedTexture) {
+      return;
+    }
+
     stateSetter(value);
 
-    if (selectedTexture && compressionEnabled) {
-      // Update compression setting
-      updateTextureCompressionSettings(selectedTexture, {
-        [settingKey]: value,
-      });
+    // Update compression setting
+    updateTextureCompressionSettings(selectedTexture, {
+      [settingKey]: value,
+    });
 
+    if (compressionEnabled) {
       // Re-compress with new setting
       const textureCompressionSettings =
         textureCompressionSettingsMap.get(selectedTexture);
@@ -250,11 +249,6 @@ export default function MaterialEditPanel() {
           setCompressedImageWeight(weight);
         }
       }
-    } else if (selectedTexture) {
-      // Update compression setting
-      updateTextureCompressionSettings(selectedTexture, {
-        [settingKey]: value,
-      });
     }
   };
 
