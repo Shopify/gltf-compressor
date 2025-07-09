@@ -53,6 +53,7 @@ export default function MaterialEditPanel() {
     mimeType: string;
   } | null>(null);
 
+  // Initialize panel
   useEffect(() => {
     if (!originalDocument) {
       return;
@@ -75,28 +76,28 @@ export default function MaterialEditPanel() {
       texture: null,
     };
 
-    setSelectedTextureSlot(slot ?? "");
-    setSelectedTexture(firstTexture ?? null);
     const size = firstTexture?.getSize() ?? [0, 0];
     const maxDimension = Math.max(size[0], size[1]);
     const weight = getTextureWeightInKB(firstTexture);
+
+    setSelectedTextureSlot(slot ?? "");
+    setSelectedTexture(firstTexture ?? null);
     setMaxDimension(maxDimension);
     setMaxDimensionOptions(getMaxDimensionOptions(maxDimension));
     setOriginalImageWeight(weight);
-  }, [
-    originalDocument,
-    setSelectedMaterial,
-    setSelectedTextureSlot,
-    setSelectedTexture,
-  ]);
+  }, [originalDocument]);
 
+  // Update texture slots when material changes
   useEffect(() => {
-    if (selectedMaterial) {
-      const slots = getTextureSlotsFromMaterial(selectedMaterial);
-      setTextureSlots(slots);
+    if (!selectedMaterial) {
+      return;
     }
+
+    const slots = getTextureSlotsFromMaterial(selectedMaterial);
+    setTextureSlots(slots ?? []);
   }, [selectedMaterial]);
 
+  // Update compression settings when texture changes
   useEffect(() => {
     if (selectedTexture) {
       const textureCompressionSettings =
@@ -131,7 +132,7 @@ export default function MaterialEditPanel() {
       setCompressedImageWeight(0);
       setShowingCompressedTexture(false);
     }
-  }, [selectedTexture, textureCompressionSettingsMap]);
+  }, [selectedTexture]);
 
   const handleMaterialChange = (value: string) => {
     if (!originalDocument) {
