@@ -113,7 +113,7 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
     const percentOfSizeTakenByTextures = (sizeOfTextures / totalSize) * 100;
     const percentOfSizeTakenByAnimations = (sizeOfAnimations / totalSize) * 100;
 
-    const uniqueTexturesInModifiedDocument = modifiedDocument
+    const texturesInModifiedDocument = modifiedDocument
       .getRoot()
       .listTextures();
 
@@ -131,7 +131,7 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
         percentOfSizeTakenByAnimations: percentOfSizeTakenByAnimations,
         initialSizeOfTextures: sizeOfTextures,
         percentChangeInTextures: null,
-        uniqueTexturesInModifiedDocument: uniqueTexturesInModifiedDocument,
+        texturesInModifiedDocument: texturesInModifiedDocument,
       },
     });
   },
@@ -141,7 +141,7 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
     if (!modelStats) return;
 
     let sizeOfTextures = 0;
-    modelStats.uniqueTexturesInModifiedDocument.forEach((texture: Texture) => {
+    modelStats.texturesInModifiedDocument.forEach((texture: Texture) => {
       const imageData = texture.getImage();
       if (imageData?.byteLength) {
         sizeOfTextures += imageData.byteLength / 1000;

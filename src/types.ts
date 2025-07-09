@@ -21,5 +21,5 @@ export interface ModelStats {
   percentOfSizeTakenByAnimations: number;
   initialSizeOfTextures: number;
   percentChangeInTextures: number | null;
-  uniqueTexturesInModifiedDocument: Texture[];
+  texturesInModifiedDocument: Texture[];
 }

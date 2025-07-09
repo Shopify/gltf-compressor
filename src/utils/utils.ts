@@ -45,16 +45,16 @@ export function buildTextureCompressionSettingsMap(
     TextureCompressionSettings
   >();
 
-  const textures = document.getRoot().listTextures();
+  const texturesInOriginalDocument = document.getRoot().listTextures();
 
-  const modifiedTextures = modifiedDocument.getRoot().listTextures();
+  const texturesInModifiedDocument = modifiedDocument.getRoot().listTextures();
 
-  textures.forEach((texture, index) => {
+  texturesInOriginalDocument.forEach((texture, index) => {
     const size = texture.getSize() ?? [0, 0];
     const maxDimension = Math.max(size[0], size[1]);
 
     const textureCompressionSettings: TextureCompressionSettings = {
-      compressedTexture: modifiedTextures[index],
+      compressedTexture: texturesInModifiedDocument[index],
       mimeType: texture.getMimeType(),
       quality: 0.8,
       compressionEnabled: false,
