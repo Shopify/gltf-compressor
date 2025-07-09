@@ -125,7 +125,7 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
         percentOfSizeTakenByTextures: percentOfSizeTakenByTextures,
         percentOfSizeTakenByAnimations: percentOfSizeTakenByAnimations,
         initialSizeOfTextures: sizeOfTextures,
-        percentChangeInTextures: null,
+        percentChangeInTextures: 0,
         texturesInModifiedDocument: texturesInModifiedDocument,
       },
     });
@@ -151,7 +151,7 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
         ? ((modelStats.initialSizeOfTextures - sizeOfTextures) /
             modelStats.initialSizeOfTextures) *
           100
-        : null;
+        : 0;
 
     set({
       modelStats: {

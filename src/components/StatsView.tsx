@@ -17,14 +17,14 @@ export default function StatsView() {
       <div>Meshes: {formatSize(modelStats.sizeOfMeshes)}</div>
       <div>
         Textures: {formatSize(modelStats.sizeOfTextures)}
-        {modelStats.percentChangeInTextures !== null &&
+        {modelStats.percentChangeInTextures !== 0 &&
           modelStats.percentChangeInTextures > 0 && (
             <span className="text-green-400">
               {" "}
               ↓ {modelStats.percentChangeInTextures.toFixed(1)}%
             </span>
           )}
-        {modelStats.percentChangeInTextures !== null &&
+        {modelStats.percentChangeInTextures !== 0 &&
           modelStats.percentChangeInTextures < 0 && (
             <span className="text-red-400">
               {" "}
