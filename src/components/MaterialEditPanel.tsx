@@ -239,14 +239,16 @@ export default function MaterialEditPanel() {
             ...textureCompressionSettings,
             [settingKey]: value,
           });
-          updateModelStats();
         } finally {
           // Flag texture as done compressing
           updateTexturesBeingCompressed(selectedTexture, false);
+
+          // Update user interface
           const weight = getTextureWeightInKB(
             textureCompressionSettings.compressedTexture
           );
           setCompressedImageWeight(weight);
+          updateModelStats();
         }
       }
     }
