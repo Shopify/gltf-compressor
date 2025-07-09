@@ -16,7 +16,7 @@ import {
   getMaterialByName,
   getMaterialNames,
   getMaxDimensionOptions,
-  getTextureBySlotName,
+  getTextureBySlot,
   getTexturesFromMaterial,
   getTextureSlotsFromMaterial,
   getTextureWeightInKB,
@@ -35,7 +35,7 @@ export default function MaterialEditPanel() {
     setSelectedTexture,
     updateTextureCompressionSettings,
     updateModelStats,
-    setTextureCompressing,
+    updateTexturesBeingCompressed,
     setShowingCompressedTexture,
   } = useModelStore();
 
@@ -137,7 +137,7 @@ export default function MaterialEditPanel() {
 
   const handleTextureChange = (value: string) => {
     if (value && originalDocument && selectedMaterial) {
-      const texture = getTextureBySlotName(selectedMaterial, value);
+      const texture = getTextureBySlot(selectedMaterial, value);
       setSelectedTexture(texture);
       setSelectedTextureSlot(value);
     }
@@ -152,7 +152,7 @@ export default function MaterialEditPanel() {
           textureCompressionSettingsMap?.get(selectedTexture);
         if (textureCompressionSettings) {
           // Mark texture as compressing
-          setTextureCompressing(selectedTexture, true);
+          updateTexturesBeingCompressed(selectedTexture, true);
 
           try {
             await compressTexture(selectedTexture, textureCompressionSettings);
@@ -163,7 +163,7 @@ export default function MaterialEditPanel() {
             updateModelStats();
           } finally {
             // Always mark as not compressing when done
-            setTextureCompressing(selectedTexture, false);
+            updateTexturesBeingCompressed(selectedTexture, false);
             const weight = getTextureWeightInKB(
               textureCompressionSettings.compressedTexture
             );
@@ -206,7 +206,7 @@ export default function MaterialEditPanel() {
         textureCompressionSettingsMap?.get(selectedTexture);
       if (textureCompressionSettings) {
         // Mark texture as compressing
-        setTextureCompressing(selectedTexture, true);
+        updateTexturesBeingCompressed(selectedTexture, true);
 
         try {
           await compressTexture(selectedTexture, {
@@ -216,7 +216,7 @@ export default function MaterialEditPanel() {
           updateModelStats();
         } finally {
           // Always mark as not compressing when done
-          setTextureCompressing(selectedTexture, false);
+          updateTexturesBeingCompressed(selectedTexture, false);
           const weight = getTextureWeightInKB(
             textureCompressionSettings.compressedTexture
           );
@@ -245,7 +245,7 @@ export default function MaterialEditPanel() {
         textureCompressionSettingsMap?.get(selectedTexture);
       if (textureCompressionSettings) {
         // Mark texture as compressing
-        setTextureCompressing(selectedTexture, true);
+        updateTexturesBeingCompressed(selectedTexture, true);
 
         try {
           await compressTexture(selectedTexture, {
@@ -255,7 +255,7 @@ export default function MaterialEditPanel() {
           updateModelStats();
         } finally {
           // Always mark as not compressing when done
-          setTextureCompressing(selectedTexture, false);
+          updateTexturesBeingCompressed(selectedTexture, false);
           const weight = getTextureWeightInKB(
             textureCompressionSettings.compressedTexture
           );
@@ -285,7 +285,7 @@ export default function MaterialEditPanel() {
         textureCompressionSettingsMap?.get(selectedTexture);
       if (textureCompressionSettings) {
         // Mark texture as compressing
-        setTextureCompressing(selectedTexture, true);
+        updateTexturesBeingCompressed(selectedTexture, true);
 
         try {
           await compressTexture(selectedTexture, {
@@ -295,7 +295,7 @@ export default function MaterialEditPanel() {
           updateModelStats();
         } finally {
           // Always mark as not compressing when done
-          setTextureCompressing(selectedTexture, false);
+          updateTexturesBeingCompressed(selectedTexture, false);
           const weight = getTextureWeightInKB(
             textureCompressionSettings.compressedTexture
           );

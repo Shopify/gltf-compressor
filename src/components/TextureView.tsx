@@ -5,13 +5,13 @@ export default function TextureView() {
   const {
     selectedTexture,
     textureCompressionSettingsMap,
-    compressingTextures,
+    texturesBeingCompressed,
     showingCompressedTexture,
   } = useModelStore();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isCompressing =
-    selectedTexture && compressingTextures.has(selectedTexture);
+    selectedTexture && texturesBeingCompressed.has(selectedTexture);
 
   useEffect(() => {
     const loadTexture = async () => {

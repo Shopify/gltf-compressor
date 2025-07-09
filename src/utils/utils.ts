@@ -202,7 +202,7 @@ export function getTextureSlotsFromMaterial(material: Material): string[] {
   return getTexturesFromMaterial(material).map(({ slot }) => slot);
 }
 
-export const getTextureBySlotName = (
+export const getTextureBySlot = (
   material: Material,
   slot: string
 ): Texture | null => {
