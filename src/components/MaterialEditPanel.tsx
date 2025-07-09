@@ -282,8 +282,6 @@ export default function MaterialEditPanel() {
         textureCompressionSettings?.compressedTexture &&
         textureCompressionSettings.compressionEnabled
       ) {
-        console.log("*** Restoring compressed image");
-
         // Restore the saved compressed image data
         textureCompressionSettings.compressedTexture.setImage(
           savedCompressedData.imageData!
@@ -320,7 +318,6 @@ export default function MaterialEditPanel() {
             mimeType: currentMimeType,
           });
 
-          console.log("*** Showing original image");
           // Set to original image
           compressedTexture.setImage(selectedTexture.getImage()!);
           compressedTexture.setMimeType(selectedTexture.getMimeType()!);
