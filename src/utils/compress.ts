@@ -1,3 +1,44 @@
+let compressionWorker: Worker | null = null;
+let requestIdCounter = 0;
+const pendingRequests = new Map<string, {
+  resolve: (value: Uint8Array) => void;
+  reject: (error: Error) => void;
+}>();
+
+const getOrCreateWorker = (): Worker => {
+  if (!compressionWorker) {
+    compressionWorker = new Worker(
+      new URL('./compress.worker.ts', import.meta.url),
+      { type: 'module' }
+    );
+    
+    compressionWorker.addEventListener('message', (event) => {
+      const { id, result, error } = event.data;
+      const pending = pendingRequests.get(id);
+      
+      if (pending) {
+        pendingRequests.delete(id);
+        
+        if (error) {
+          pending.reject(new Error(error));
+        } else if (result) {
+          pending.resolve(result);
+        }
+      }
+    });
+    
+    compressionWorker.addEventListener('error', (error) => {
+      console.error('Worker error:', error);
+      pendingRequests.forEach((pending) => {
+        pending.reject(new Error('Worker error occurred'));
+      });
+      pendingRequests.clear();
+    });
+  }
+  
+  return compressionWorker;
+};
+
 /**
  * This function compresses an image to a specified size, MIME type and quality
  * @param image - The image data to compress
@@ -12,73 +53,20 @@ export const compressImage = async (
   mimeType: string,
   quality: number
 ): Promise<Uint8Array> => {
-  if (!image || image.length === 0) {
-    throw new Error("Invalid image data provided");
-  }
-  if (maxDimension <= 0) {
-    throw new Error("Max dimension must be greater than 0");
-  }
-  if (quality < 0 || quality > 1) {
-    throw new Error("Quality must be between 0 and 1");
-  }
-
-  const blob = new Blob([image]);
-  const blobUrl = URL.createObjectURL(blob);
-
-  try {
-    const img = new Image();
-    await new Promise<void>((resolve, reject) => {
-      img.onload = () => resolve();
-      img.onerror = (error) =>
-        reject(new Error(`Failed to load image: ${error}`));
-      img.src = blobUrl;
-    });
-
-    const { width: originalWidth, height: originalHeight } = img;
-    const scale = Math.min(
-      maxDimension / originalWidth,
-      maxDimension / originalHeight,
-      1
-    );
-    const newWidth = Math.round(originalWidth * scale);
-    const newHeight = Math.round(originalHeight * scale);
-
-    const canvas = document.createElement("canvas");
-    canvas.width = newWidth;
-    canvas.height = newHeight;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      throw new Error("Could not get canvas context");
-    }
-
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(img, 0, 0, newWidth, newHeight);
-
-    const imageData = await new Promise<Uint8Array>((resolve, reject) => {
-      canvas.toBlob(
-        async (blob) => {
-          if (!blob) {
-            reject(new Error("Failed to create blob from canvas"));
-            return;
-          }
-          try {
-            const arrayBuffer = await blob.arrayBuffer();
-            resolve(new Uint8Array(arrayBuffer));
-          } catch (error) {
-            reject(
-              new Error(`Failed to convert blob to array buffer: ${error}`)
-            );
-          }
-        },
-        mimeType,
-        quality
-      );
-    });
-
-    return imageData;
-  } finally {
-    URL.revokeObjectURL(blobUrl);
-  }
+  const requestId = `req_${++requestIdCounter}`;
+  const worker = getOrCreateWorker();
+  
+  return new Promise<Uint8Array>((resolve, reject) => {
+    pendingRequests.set(requestId, { resolve, reject });
+    
+    const imageDataCopy = image.slice();
+    
+    worker.postMessage({
+      id: requestId,
+      imageData: imageDataCopy,
+      maxDimension,
+      mimeType,
+      quality
+    }, [imageDataCopy.buffer]);
+  });
 };

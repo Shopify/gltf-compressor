@@ -1,0 +1,92 @@
+type CompressionRequest = {
+  id: string;
+  imageData: Uint8Array;
+  maxDimension: number;
+  mimeType: string;
+  quality: number;
+};
+
+type CompressionResponse = {
+  id: string;
+  result?: Uint8Array;
+  error?: string;
+};
+
+self.addEventListener('message', async (event: MessageEvent<CompressionRequest>) => {
+  const { id, imageData, maxDimension, mimeType, quality } = event.data;
+  
+  try {
+    const compressedData = await compressImageInWorker(
+      imageData,
+      maxDimension,
+      mimeType,
+      quality
+    );
+    
+    const response: CompressionResponse = {
+      id,
+      result: compressedData
+    };
+    
+    (self as unknown as DedicatedWorkerGlobalScope).postMessage(response, [compressedData.buffer]);
+  } catch (error) {
+    const response: CompressionResponse = {
+      id,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    };
+    
+    (self as unknown as DedicatedWorkerGlobalScope).postMessage(response);
+  }
+});
+
+async function compressImageInWorker(
+  image: Uint8Array,
+  maxDimension: number,
+  mimeType: string,
+  quality: number
+): Promise<Uint8Array> {
+  if (!image || image.length === 0) {
+    throw new Error("Invalid image data provided");
+  }
+  if (maxDimension <= 0) {
+    throw new Error("Max dimension must be greater than 0");
+  }
+  if (quality < 0 || quality > 1) {
+    throw new Error("Quality must be between 0 and 1");
+  }
+
+  const blob = new Blob([image]);
+  const imageBitmap = await createImageBitmap(blob);
+  
+  try {
+    const { width: originalWidth, height: originalHeight } = imageBitmap;
+    const scale = Math.min(
+      maxDimension / originalWidth,
+      maxDimension / originalHeight,
+      1
+    );
+    const newWidth = Math.round(originalWidth * scale);
+    const newHeight = Math.round(originalHeight * scale);
+
+    const canvas = new OffscreenCanvas(newWidth, newHeight);
+    const ctx = canvas.getContext("2d");
+    
+    if (!ctx) {
+      throw new Error("Could not get canvas context");
+    }
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(imageBitmap, 0, 0, newWidth, newHeight);
+
+    const blob = await canvas.convertToBlob({
+      type: mimeType,
+      quality: quality
+    });
+    
+    const arrayBuffer = await blob.arrayBuffer();
+    return new Uint8Array(arrayBuffer);
+  } finally {
+    imageBitmap.close();
+  }
+}
