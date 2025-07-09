@@ -213,22 +213,6 @@ export const getTextureBySlot = (
   );
 };
 
-export function getUniqueTextures(document: Document): Texture[] {
-  const uniqueTextures = new Set<Texture>();
-
-  document
-    .getRoot()
-    .listMaterials()
-    .forEach((material) => {
-      const materialTextures = getTexturesFromMaterial(material);
-      materialTextures.forEach(({ texture }) => {
-        uniqueTextures.add(texture);
-      });
-    });
-
-  return Array.from(uniqueTextures);
-}
-
 export function getMaxDimensionOptions(maxDim: number): string[] {
   const options = [maxDim.toString()];
   const standardSizes = [8192, 4096, 2048, 1024, 512, 256, 128];
