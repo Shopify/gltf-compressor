@@ -70,10 +70,13 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
     settings: Partial<TextureCompressionSettings>
   ) => {
     const { textureCompressionSettingsMap } = get();
+    const existingSettings = textureCompressionSettingsMap.get(texture);
+    if (!existingSettings) return;
+
     set(
       produce((state: ModelStore) => {
         state.textureCompressionSettingsMap.set(texture, {
-          ...textureCompressionSettingsMap.get(texture)!,
+          ...existingSettings,
           ...settings,
         } as TextureCompressionSettings);
       })
