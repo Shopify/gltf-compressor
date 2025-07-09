@@ -14,7 +14,7 @@ interface ModelStore {
   selectedTextureSlot: string;
   selectedTexture: Texture | null;
   texturesBeingCompressed: Set<Texture>;
-  modelStats: ModelStats | null;
+  modelStats: ModelStats;
   showingCompressedTexture: boolean;
 
   setSelectedMaterial: (material: Material) => void;
@@ -42,7 +42,21 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
   selectedTextureSlot: "",
   selectedTexture: null,
   texturesBeingCompressed: new Set<Texture>(),
-  modelStats: null,
+  modelStats: {
+    numMeshes: 0,
+    numVertices: 0,
+    numTextures: 0,
+    numAnimationClips: 0,
+    sizeOfMeshes: 0,
+    sizeOfTextures: 0,
+    sizeOfAnimations: 0,
+    percentOfSizeTakenByMeshes: 0,
+    percentOfSizeTakenByTextures: 0,
+    percentOfSizeTakenByAnimations: 0,
+    initialSizeOfTextures: 0,
+    percentChangeInTextures: 0,
+    texturesInModifiedDocument: [],
+  },
   showingCompressedTexture: false,
 
   setSelectedMaterial: (material: Material) => {
@@ -132,8 +146,6 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
   },
   updateModelStats: () => {
     const { modelStats } = get();
-
-    if (!modelStats) return;
 
     let sizeOfTextures = 0;
     modelStats.texturesInModifiedDocument.forEach((texture: Texture) => {
