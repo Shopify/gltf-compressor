@@ -10,6 +10,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useModelStore } from "@/stores/useModelStore";
+import { restoreOriginalTextureAsync } from "@/utils/textureRestore";
 import {
   compressTexture,
   formatSize,
@@ -198,18 +199,19 @@ export default function MaterialEditPanel() {
       const compressedTexture =
         textureCompressionSettingsMap.get(selectedTexture)?.compressedTexture;
       if (compressedTexture) {
-        compressedTexture.setImage(selectedTexture.getImage()!);
-        compressedTexture.setMimeType(selectedTexture.getMimeType()!);
+        restoreOriginalTextureAsync(compressedTexture, selectedTexture).then(
+          () => {
+            // Update user interface
+            setShowingCompressedTexture(false);
+
+            // Update compression settings and model stats
+            updateTextureCompressionSettings(selectedTexture, {
+              compressionEnabled: value,
+            });
+            updateModelStats();
+          }
+        );
       }
-
-      // Update user interface
-      setShowingCompressedTexture(false);
-
-      // Update compression settings and model stats
-      updateTextureCompressionSettings(selectedTexture, {
-        compressionEnabled: value,
-      });
-      updateModelStats();
     }
   };
 
