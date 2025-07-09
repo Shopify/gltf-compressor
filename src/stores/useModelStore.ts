@@ -19,7 +19,6 @@ interface ModelStore {
   selectedMaterial: Material | null;
   texturesBeingCompressed: Set<Texture>;
   modelStats: ModelStats | null;
-  modifiedTextures: Texture[] | null;
   showingCompressedTexture: boolean;
 
   setSelectedTexture: (texture: Texture | null) => void;
@@ -48,7 +47,6 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
   selectedMaterial: null,
   texturesBeingCompressed: new Set<Texture>(),
   modelStats: null,
-  modifiedTextures: null,
   showingCompressedTexture: false,
 
   setSelectedTexture: (texture: Texture | null) =>
@@ -116,7 +114,8 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
     const percentOfSizeTakenByTextures = (sizeOfTextures / totalSize) * 100;
     const percentOfSizeTakenByAnimations = (sizeOfAnimations / totalSize) * 100;
 
-    const modifiedTextures = getUniqueTextures(modifiedDocument);
+    const uniqueTexturesInModifiedDocument =
+      getUniqueTextures(modifiedDocument);
 
     set({
       modelStats: {
@@ -132,17 +131,17 @@ export const useModelStore = create<ModelStore>()((set, get) => ({
         percentOfSizeTakenByAnimations: percentOfSizeTakenByAnimations,
         initialSizeOfTextures: sizeOfTextures,
         percentChangeInTextures: null,
+        uniqueTexturesInModifiedDocument: uniqueTexturesInModifiedDocument,
       },
-      modifiedTextures,
     });
   },
   updateModelStats: () => {
-    const { modelStats, modifiedTextures } = get();
+    const { modelStats } = get();
 
-    if (!modelStats || !modifiedTextures) return;
+    if (!modelStats) return;
 
     let sizeOfTextures = 0;
-    modifiedTextures.forEach((texture: Texture) => {
+    modelStats.uniqueTexturesInModifiedDocument.forEach((texture: Texture) => {
       const imageData = texture.getImage();
       if (imageData?.byteLength) {
         sizeOfTextures += imageData.byteLength / 1000;

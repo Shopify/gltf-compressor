@@ -221,7 +221,6 @@ export function getUniqueTextures(document: Document): Texture[] {
     .listMaterials()
     .forEach((material) => {
       const materialTextures = getTexturesFromMaterial(material);
-
       materialTextures.forEach(({ texture }) => {
         uniqueTextures.add(texture);
       });
