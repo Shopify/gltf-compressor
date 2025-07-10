@@ -6,12 +6,12 @@ import { exportDocument } from "@/utils/utils";
 import { useState } from "react";
 
 export function ExportPanel() {
-  const [useDracoCompression, setUseDracoCompression] = useState(false);
+  const [dracoCompress, setDracoCompress] = useState(false);
   const { modifiedDocument } = useModelStore();
 
   const handleExport = async () => {
     if (!modifiedDocument) return;
-    await exportDocument(modifiedDocument, useDracoCompression);
+    await exportDocument(modifiedDocument, dracoCompress);
   };
 
   return (
@@ -19,8 +19,8 @@ export function ExportPanel() {
       <div className="flex items-center space-x-2">
         <Switch
           id="draco-compression"
-          checked={useDracoCompression}
-          onCheckedChange={setUseDracoCompression}
+          checked={dracoCompress}
+          onCheckedChange={setDracoCompress}
         />
         <Label htmlFor="draco-compression">Use Draco Compression</Label>
       </div>

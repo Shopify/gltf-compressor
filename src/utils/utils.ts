@@ -85,7 +85,7 @@ export const compressTexture = async (
 
 export const exportDocument = async (
   documentToExport: Document,
-  useDracoCompression: boolean
+  dracoCompress: boolean
 ) => {
   const io = new WebIO()
     .registerExtensions(ALL_EXTENSIONS)
@@ -96,7 +96,7 @@ export const exportDocument = async (
       "draco3d.decoder": await new DracoDecoderModule(),
     });
 
-  if (useDracoCompression) {
+  if (dracoCompress) {
     // Add KHR_draco_mesh_compression
     documentToExport
       .createExtension(KHRDracoMeshCompression)
