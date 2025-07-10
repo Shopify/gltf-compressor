@@ -270,57 +270,61 @@ export default function MaterialEditPanel() {
     );
   };
 
-  const handleShowCompressedTexture = () => {
-    if (selectedTexture && savedCompressedData) {
-      const textureCompressionSettings =
-        textureCompressionSettingsMap.get(selectedTexture);
-      if (
-        textureCompressionSettings?.compressedTexture &&
-        textureCompressionSettings.compressionEnabled
-      ) {
-        // Restore the saved compressed image data
-        textureCompressionSettings.compressedTexture.setImage(
-          savedCompressedData.imageData!
-        );
-        textureCompressionSettings.compressedTexture.setMimeType(
-          savedCompressedData.mimeType
-        );
+  const handleShowUncompressedTexture = () => {
+    if (!selectedTexture) {
+      return;
+    }
 
-        // Clear saved data
-        setSavedCompressedData(null);
+    const textureCompressionSettings =
+      textureCompressionSettingsMap.get(selectedTexture);
+    if (
+      textureCompressionSettings?.compressedTexture &&
+      textureCompressionSettings.compressionEnabled
+    ) {
+      // Save the current compressed image data before switching to original
+      const compressedTexture = textureCompressionSettings.compressedTexture;
+      const currentImageData = compressedTexture.getImage();
+      const currentMimeType = compressedTexture.getMimeType();
 
-        setShowingCompressedTexture(true);
+      if (currentImageData) {
+        // Store the compressed data
+        setSavedCompressedData({
+          imageData: currentImageData.slice(),
+          mimeType: currentMimeType,
+        });
+
+        // Set to original image
+        compressedTexture.setImage(selectedTexture.getImage()!);
+        compressedTexture.setMimeType(selectedTexture.getMimeType()!);
+
+        setShowingCompressedTexture(false);
       }
     }
   };
 
-  const handleShowUncompressedTexture = () => {
-    if (selectedTexture) {
-      const textureCompressionSettings =
-        textureCompressionSettingsMap.get(selectedTexture);
-      if (
-        textureCompressionSettings?.compressedTexture &&
-        textureCompressionSettings.compressionEnabled
-      ) {
-        // Save the current compressed image data before switching to original
-        const compressedTexture = textureCompressionSettings.compressedTexture;
-        const currentImageData = compressedTexture.getImage();
-        const currentMimeType = compressedTexture.getMimeType();
+  const handleShowCompressedTexture = () => {
+    if (!selectedTexture || !savedCompressedData) {
+      return;
+    }
 
-        if (currentImageData) {
-          // Store the compressed data
-          setSavedCompressedData({
-            imageData: currentImageData.slice(),
-            mimeType: currentMimeType,
-          });
+    const textureCompressionSettings =
+      textureCompressionSettingsMap.get(selectedTexture);
+    if (
+      textureCompressionSettings?.compressedTexture &&
+      textureCompressionSettings.compressionEnabled
+    ) {
+      // Restore the saved compressed image data
+      textureCompressionSettings.compressedTexture.setImage(
+        savedCompressedData.imageData!
+      );
+      textureCompressionSettings.compressedTexture.setMimeType(
+        savedCompressedData.mimeType
+      );
 
-          // Set to original image
-          compressedTexture.setImage(selectedTexture.getImage()!);
-          compressedTexture.setMimeType(selectedTexture.getMimeType()!);
+      // Clear saved data
+      setSavedCompressedData(null);
 
-          setShowingCompressedTexture(false);
-        }
-      }
+      setShowingCompressedTexture(true);
     }
   };
 
@@ -347,7 +351,7 @@ export default function MaterialEditPanel() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [handleShowCompressedTexture, handleShowUncompressedTexture]);
+  }, [handleShowUncompressedTexture, handleShowCompressedTexture]);
 
   return (
     <div className="space-y-2">
