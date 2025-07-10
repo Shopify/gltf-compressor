@@ -13,7 +13,7 @@ const AccordionContent = React.forwardRef<
     ref={ref}
     forceMount={forceMount}
     className={cn(
-      "overflow-hidden text-sm transition-all duration-300",
+      "overflow-hidden text-sm",
       "data-[state=closed]:max-h-0 data-[state=closed]:opacity-0 data-[state=closed]:py-0",
       "data-[state=open]:max-h-[9999px] data-[state=open]:opacity-100",
       className
