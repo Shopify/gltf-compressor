@@ -23,23 +23,14 @@ export type BoundsProps = JSX.IntrinsicElements["group"] & {
   observe?: boolean;
   fit?: boolean;
   clip?: boolean;
-  interpolateFunc?: (t: number) => number;
   onFit?: (data: SizeProps) => void;
-};
-
-const interpolateFuncDefault = (t: number) => {
-  return 1 - Math.exp(-5 * t) + 0.007 * t;
 };
 
 const context = createContext<BoundsApi | null>(null);
 
-function Bounds({
-  children,
-  margin = 1.2,
-  interpolateFunc = interpolateFuncDefault,
-}: BoundsProps) {
+function Bounds({ children, margin = 1.2 }: BoundsProps) {
   const ref = useRef<Group>(null);
-  const { camera } = useThree();
+  const camera = useThree((state) => state.camera);
   const controls = useThree((state) => state.controls);
   const origin = useRef({
     camPos: new Vector3(),
@@ -61,16 +52,21 @@ function Bounds({
     progress: 0.0,
     config: {
       easing: easings.linear,
-      duration: 10000,
+      duration: 1000,
+    },
+    onStart: () => {
+      if (controls) {
+        // @ts-ignore
+        controls.enabled = false;
+      }
     },
     onChange: () => {
       const currProgress = cameraSpring.progress.get();
-      const k = interpolateFunc(currProgress);
       goal.current.camPos &&
         camera.position.lerpVectors(
           origin.current.camPos,
           goal.current.camPos,
-          k
+          currProgress
         );
       camera.lookAt(new Vector3(0, 0, 0));
       camera.updateMatrixWorld();
@@ -81,6 +77,10 @@ function Bounds({
       camera.lookAt(new Vector3(0, 0, 0));
       camera.updateMatrixWorld();
       camera.updateProjectionMatrix();
+      if (controls) {
+        // @ts-ignore
+        controls.enabled = true;
+      }
     },
   }));
 
@@ -133,7 +133,6 @@ function Bounds({
         cameraSpringAPI.start({
           from: { progress: 0.0 },
           to: { progress: 1.0 },
-          immediate: true,
         });
         return this;
       },
