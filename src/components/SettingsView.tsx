@@ -5,7 +5,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@/components/ui/accordion-keep-mounted";
 import { ExportPanel } from "./ExportPanel";
 import MaterialEditPanel from "./MaterialEditPanel";
 import ViewportSettingsPanel from "./ViewportSettingsPanel";
