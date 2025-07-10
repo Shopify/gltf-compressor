@@ -49,6 +49,8 @@ export default function MaterialEditPanel() {
   const [maxDimensionOptions, setMaxDimensionOptions] = useState<string[]>([]);
   const [originalImageWeight, setOriginalImageWeight] = useState(0);
   const [compressedImageWeight, setCompressedImageWeight] = useState(0);
+  const [percentChangeInImageWeight, setPercentChangeInImageWeight] =
+    useState(0);
   const [savedCompressedData, setSavedCompressedData] = useState<{
     imageData: Uint8Array | null;
     mimeType: string;
@@ -116,6 +118,8 @@ export default function MaterialEditPanel() {
       const compressedWeight = getTextureWeightInKB(
         textureCompressionSettings?.compressedTexture
       );
+      const percentChangeInImageWeight =
+        weight > 0 ? ((weight - compressedWeight) / weight) * 100 : 0;
       setCompressionEnabled(isCompressed);
       setQuality(textureQuality);
       setImageFormat(imageFormat);
@@ -123,6 +127,7 @@ export default function MaterialEditPanel() {
       setMaxDimensionOptions(getMaxDimensionOptions(originalMaxDimension));
       setOriginalImageWeight(weight);
       setCompressedImageWeight(compressedWeight);
+      setPercentChangeInImageWeight(percentChangeInImageWeight);
       setShowingCompressedTexture(isCompressed);
     } else {
       // Reset to default values when no texture is selected
@@ -133,6 +138,7 @@ export default function MaterialEditPanel() {
       setMaxDimensionOptions(["0"]);
       setOriginalImageWeight(0);
       setCompressedImageWeight(0);
+      setPercentChangeInImageWeight(0);
       setShowingCompressedTexture(false);
     }
   }, [selectedTexture]);
@@ -189,7 +195,12 @@ export default function MaterialEditPanel() {
           const weight = getTextureWeightInKB(
             textureCompressionSettings.compressedTexture
           );
+          const percentChangeInImageWeight =
+            originalImageWeight > 0
+              ? ((originalImageWeight - weight) / originalImageWeight) * 100
+              : 0;
           setCompressedImageWeight(weight);
+          setPercentChangeInImageWeight(percentChangeInImageWeight);
           setShowingCompressedTexture(true);
           updateModelStats();
         }
@@ -247,7 +258,12 @@ export default function MaterialEditPanel() {
           const weight = getTextureWeightInKB(
             textureCompressionSettings.compressedTexture
           );
+          const percentChangeInImageWeight =
+            originalImageWeight > 0
+              ? ((originalImageWeight - weight) / originalImageWeight) * 100
+              : 0;
           setCompressedImageWeight(weight);
+          setPercentChangeInImageWeight(percentChangeInImageWeight);
           updateModelStats();
         }
       }
@@ -535,6 +551,20 @@ export default function MaterialEditPanel() {
           }
         >
           New Image Size: {formatSize(compressedImageWeight)}
+          {percentChangeInImageWeight !== 0 &&
+            percentChangeInImageWeight > 0 && (
+              <span className="text-green-400">
+                {" "}
+                ↓ {percentChangeInImageWeight.toFixed(1)}%
+              </span>
+            )}
+          {percentChangeInImageWeight !== 0 &&
+            percentChangeInImageWeight < 0 && (
+              <span className="text-red-400">
+                {" "}
+                ↑ {Math.abs(percentChangeInImageWeight).toFixed(1)}%
+              </span>
+            )}
         </Label>
       </div>
 
