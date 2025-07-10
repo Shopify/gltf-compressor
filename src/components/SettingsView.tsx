@@ -23,7 +23,7 @@ export default function SettingsView() {
           <AccordionTrigger className="bg-secondary px-4 py-2">
             Viewport Settings
           </AccordionTrigger>
-          <AccordionContent className="px-4 py-2 bg-background">
+          <AccordionContent className="px-2 py-1 bg-background">
             <ViewportSettingsPanel />
           </AccordionContent>
         </AccordionItem>
@@ -31,7 +31,7 @@ export default function SettingsView() {
           <AccordionTrigger className="bg-secondary px-4 py-2">
             Material Edit
           </AccordionTrigger>
-          <AccordionContent className="px-4 py-2 bg-background">
+          <AccordionContent className="px-2 py-1 bg-background">
             <MaterialEditPanel />
           </AccordionContent>
         </AccordionItem>
@@ -39,7 +39,7 @@ export default function SettingsView() {
           <AccordionTrigger className="bg-secondary px-4 py-2">
             Export
           </AccordionTrigger>
-          <AccordionContent className="px-4 py-2 bg-background">
+          <AccordionContent className="px-2 py-1 bg-background">
             <ExportPanel />
           </AccordionContent>
         </AccordionItem>

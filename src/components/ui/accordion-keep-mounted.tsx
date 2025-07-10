@@ -49,13 +49,13 @@ const AccordionContent = React.forwardRef<
     forceMount={forceMount}
     className={cn(
       "overflow-hidden text-sm transition-all duration-300",
-      "data-[state=closed]:max-h-0 data-[state=closed]:opacity-0",
+      "data-[state=closed]:max-h-0 data-[state=closed]:opacity-0 data-[state=closed]:py-0",
       "data-[state=open]:max-h-[9999px] data-[state=open]:opacity-100",
       className
     )}
     {...props}
   >
-    <div className={cn("pb-4 pt-0", className)}>{children}</div>
+    <div className={className}>{children}</div>
   </AccordionPrimitive.Content>
 ));
 AccordionContent.displayName = AccordionPrimitive.Content.displayName;
