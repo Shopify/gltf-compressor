@@ -45,6 +45,7 @@ function Bounds({ children, margin = 1.2 }: BoundsProps) {
     camZoom: undefined,
     target: undefined,
   });
+  const maxDistance = useRef(0);
 
   const [box] = useState(() => new Box3());
 
@@ -80,6 +81,10 @@ function Bounds({ children, margin = 1.2 }: BoundsProps) {
       if (controls) {
         // @ts-ignore
         controls.enabled = true;
+        // @ts-ignore
+        controls.maxDistance = maxDistance.current;
+        // @ts-ignore
+        controls.update();
       }
     },
   }));
@@ -130,6 +135,7 @@ function Bounds({ children, margin = 1.2 }: BoundsProps) {
           .clone()
           .addScaledVector(direction, distance);
         goal.current.target = center.clone();
+        maxDistance.current = distance * 10;
         cameraSpringAPI.start({
           from: { progress: 0.0 },
           to: { progress: 1.0 },
@@ -144,12 +150,6 @@ function Bounds({ children, margin = 1.2 }: BoundsProps) {
         camera.near = distance / 100;
         camera.far = distance * 100;
         camera.updateProjectionMatrix();
-        if (controls) {
-          // @ts-ignore
-          controls.maxDistance = distance * 10;
-          // @ts-ignore
-          controls.update();
-        }
         return this;
       },
     };
