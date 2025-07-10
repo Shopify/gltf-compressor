@@ -1,24 +1,26 @@
+import { createCompressionWorker } from "./compress-worker-factory";
+
 let compressionWorker: Worker | null = null;
 let requestIdCounter = 0;
-const pendingRequests = new Map<string, {
-  resolve: (value: Uint8Array) => void;
-  reject: (error: Error) => void;
-}>();
+const pendingRequests = new Map<
+  string,
+  {
+    resolve: (value: Uint8Array) => void;
+    reject: (error: Error) => void;
+  }
+>();
 
 const getOrCreateWorker = (): Worker => {
   if (!compressionWorker) {
-    compressionWorker = new Worker(
-      new URL('./compress.worker.ts', import.meta.url),
-      { type: 'module' }
-    );
-    
-    compressionWorker.addEventListener('message', (event) => {
+    compressionWorker = createCompressionWorker();
+
+    compressionWorker.addEventListener("message", (event) => {
       const { id, result, error } = event.data;
       const pending = pendingRequests.get(id);
-      
+
       if (pending) {
         pendingRequests.delete(id);
-        
+
         if (error) {
           pending.reject(new Error(error));
         } else if (result) {
@@ -26,16 +28,16 @@ const getOrCreateWorker = (): Worker => {
         }
       }
     });
-    
-    compressionWorker.addEventListener('error', (error) => {
-      console.error('Worker error:', error);
+
+    compressionWorker.addEventListener("error", (error) => {
+      console.error("Worker error:", error);
       pendingRequests.forEach((pending) => {
-        pending.reject(new Error('Worker error occurred'));
+        pending.reject(new Error("Worker error occurred"));
       });
       pendingRequests.clear();
     });
   }
-  
+
   return compressionWorker;
 };
 
@@ -55,18 +57,21 @@ export const compressImage = async (
 ): Promise<Uint8Array> => {
   const requestId = `req_${++requestIdCounter}`;
   const worker = getOrCreateWorker();
-  
+
   return new Promise<Uint8Array>((resolve, reject) => {
     pendingRequests.set(requestId, { resolve, reject });
-    
+
     const imageDataCopy = image.slice();
-    
-    worker.postMessage({
-      id: requestId,
-      imageData: imageDataCopy,
-      maxDimension,
-      mimeType,
-      quality
-    }, [imageDataCopy.buffer]);
+
+    worker.postMessage(
+      {
+        id: requestId,
+        imageData: imageDataCopy,
+        maxDimension,
+        mimeType,
+        quality,
+      },
+      [imageDataCopy.buffer]
+    );
   });
 };

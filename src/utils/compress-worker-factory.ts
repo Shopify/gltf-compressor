@@ -1,56 +1,38 @@
-type CompressionRequest = {
-  id: string;
-  imageData: Uint8Array;
-  maxDimension: number;
-  mimeType: string;
-  quality: number;
-};
+// Worker code as a string to create blob URL
+const workerCode = `
+self.addEventListener('message', async (event) => {
+  const { id, imageData, maxDimension, mimeType, quality } = event.data;
 
-type CompressionResponse = {
-  id: string;
-  result?: Uint8Array;
-  error?: string;
-};
+  try {
+    const compressedData = await compressImageInWorker(
+      imageData,
+      maxDimension,
+      mimeType,
+      quality
+    );
 
-self.addEventListener(
-  "message",
-  async (event: MessageEvent<CompressionRequest>) => {
-    const { id, imageData, maxDimension, mimeType, quality } = event.data;
+    const response = {
+      id,
+      result: compressedData
+    };
 
-    try {
-      const compressedData = await compressImageInWorker(
-        imageData,
-        maxDimension,
-        mimeType,
-        quality
-      );
+    self.postMessage(response, [compressedData.buffer]);
+  } catch (error) {
+    const response = {
+      id,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    };
 
-      const response: CompressionResponse = {
-        id,
-        result: compressedData,
-      };
-
-      (self as unknown as DedicatedWorkerGlobalScope).postMessage(response, [
-        compressedData.buffer,
-      ]);
-    } catch (error) {
-      const response: CompressionResponse = {
-        id,
-        error:
-          error instanceof Error ? error.message : "Unknown error occurred",
-      };
-
-      (self as unknown as DedicatedWorkerGlobalScope).postMessage(response);
-    }
+    self.postMessage(response);
   }
-);
+});
 
 async function compressImageInWorker(
-  image: Uint8Array,
-  maxDimension: number,
-  mimeType: string,
-  quality: number
-): Promise<Uint8Array> {
+  image,
+  maxDimension,
+  mimeType,
+  quality
+) {
   if (!image || image.length === 0) {
     throw new Error("Invalid image data provided");
   }
@@ -87,7 +69,7 @@ async function compressImageInWorker(
 
     const blob = await canvas.convertToBlob({
       type: mimeType,
-      quality: quality,
+      quality: quality
     });
 
     const arrayBuffer = await blob.arrayBuffer();
@@ -95,4 +77,11 @@ async function compressImageInWorker(
   } finally {
     imageBitmap.close();
   }
+}
+`;
+
+export function createCompressionWorker(): Worker {
+  const blob = new Blob([workerCode], { type: "application/javascript" });
+  const workerUrl = URL.createObjectURL(blob);
+  return new Worker(workerUrl);
 }
