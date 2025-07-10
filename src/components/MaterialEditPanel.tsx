@@ -42,6 +42,7 @@ export default function MaterialEditPanel() {
 
   const [materialNames, setMaterialNames] = useState<string[]>([]);
   const [textureSlots, setTextureSlots] = useState<string[]>([]);
+  const [doubleSided, setDoubleSided] = useState(false);
   const [compressionEnabled, setCompressionEnabled] = useState(false);
   const [quality, setQuality] = useState(0.8);
   const [imageFormat, setImageFormat] = useState("image/jpeg");
@@ -82,6 +83,7 @@ export default function MaterialEditPanel() {
     setTextureSlots(slots ?? []);
     setSelectedTextureSlot(firstSlot ?? "");
     setSelectedTexture(firstTexture ?? null);
+    setDoubleSided(firstMaterial.getDoubleSided());
     setMaxDimension(maxDimension);
     setMaxDimensionOptions(getMaxDimensionOptions(maxDimension));
     setOriginalImageWeight(weight);
@@ -100,6 +102,7 @@ export default function MaterialEditPanel() {
     setTextureSlots(slots ?? []);
     setSelectedTextureSlot(firstSlot ?? "");
     setSelectedTexture(firstTexture ?? null);
+    setDoubleSided(selectedMaterial.getDoubleSided());
   }, [selectedMaterial]);
 
   // Update compression settings when texture changes
@@ -164,6 +167,16 @@ export default function MaterialEditPanel() {
     const texture = getTextureBySlot(selectedMaterial, value);
     setSelectedTextureSlot(value);
     setSelectedTexture(texture);
+  };
+
+  const handleDoubleSidedChange = async (value: boolean) => {
+    if (!selectedMaterial) {
+      return;
+    }
+
+    setDoubleSided(value);
+
+    selectedMaterial.setDoubleSided(value);
   };
 
   const handleCompressionChange = async (value: boolean) => {
@@ -427,6 +440,21 @@ export default function MaterialEditPanel() {
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="flex items-center space-x-2 pt-1">
+        <Switch
+          id="double-sided-toggle"
+          checked={doubleSided}
+          onCheckedChange={handleDoubleSidedChange}
+          disabled={materialNames.length === 0}
+        />
+        <Label
+          htmlFor="double-sided-toggle"
+          className={materialNames.length === 0 ? "text-muted-foreground" : ""}
+        >
+          Double Sided?
+        </Label>
       </div>
 
       <div className="flex items-center space-x-2 pt-1">
