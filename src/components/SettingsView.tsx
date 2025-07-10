@@ -1,10 +1,11 @@
 "use client";
 
-import { AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   Accordion,
-  AccordionContent,
-} from "@/components/ui/accordion-keep-mounted";
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { AccordionContent } from "@/components/ui/accordion-keep-mounted";
 import { ExportPanel } from "./ExportPanel";
 import MaterialEditPanel from "./MaterialEditPanel";
 import ViewportSettingsPanel from "./ViewportSettingsPanel";
