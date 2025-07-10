@@ -11,7 +11,15 @@ import {
   EXTTextureWebP,
   KHRDracoMeshCompression,
 } from "@gltf-transform/extensions";
-import { cloneDocument } from "@gltf-transform/functions";
+import {
+  cloneDocument,
+  dedup,
+  flatten,
+  join,
+  prune,
+  resample,
+  weld,
+} from "@gltf-transform/functions";
 import { DocumentView } from "@gltf-transform/view";
 import { compressImage } from "./compress";
 
@@ -83,10 +91,43 @@ export const compressTexture = async (
   }
 };
 
+function doNothing() {
+  return (_: Document) => {};
+}
+
 export const exportDocument = async (
   documentToExport: Document,
-  dracoCompress: boolean
+  dracoCompress: boolean,
+  deduplicate: boolean,
+  flattenAndJoin: boolean,
+  doWeld: boolean,
+  doResample: boolean,
+  doPrune: boolean
 ) => {
+  const finalDocument = cloneDocument(documentToExport);
+
+  if (deduplicate || flattenAndJoin || doWeld) {
+    await finalDocument.transform(
+      // Remove duplicate meshes, materials, textures, etc.
+      deduplicate ? dedup() : doNothing,
+
+      // Reduce nesting of the scene graph; required for join()
+      flattenAndJoin ? flatten() : doNothing,
+
+      // Join compatible meshes
+      flattenAndJoin ? join() : doNothing,
+
+      // Weld (index) all mesh geometry, removing duplicate vertices
+      doWeld ? weld() : doNothing,
+
+      // Losslessly resample animation frames
+      doResample ? resample() : doNothing,
+
+      // Remove unused nodes, textures, materials, etc.
+      doPrune ? prune() : doNothing
+    );
+  }
+
   const io = new WebIO()
     .registerExtensions(ALL_EXTENSIONS)
     .registerDependencies({
@@ -98,7 +139,7 @@ export const exportDocument = async (
 
   if (dracoCompress) {
     // Add KHR_draco_mesh_compression
-    documentToExport
+    finalDocument
       .createExtension(KHRDracoMeshCompression)
       .setRequired(true)
       .setEncoderOptions({
@@ -107,7 +148,7 @@ export const exportDocument = async (
       });
   } else {
     // Remove KHR_draco_mesh_compression if it exists
-    const ext = documentToExport
+    const ext = finalDocument
       .getRoot()
       .listExtensionsUsed()
       .find((ext) => ext.extensionName === "KHR_draco_mesh_compression");
@@ -116,16 +157,16 @@ export const exportDocument = async (
     }
   }
 
-  const documentHasWebPTexture = documentToExport
+  const documentHasWebPTexture = finalDocument
     .getRoot()
     .listTextures()
     .some((texture) => texture.getMimeType() === "image/webp");
   if (documentHasWebPTexture) {
     // Add EXT_texture_webp
-    documentToExport.createExtension(EXTTextureWebP).setRequired(true);
+    finalDocument.createExtension(EXTTextureWebP).setRequired(true);
   } else {
     // Remove EXT_texture_webp if it exists
-    const ext = documentToExport
+    const ext = finalDocument
       .getRoot()
       .listExtensionsUsed()
       .find((ext) => ext.extensionName === "EXT_texture_webp");
@@ -134,7 +175,7 @@ export const exportDocument = async (
     }
   }
 
-  const compressedArrayBuffer = await io.writeBinary(documentToExport);
+  const compressedArrayBuffer = await io.writeBinary(finalDocument);
 
   const blob = new Blob([compressedArrayBuffer], {
     type: "application/octet-stream",
