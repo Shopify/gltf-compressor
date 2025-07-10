@@ -51,7 +51,7 @@ function Bounds({ children, margin = 1.2 }: BoundsProps) {
   const [cameraSpring, cameraSpringAPI] = useSpring(() => ({
     progress: 0.0,
     config: {
-      easing: easings.linear,
+      easing: easings.easeOutCubic,
       duration: 1000,
     },
     onStart: () => {
