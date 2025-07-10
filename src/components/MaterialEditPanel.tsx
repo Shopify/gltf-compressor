@@ -281,22 +281,22 @@ export default function MaterialEditPanel() {
       textureCompressionSettings?.compressedTexture &&
       textureCompressionSettings.compressionEnabled
     ) {
-      // Save the current compressed image data before switching to original
+      // Get the image data and mime type of the compressed texture and store it so we can restore it later
       const compressedTexture = textureCompressionSettings.compressedTexture;
-      const currentImageData = compressedTexture.getImage();
-      const currentMimeType = compressedTexture.getMimeType();
+      const compressedImageData = compressedTexture.getImage();
+      const compressedMimeType = compressedTexture.getMimeType();
 
-      if (currentImageData) {
-        // Store the compressed data
+      if (compressedImageData) {
         setSavedCompressedData({
-          imageData: currentImageData.slice(),
-          mimeType: currentMimeType,
+          imageData: compressedImageData,
+          mimeType: compressedMimeType,
         });
 
-        // Set to original image
+        // Update the compressed texture so it uses the original texture's image data and mime type
         compressedTexture.setImage(selectedTexture.getImage()!);
         compressedTexture.setMimeType(selectedTexture.getMimeType()!);
 
+        // Update user interface
         setShowingCompressedTexture(false);
       }
     }
@@ -313,7 +313,7 @@ export default function MaterialEditPanel() {
       textureCompressionSettings?.compressedTexture &&
       textureCompressionSettings.compressionEnabled
     ) {
-      // Restore the saved compressed image data
+      // Restore the image data and mime type of the compressed texture
       textureCompressionSettings.compressedTexture.setImage(
         savedCompressedData.imageData!
       );
@@ -324,6 +324,7 @@ export default function MaterialEditPanel() {
       // Clear saved data
       setSavedCompressedData(null);
 
+      // Update user interface
       setShowingCompressedTexture(true);
     }
   };
