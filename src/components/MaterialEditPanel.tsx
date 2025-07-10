@@ -23,6 +23,7 @@ import {
   getTextureWeightInKB,
 } from "@/utils/utils";
 import { useEffect, useState } from "react";
+import { SimpleTooltip } from "./SimpleTooltip";
 
 export default function MaterialEditPanel() {
   const {
@@ -596,17 +597,19 @@ export default function MaterialEditPanel() {
         </Label>
       </div>
 
-      <div className="space-y-2">
-        <Button
-          onMouseDown={handleShowUncompressedTexture}
-          onMouseUp={handleShowCompressedTexture}
-          onMouseLeave={handleShowCompressedTexture}
-          disabled={!compressionEnabled || textureSlots.length === 0}
-          className="w-full"
-        >
-          Hold to Show Uncompressed Texture
-        </Button>
-      </div>
+      <SimpleTooltip content="Or press and hold the C key on your keyboard">
+        <div className="space-y-2">
+          <Button
+            onMouseDown={handleShowUncompressedTexture}
+            onMouseUp={handleShowCompressedTexture}
+            onMouseLeave={handleShowCompressedTexture}
+            disabled={!compressionEnabled || textureSlots.length === 0}
+            className="w-full"
+          >
+            Press & Hold to Show Original Texture
+          </Button>
+        </div>
+      </SimpleTooltip>
     </div>
   );
 }
