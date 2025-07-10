@@ -26,7 +26,7 @@ const presets = {
 function Refit({ radius }: { radius: number }) {
   const api = useBounds();
   useEffect(() => {
-    if (api) api.refresh().clip().fit();
+    if (radius > 0 && api) api.refresh().clip().fit();
   }, [radius]);
   return null;
 }

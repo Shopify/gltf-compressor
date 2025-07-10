@@ -61,7 +61,7 @@ function Bounds({
     progress: 0.0,
     config: {
       easing: easings.linear,
-      duration: 1000,
+      duration: 10000,
     },
     onChange: () => {
       const currProgress = cameraSpring.progress.get();
@@ -133,6 +133,7 @@ function Bounds({
         cameraSpringAPI.start({
           from: { progress: 0.0 },
           to: { progress: 1.0 },
+          immediate: true,
         });
         return this;
       },
