@@ -10,10 +10,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useModelStore } from "@/stores/useModelStore";
-import {
-  restoreOriginalTextureAsync,
-  setTextureDataAsync,
-} from "@/utils/textureRestore";
+import { restoreOriginalTextureAsync } from "@/utils/textureRestore";
 import {
   compressTexture,
   formatSize,
@@ -273,7 +270,7 @@ export default function MaterialEditPanel() {
     );
   };
 
-  const handleShowCompressedTexture = async () => {
+  const handleShowCompressedTexture = () => {
     if (selectedTexture && savedCompressedData) {
       const textureCompressionSettings =
         textureCompressionSettingsMap.get(selectedTexture);
@@ -282,21 +279,22 @@ export default function MaterialEditPanel() {
         textureCompressionSettings.compressionEnabled
       ) {
         // Restore the saved compressed image data
-        await setTextureDataAsync(
-          textureCompressionSettings.compressedTexture,
-          savedCompressedData.imageData!,
+        textureCompressionSettings.compressedTexture.setImage(
+          savedCompressedData.imageData!
+        );
+        textureCompressionSettings.compressedTexture.setMimeType(
           savedCompressedData.mimeType
-        ).then(() => {
-          // Clear saved data
-          setSavedCompressedData(null);
+        );
 
-          setShowingCompressedTexture(true);
-        });
+        // Clear saved data
+        setSavedCompressedData(null);
+
+        setShowingCompressedTexture(true);
       }
     }
   };
 
-  const handleShowUncompressedTexture = async () => {
+  const handleShowUncompressedTexture = () => {
     if (selectedTexture) {
       const textureCompressionSettings =
         textureCompressionSettingsMap.get(selectedTexture);
@@ -317,12 +315,10 @@ export default function MaterialEditPanel() {
           });
 
           // Set to original image
-          await restoreOriginalTextureAsync(
-            compressedTexture,
-            selectedTexture
-          ).then(() => {
-            setShowingCompressedTexture(false);
-          });
+          compressedTexture.setImage(selectedTexture.getImage()!);
+          compressedTexture.setMimeType(selectedTexture.getMimeType()!);
+
+          setShowingCompressedTexture(false);
         }
       }
     }
