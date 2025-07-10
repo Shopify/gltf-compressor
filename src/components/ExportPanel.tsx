@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { useModelStore } from "@/stores/useModelStore";
 import { exportDocument } from "@/utils/utils";
 import { useState } from "react";
-import { SimpleTooltip } from "./SimpleTooltip";
+import { TooltipWrapper } from "./TooltipWrapper";
 
 export function ExportPanel() {
   const [dracoCompress, setDracoCompress] = useState(false);
@@ -30,7 +30,7 @@ export function ExportPanel() {
 
   return (
     <div className="space-y-2">
-      <SimpleTooltip content="Compress mesh geometry with Draco">
+      <TooltipWrapper content="Compress mesh geometry with Draco">
         <div className="flex items-center space-x-2">
           <Switch
             id="draco-compression"
@@ -39,8 +39,8 @@ export function ExportPanel() {
           />
           <Label htmlFor="draco-compression">Draco Compress</Label>
         </div>
-      </SimpleTooltip>
-      <SimpleTooltip content="Remove duplicate meshes, materials, textures, etc.">
+      </TooltipWrapper>
+      <TooltipWrapper content="Remove duplicate meshes, materials, textures, etc.">
         <div className="flex items-center space-x-2">
           <Switch
             id="deduplicate"
@@ -49,8 +49,8 @@ export function ExportPanel() {
           />
           <Label htmlFor="deduplicate">Deduplicate</Label>
         </div>
-      </SimpleTooltip>
-      <SimpleTooltip content="Reduce nesting of the scene graph and join compatible meshes">
+      </TooltipWrapper>
+      <TooltipWrapper content="Reduce nesting of the scene graph and join compatible meshes">
         <div className="flex items-center space-x-2">
           <Switch
             id="flatten-and-join"
@@ -59,14 +59,14 @@ export function ExportPanel() {
           />
           <Label htmlFor="flatten-and-join">Flatten and Join</Label>
         </div>
-      </SimpleTooltip>
-      <SimpleTooltip content="Index all mesh geometry, removing duplicate vertices">
+      </TooltipWrapper>
+      <TooltipWrapper content="Index all mesh geometry, removing duplicate vertices">
         <div className="flex items-center space-x-2">
           <Switch id="weld" checked={weld} onCheckedChange={setWeld} />
           <Label htmlFor="weld">Weld</Label>
         </div>
-      </SimpleTooltip>
-      <SimpleTooltip content="Losslessly resample animation frames">
+      </TooltipWrapper>
+      <TooltipWrapper content="Losslessly resample animation frames">
         <div className="flex items-center space-x-2">
           <Switch
             id="resample"
@@ -75,13 +75,13 @@ export function ExportPanel() {
           />
           <Label htmlFor="resample">Resample</Label>
         </div>
-      </SimpleTooltip>
-      <SimpleTooltip content="Remove unused nodes, textures, materials, etc.">
+      </TooltipWrapper>
+      <TooltipWrapper content="Remove unused nodes, textures, materials, etc.">
         <div className="flex items-center space-x-2">
           <Switch id="prune" checked={prune} onCheckedChange={setPrune} />
           <Label htmlFor="prune">Prune</Label>
         </div>
-      </SimpleTooltip>
+      </TooltipWrapper>
       <Button onClick={handleExport} className="w-full">
         Export
       </Button>

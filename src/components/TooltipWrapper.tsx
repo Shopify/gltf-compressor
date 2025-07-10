@@ -1,6 +1,6 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
-export function SimpleTooltip({
+export function TooltipWrapper({
   children,
   content,
 }: {

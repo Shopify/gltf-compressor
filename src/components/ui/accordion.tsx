@@ -52,4 +52,27 @@ const AccordionContent = React.forwardRef<
 ))
 AccordionContent.displayName = AccordionPrimitive.Content.displayName
 
-export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }
+const AccordionContentWithForceMount = React.forwardRef<
+  React.ElementRef<typeof AccordionPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content> & {
+    forceMount?: boolean;
+  }
+>(({ className, children, forceMount = true, ...props }, ref) => (
+  <AccordionPrimitive.Content
+    ref={ref}
+    forceMount={forceMount}
+    className={cn(
+      "overflow-hidden text-sm",
+      "data-[state=closed]:max-h-0 data-[state=closed]:opacity-0 data-[state=closed]:py-0",
+      "data-[state=open]:max-h-[9999px] data-[state=open]:opacity-100",
+      className
+    )}
+    {...props}
+  >
+    <div className={className}>{children}</div>
+  </AccordionPrimitive.Content>
+))
+AccordionContentWithForceMount.displayName =
+  AccordionPrimitive.Content.displayName
+
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent, AccordionContentWithForceMount }

@@ -2,10 +2,10 @@
 
 import {
   Accordion,
+  AccordionContentWithForceMount,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { AccordionContent } from "@/components/ui/accordion-keep-mounted";
 import { ExportPanel } from "./ExportPanel";
 import MaterialEditPanel from "./MaterialEditPanel";
 import ViewportSettingsPanel from "./ViewportSettingsPanel";
@@ -23,25 +23,25 @@ export default function SettingsView() {
           <AccordionTrigger className="bg-secondary px-4 py-2">
             Viewport Settings
           </AccordionTrigger>
-          <AccordionContent className="px-2 py-1 bg-background">
+          <AccordionContentWithForceMount className="px-2 py-1 bg-background">
             <ViewportSettingsPanel />
-          </AccordionContent>
+          </AccordionContentWithForceMount>
         </AccordionItem>
         <AccordionItem value="material" className="border-b">
           <AccordionTrigger className="bg-secondary px-4 py-2">
             Material Edit
           </AccordionTrigger>
-          <AccordionContent className="px-2 py-1 bg-background">
+          <AccordionContentWithForceMount className="px-2 py-1 bg-background">
             <MaterialEditPanel />
-          </AccordionContent>
+          </AccordionContentWithForceMount>
         </AccordionItem>
         <AccordionItem value="export" className="border-b">
           <AccordionTrigger className="bg-secondary px-4 py-2">
             Export
           </AccordionTrigger>
-          <AccordionContent className="px-2 py-1 bg-background">
+          <AccordionContentWithForceMount className="px-2 py-1 bg-background">
             <ExportPanel />
-          </AccordionContent>
+          </AccordionContentWithForceMount>
         </AccordionItem>
       </Accordion>
     </TooltipProvider>

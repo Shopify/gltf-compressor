@@ -23,7 +23,7 @@ import {
   getTextureWeightInKB,
 } from "@/utils/utils";
 import { useEffect, useState } from "react";
-import { SimpleTooltip } from "./SimpleTooltip";
+import { TooltipWrapper } from "./TooltipWrapper";
 
 export default function MaterialEditPanel() {
   const {
@@ -597,7 +597,7 @@ export default function MaterialEditPanel() {
         </Label>
       </div>
 
-      <SimpleTooltip content="Or press and hold the C key on your keyboard">
+      <TooltipWrapper content="Or press and hold the C key on your keyboard">
         <div className="space-y-2">
           <Button
             onMouseDown={handleShowUncompressedTexture}
@@ -609,7 +609,7 @@ export default function MaterialEditPanel() {
             Press & Hold to Show Original Texture
           </Button>
         </div>
-      </SimpleTooltip>
+      </TooltipWrapper>
     </div>
   );
 }
