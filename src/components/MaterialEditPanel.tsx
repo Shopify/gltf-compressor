@@ -604,7 +604,7 @@ export default function MaterialEditPanel() {
             onMouseUp={handleShowCompressedTexture}
             onMouseLeave={handleShowCompressedTexture}
             disabled={!compressionEnabled || textureSlots.length === 0}
-            className="w-full"
+            className="w-full text-xs"
           >
             Press & Hold to Show Original Texture
           </Button>

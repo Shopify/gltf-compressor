@@ -1,7 +1,7 @@
 // import { useControls } from "leva";
 import { useViewportStore } from "@/stores/useViewportStore";
 import { useEffect, useMemo, useRef } from "react";
-import { BackSide, Color, Mesh, ShaderMaterial } from "three";
+import { Color, DoubleSide, Mesh, ShaderMaterial } from "three";
 import fragmentShader from "../shaders/grid/fragment.glsl";
 import vertexShader from "../shaders/grid/vertex.glsl";
 
@@ -34,7 +34,7 @@ export default function Grid() {
       vertexShader,
       fragmentShader,
       transparent: true,
-      side: BackSide,
+      side: DoubleSide,
       depthWrite: false,
     });
   }, []);
