@@ -7,6 +7,7 @@ import {
   OrthographicCamera,
   PlaneGeometry,
   Scene,
+  SRGBColorSpace,
   WebGLRenderer,
 } from "three";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
@@ -82,6 +83,7 @@ export default function TextureView() {
             ktx2LoaderRef.current.load(
               blobUrl,
               (threeTexture) => {
+                threeTexture.colorSpace = SRGBColorSpace;
                 const scene = new Scene();
                 const camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
                 const geometry = new PlaneGeometry(2, 2);
