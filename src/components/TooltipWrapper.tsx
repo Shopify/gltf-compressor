@@ -7,10 +7,12 @@ export function TooltipWrapper({
   children: React.ReactNode;
   content: string;
 }) {
-  return (
+  return content && content.length > 0 ? (
     <Tooltip>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
       <TooltipContent>{content}</TooltipContent>
     </Tooltip>
+  ) : (
+    children
   );
 }

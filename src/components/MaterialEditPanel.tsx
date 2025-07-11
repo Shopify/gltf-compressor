@@ -458,20 +458,28 @@ export default function MaterialEditPanel() {
         </Label>
       </div>
 
-      <div className="flex items-center space-x-2 pt-1">
-        <Switch
-          id="compression-toggle"
-          checked={compressionEnabled}
-          onCheckedChange={handleCompressionChange}
-          disabled={textureSlots.length === 0}
-        />
-        <Label
-          htmlFor="compression-toggle"
-          className={textureSlots.length === 0 ? "text-muted-foreground" : ""}
-        >
-          Compress?
-        </Label>
-      </div>
+      <TooltipWrapper
+        content={
+          imageFormat === "image/ktx2"
+            ? "Compression is currently not supported for KTX2 textures"
+            : ""
+        }
+      >
+        <div className="flex items-center space-x-2 pt-1">
+          <Switch
+            id="compression-toggle"
+            checked={compressionEnabled}
+            onCheckedChange={handleCompressionChange}
+            disabled={textureSlots.length === 0 || imageFormat === "image/ktx2"}
+          />
+          <Label
+            htmlFor="compression-toggle"
+            className={textureSlots.length === 0 ? "text-muted-foreground" : ""}
+          >
+            Compress?
+          </Label>
+        </div>
+      </TooltipWrapper>
 
       <div className="space-y-1">
         <Label
