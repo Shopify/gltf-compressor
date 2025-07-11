@@ -597,7 +597,7 @@ export default function MaterialEditPanel() {
         </Label>
       </div>
 
-      <TooltipWrapper content="Or press and hold the C key on your keyboard">
+      <TooltipWrapper content="Or press & hold the C key on your keyboard">
         <div className="space-y-2">
           <Button
             onMouseDown={handleShowUncompressedTexture}
