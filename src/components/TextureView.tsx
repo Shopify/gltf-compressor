@@ -1,5 +1,4 @@
 import { useModelStore } from "@/stores/useModelStore";
-import { read } from "ktx-parse";
 import { useEffect, useRef } from "react";
 import {
   Mesh,
@@ -58,17 +57,11 @@ export default function TextureView() {
         // Handle KTX2 textures
         if (mimeType === "image/ktx2") {
           try {
-            // First, try to parse the KTX2 file with ktx-parse
-            const ktxContainer = read(imageData);
-            console.log("KTX2 container:", ktxContainer);
-
-            // Try Three.js KTX2Loader first
             const tempCanvas = document.createElement("canvas");
             tempCanvas.width = size[0];
             tempCanvas.height = size[1];
             const renderer = new WebGLRenderer({ canvas: tempCanvas });
 
-            // Create or reuse KTX2Loader instance
             if (!ktx2LoaderRef.current) {
               ktx2LoaderRef.current = new KTX2Loader();
               ktx2LoaderRef.current.setTranscoderPath(
@@ -116,47 +109,13 @@ export default function TextureView() {
               },
               undefined,
               (error) => {
-                console.error("Three.js KTX2Loader failed:", error);
-                // Fallback: Show KTX2 info using ktx-parse
-                ctx.fillStyle = "white";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "black";
-                ctx.font = "14px monospace";
-                ctx.textAlign = "left";
-
-                const info = [
-                  `KTX2 Container Info:`,
-                  `Format: ${ktxContainer.vkFormat}`,
-                  `Width: ${ktxContainer.pixelWidth}`,
-                  `Height: ${ktxContainer.pixelHeight}`,
-                  `Levels: ${ktxContainer.levels.length}`,
-                  `Supercompression: ${ktxContainer.supercompressionScheme}`,
-                  ``,
-                  `Preview not available - KTX2 requires`,
-                  `transcoder files for display`,
-                ];
-
-                info.forEach((line, i) => {
-                  ctx.fillText(line, 10, 20 + i * 16);
-                });
-
+                console.error("Failed to load KTX2 texture: ", error);
                 renderer.dispose();
                 URL.revokeObjectURL(blobUrl);
               }
             );
           } catch (error) {
-            console.error("Error handling KTX2 texture:", error);
-            // Final fallback
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "red";
-            ctx.font = "16px monospace";
-            ctx.textAlign = "center";
-            ctx.fillText(
-              "KTX2 texture format not supported",
-              canvas.width / 2,
-              canvas.height / 2
-            );
+            console.error("Failed to load KTX2 texture: ", error);
           }
         } else {
           // Handle regular image formats (JPEG, PNG, WebP)
