@@ -1,5 +1,15 @@
 import { useModelStore } from "@/stores/useModelStore";
+import { read } from "ktx-parse";
 import { useEffect, useRef } from "react";
+import {
+  Mesh,
+  MeshBasicMaterial,
+  OrthographicCamera,
+  PlaneGeometry,
+  Scene,
+  WebGLRenderer,
+} from "three";
+import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
 
 export default function TextureView() {
   const {
@@ -43,18 +53,108 @@ export default function TextureView() {
       const ctx = canvas.getContext("2d");
 
       if (ctx) {
-        const blob = new Blob([imageData], {
-          type: mimeType,
-        });
-        const blobUrl = URL.createObjectURL(blob);
-        const img = new Image();
-        await new Promise((resolve, reject) => {
-          img.onload = resolve;
-          img.onerror = (e) => reject(console.log(e));
-          img.src = blobUrl;
-        });
-        ctx.drawImage(img, 0, 0);
-        URL.revokeObjectURL(blobUrl);
+        // Handle KTX2 textures
+        if (mimeType === "image/ktx2") {
+          try {
+            // First, try to parse the KTX2 file with ktx-parse
+            const ktxContainer = read(imageData);
+            console.log("KTX2 container:", ktxContainer);
+
+            // Try Three.js KTX2Loader first
+            const tempCanvas = document.createElement("canvas");
+            tempCanvas.width = size[0];
+            tempCanvas.height = size[1];
+            const renderer = new WebGLRenderer({ canvas: tempCanvas });
+
+            const ktx2Loader = new KTX2Loader();
+            ktx2Loader.setTranscoderPath(
+              "https://unpkg.com/three@0.172.0/examples/jsm/libs/basis/"
+            );
+            ktx2Loader.detectSupport(renderer);
+
+            const blob = new Blob([imageData], { type: mimeType });
+            const blobUrl = URL.createObjectURL(blob);
+
+            ktx2Loader.load(
+              blobUrl,
+              (threeTexture) => {
+                const scene = new Scene();
+                const camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
+                const geometry = new PlaneGeometry(2, 2);
+                const material = new MeshBasicMaterial({ map: threeTexture });
+                const mesh = new Mesh(geometry, material);
+                scene.add(mesh);
+
+                renderer.render(scene, camera);
+
+                const renderedImageData = renderer.domElement.toDataURL();
+                const img = new Image();
+                img.onload = () => {
+                  ctx.drawImage(img, 0, 0);
+                  renderer.dispose();
+                  URL.revokeObjectURL(blobUrl);
+                };
+                img.src = renderedImageData;
+              },
+              undefined,
+              (error) => {
+                console.error("Three.js KTX2Loader failed:", error);
+                // Fallback: Show KTX2 info using ktx-parse
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "black";
+                ctx.font = "14px monospace";
+                ctx.textAlign = "left";
+
+                const info = [
+                  `KTX2 Container Info:`,
+                  `Format: ${ktxContainer.vkFormat}`,
+                  `Width: ${ktxContainer.pixelWidth}`,
+                  `Height: ${ktxContainer.pixelHeight}`,
+                  `Levels: ${ktxContainer.levels.length}`,
+                  `Supercompression: ${ktxContainer.supercompressionScheme}`,
+                  ``,
+                  `Preview not available - KTX2 requires`,
+                  `transcoder files for display`,
+                ];
+
+                info.forEach((line, i) => {
+                  ctx.fillText(line, 10, 20 + i * 16);
+                });
+
+                renderer.dispose();
+                URL.revokeObjectURL(blobUrl);
+              }
+            );
+          } catch (error) {
+            console.error("Error handling KTX2 texture:", error);
+            // Final fallback
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "red";
+            ctx.font = "16px monospace";
+            ctx.textAlign = "center";
+            ctx.fillText(
+              "KTX2 texture format not supported",
+              canvas.width / 2,
+              canvas.height / 2
+            );
+          }
+        } else {
+          // Handle regular image formats (JPEG, PNG, WebP)
+          const blob = new Blob([imageData], {
+            type: mimeType,
+          });
+          const blobUrl = URL.createObjectURL(blob);
+          const img = new Image();
+          await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = (e) => reject(console.log(e));
+            img.src = blobUrl;
+          });
+          ctx.drawImage(img, 0, 0);
+          URL.revokeObjectURL(blobUrl);
+        }
       }
     };
 
