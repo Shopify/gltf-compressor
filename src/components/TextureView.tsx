@@ -21,6 +21,7 @@ export default function TextureView() {
   } = useModelStore();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ktx2LoaderRef = useRef<KTX2Loader | null>(null);
   const isCompressing =
     selectedTexture && texturesBeingCompressed.has(selectedTexture);
 
@@ -66,16 +67,19 @@ export default function TextureView() {
             tempCanvas.height = size[1];
             const renderer = new WebGLRenderer({ canvas: tempCanvas });
 
-            const ktx2Loader = new KTX2Loader();
-            ktx2Loader.setTranscoderPath(
-              "https://unpkg.com/three@0.172.0/examples/jsm/libs/basis/"
-            );
-            ktx2Loader.detectSupport(renderer);
+            // Create or reuse KTX2Loader instance
+            if (!ktx2LoaderRef.current) {
+              ktx2LoaderRef.current = new KTX2Loader();
+              ktx2LoaderRef.current.setTranscoderPath(
+                "https://unpkg.com/three@0.172.0/examples/jsm/libs/basis/"
+              );
+            }
+            ktx2LoaderRef.current.detectSupport(renderer);
 
             const blob = new Blob([imageData], { type: mimeType });
             const blobUrl = URL.createObjectURL(blob);
 
-            ktx2Loader.load(
+            ktx2LoaderRef.current.load(
               blobUrl,
               (threeTexture) => {
                 const scene = new Scene();
@@ -169,6 +173,16 @@ export default function TextureView() {
     isCompressing,
     showingCompressedTexture,
   ]);
+
+  // Cleanup KTX2Loader on unmount
+  useEffect(() => {
+    return () => {
+      if (ktx2LoaderRef.current) {
+        ktx2LoaderRef.current.dispose();
+        ktx2LoaderRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <div
