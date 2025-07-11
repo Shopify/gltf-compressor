@@ -504,7 +504,9 @@ export default function MaterialEditPanel() {
             <SelectItem value="image/jpeg">JPEG</SelectItem>
             <SelectItem value="image/png">PNG</SelectItem>
             <SelectItem value="image/webp">WEBP</SelectItem>
-            <SelectItem value="image/ktx2">KTX2</SelectItem>
+            {imageFormat === "image/ktx2" && (
+              <SelectItem value="image/ktx2">KTX2</SelectItem>
+            )}
           </SelectContent>
         </Select>
       </div>
