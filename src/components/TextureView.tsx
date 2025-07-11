@@ -118,7 +118,7 @@ export default function TextureView() {
             console.error("Failed to load KTX2 texture: ", error);
           }
         } else {
-          // Handle regular image formats (JPEG, PNG, WebP)
+          // Handle regular image formats (JPEG, PNG, WEBP)
           const blob = new Blob([imageData], {
             type: mimeType,
           });
