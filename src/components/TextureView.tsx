@@ -90,7 +90,11 @@ export default function TextureView() {
                 const renderedImageData = renderer.domElement.toDataURL();
                 const img = new Image();
                 img.onload = () => {
-                  ctx.drawImage(img, 0, 0);
+                  ctx.save();
+                  // Flip the image vertically by scaling Y by -1
+                  ctx.scale(1, -1);
+                  ctx.drawImage(img, 0, -canvas.height);
+                  ctx.restore();
                   renderer.dispose();
                   URL.revokeObjectURL(blobUrl);
                 };
