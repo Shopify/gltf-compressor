@@ -85,8 +85,35 @@ export default function TextureView() {
               (threeTexture) => {
                 threeTexture.colorSpace = SRGBColorSpace;
                 const scene = new Scene();
-                const camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
-                const geometry = new PlaneGeometry(2, 2);
+
+                // Calculate aspect ratio and adjust camera bounds accordingly
+                const aspectRatio = size[0] / size[1];
+
+                // Adjust camera bounds to match texture aspect ratio
+                let left, right, top, bottom;
+                if (aspectRatio > 1) {
+                  // Wider than tall - extend camera horizontally
+                  left = -aspectRatio;
+                  right = aspectRatio;
+                  top = 1;
+                  bottom = -1;
+                } else {
+                  // Taller than wide - extend camera vertically
+                  left = -1;
+                  right = 1;
+                  top = 1 / aspectRatio;
+                  bottom = -1 / aspectRatio;
+                }
+
+                const camera = new OrthographicCamera(
+                  left,
+                  right,
+                  top,
+                  bottom,
+                  0,
+                  1
+                );
+                const geometry = new PlaneGeometry(2 * aspectRatio, 2);
                 const material = new MeshBasicMaterial({ map: threeTexture });
                 const mesh = new Mesh(geometry, material);
                 scene.add(mesh);
