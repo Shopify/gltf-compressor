@@ -1,0 +1,113 @@
+import { GizmoHelper, GizmoViewport, Html } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import { Suspense, useEffect, useRef } from "react";
+import { Group } from "three";
+import { useShallow } from "zustand/react/shallow";
+
+import { useModelStore } from "@/stores/useModelStore";
+import { useViewportStore } from "@/stores/useViewportStore";
+
+import CameraControls from "./CameraControls";
+import Confetti from "./Confetti";
+import { Grid } from "./drei/Grid";
+import { Stage } from "./drei/Stage";
+import MaterialHighlighter from "./MaterialHighlighter";
+
+export default function ModelView() {
+  const [originalScene, modifiedScene] = useModelStore(
+    useShallow((state) => [state.originalScene, state.modifiedScene])
+  );
+
+  useEffect(() => {
+    if (!originalScene || !modifiedScene) {
+      return;
+    }
+
+    originalScene.traverse((child: any) => {
+      if (
+        child.isMesh &&
+        child.material.name === "__DefaultMaterial" &&
+        !child.geometry.attributes.normal
+      ) {
+        child.geometry.computeVertexNormals();
+      }
+    });
+
+    modifiedScene.traverse((child: any) => {
+      if (
+        child.isMesh &&
+        child.material.name === "__DefaultMaterial" &&
+        !child.geometry.attributes.normal
+      ) {
+        child.geometry.computeVertexNormals();
+      }
+    });
+  }, [originalScene, modifiedScene]);
+
+  const originalSceneRef = useRef<Group | null>(null);
+  const modifiedSceneRef = useRef<Group | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = useViewportStore.subscribe(
+      (state) => state.showModifiedDocument,
+      (showModifiedDocument) => {
+        if (originalSceneRef.current) {
+          originalSceneRef.current.visible = !showModifiedDocument;
+        }
+        if (modifiedSceneRef.current) {
+          modifiedSceneRef.current.visible = showModifiedDocument;
+        }
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  if (!originalScene || !modifiedScene) return null;
+
+  return (
+    <div id="model-view">
+      <Canvas camera={{ position: [0, 0, 150], fov: 50, near: 0.1, far: 1000 }}>
+        <color attach="background" args={["#444444"]} />
+        <Suspense
+          fallback={
+            <Html
+              center
+              style={{
+                color: "white",
+                fontFamily:
+                  "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace",
+                fontSize: "0.75rem",
+                lineHeight: "1rem",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Loading Model...
+            </Html>
+          }
+        >
+          <Stage>
+            <primitive
+              ref={originalSceneRef}
+              object={originalScene}
+              visible={false}
+            />
+            <primitive ref={modifiedSceneRef} object={modifiedScene} visible />
+          </Stage>
+          <Grid />
+        </Suspense>
+        <CameraControls />
+        <GizmoHelper alignment="bottom-right" margin={[63.5, 63.5]}>
+          <GizmoViewport
+            axisColors={["#9d4b4b", "#2f7f4f", "#3b5b9d"]}
+            labelColor="white"
+          />
+        </GizmoHelper>
+        <MaterialHighlighter />
+        <Confetti />
+      </Canvas>
+    </div>
+  );
+}
