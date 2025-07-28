@@ -38,8 +38,8 @@ npm run dev
 - Left click and drag to rotate the camera.
 - Right click and drag to move the camera.
 - Use the scrollwheel to zoom in and out.
-- Hold C to show the original model. Release C to show the compressed model.
-- Hold X to highlight meshes that use the selected material.
+- Hold `C` to show the original model. Release `C` to show the compressed model.
+- Hold `X` to highlight meshes that use the selected material.
 
 ## Acknowledgments
 
