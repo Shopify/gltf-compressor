@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { useModelStore } from "@/stores/useModelStore";
 import { useViewportStore } from "@/stores/useViewportStore";
 import { TextureCompressionSettings } from "@/types/types";
+import { MeshoptDecoder, MeshoptEncoder } from "meshoptimizer";
 
 const isGLBFile = (path: string): boolean => /\.glb$/i.test(path);
 
@@ -53,6 +54,7 @@ const createDocumentsAndSceneFromURL = async (url: string) => {
       "draco3d.decoder":
         // @ts-ignore
         await new DracoDecoderModule(),
+      "meshopt.decoder": MeshoptDecoder,
     });
   const originalDocument = await io.read(url);
   const modifiedDocument = cloneDocument(originalDocument);
@@ -470,6 +472,7 @@ export const exportDocument = async (
       "draco3d.decoder":
         // @ts-ignore
         await new DracoDecoderModule(),
+      "meshopt.encoder": MeshoptEncoder,
     });
 
   if (dracoCompress) {
