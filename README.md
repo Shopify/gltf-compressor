@@ -1,4 +1,8 @@
-# gltf-compressor
+# glTF Compressor
+
+### Interactively compress your glTF (and glb) files with ease. See your changes in realtime before exporting!
+
+👉 [Use it here](https://gltf-compressor.com/)👈
 
 <p align="center">
  <img src="https://github.com/Shopify/gltf-compressor/blob/main/readme_images/editor.png" />
