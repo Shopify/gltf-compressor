@@ -7,6 +7,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useModelStore } from "@/stores/useModelStore";
 import { useViewportStore } from "@/stores/useViewportStore";
 
+import { Preload } from "@react-three/drei";
 import CameraControls from "./CameraControls";
 import Confetti from "./Confetti";
 import { Grid } from "./drei/Grid";
@@ -95,6 +96,7 @@ export default function ModelView() {
             <primitive ref={modifiedSceneRef} object={modifiedScene} visible />
           </Stage>
           <Grid />
+          <Preload all />
         </Suspense>
         <CameraControls />
         <GizmoHelper alignment="bottom-right" margin={[63.5, 63.5]}>
