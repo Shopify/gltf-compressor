@@ -49,4 +49,6 @@ This tool relies heavily on Don McCurdy's fantastic [glTF Transform](https://glt
 
 It also borrows ideas and snippets of code from pmndrs' [glTF to JSX converter](https://gltf.pmnd.rs/) and various other pmndrs libraries like [drei](https://drei.docs.pmnd.rs/getting-started/introduction).
 
+The demo model of a couch was made by Eric Chadwick. It can be found [here](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/ChairDamaskPurplegold).
+
 Thank you for your amazing work!

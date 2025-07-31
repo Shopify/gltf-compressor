@@ -1,5 +1,6 @@
 import { Box, Github, Moon, Shield, Sun, Upload } from "lucide-react";
 import { useDropzone } from "react-dropzone";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -193,6 +194,46 @@ export function Dropzone() {
               </div>
             </div>
           </div>
+
+          {/*Try it out area */}
+          <button
+            className="text-sm hover:underline text-blue-600 dark:text-blue-400 bg-transparent border-none cursor-pointer"
+            onClick={async () => {
+              try {
+                // Show loading state
+                useViewportStore.setState({ loadingFiles: true });
+
+                // Fetch the file from the URL
+                const response = await fetch(
+                  "https://cdn.shopify.com/3d/models/cec3cda48aa53162/ChairDamaskPurplegold.glb"
+                );
+                if (!response.ok) {
+                  throw new Error(
+                    `Failed to fetch file: ${response.statusText}`
+                  );
+                }
+
+                // Convert response to blob
+                const blob = await response.blob();
+
+                // Create a File object from the blob
+                const file = new File([blob], "ChairDamaskPurplegold.glb", {
+                  type: "model/gltf-binary",
+                  lastModified: Date.now(),
+                });
+
+                // Call importFiles with the file
+                await importFiles([file]);
+              } catch (error) {
+                console.error("Error loading demo file:", error);
+                toast.error("Failed to load demo model. Please try again.");
+                // Reset loading state on error
+                useViewportStore.setState({ loadingFiles: false });
+              }
+            }}
+          >
+            Click here to try out the tool with a cute couch
+          </button>
         </div>
       </section>
 
