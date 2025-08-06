@@ -1,4 +1,4 @@
-import { easings, useSpring } from "@react-spring/web";
+import { useViewportStore } from "@/stores/useViewportStore";
 import { useThree } from "@react-three/fiber";
 import {
   createContext,
@@ -48,49 +48,6 @@ function Bounds({ children }: JSX.IntrinsicElements["group"]) {
 
   const [box] = useState(() => new Box3());
 
-  const [cameraSpring, cameraSpringAPI] = useSpring(() => ({
-    from: { progress: 0.0 },
-    config: {
-      easing: easings.easeOutCubic,
-      duration: 1000,
-    },
-    onStart: () => {
-      if (controls) {
-        // @ts-ignore
-        controls.enabled = false;
-      }
-    },
-    onChange: () => {
-      const currProgress = cameraSpring.progress.get();
-      if (goal.current.camPos) {
-        camera.position.lerpVectors(
-          origin.current.camPos,
-          goal.current.camPos,
-          currProgress
-        );
-      }
-      camera.lookAt(new Vector3(0, 0, 0));
-      camera.updateMatrixWorld();
-      camera.updateProjectionMatrix();
-    },
-    onRest: () => {
-      if (goal.current.camPos) {
-        camera.position.copy(goal.current.camPos);
-      }
-      camera.lookAt(new Vector3(0, 0, 0));
-      camera.updateMatrixWorld();
-      camera.updateProjectionMatrix();
-      if (controls) {
-        // @ts-ignore
-        controls.enabled = true;
-        // @ts-ignore
-        controls.maxDistance = maxDistance.current;
-        // @ts-ignore
-        controls.update();
-      }
-    },
-  }));
-
   const api = useMemo(() => {
     function getSize() {
       const boxSize = box.getSize(new Vector3());
@@ -139,10 +96,33 @@ function Bounds({ children }: JSX.IntrinsicElements["group"]) {
           .addScaledVector(direction, distance);
         goal.current.target = center.clone();
         maxDistance.current = distance * 10;
-        cameraSpringAPI.start({
-          from: { progress: 0.0 },
-          to: { progress: 1.0 },
-        });
+
+        // Disable orbit controls while we update the position/orientation of the camera
+        if (controls) {
+          // @ts-ignore
+          controls.enabled = false;
+        }
+
+        // Update the position/orientation of the camera
+        if (goal.current.camPos) {
+          camera.position.copy(goal.current.camPos);
+        }
+        camera.lookAt(new Vector3(0, 0, 0));
+        camera.updateMatrixWorld();
+        camera.updateProjectionMatrix();
+
+        // Re-enable orbit controls
+        if (controls) {
+          // @ts-ignore
+          controls.enabled = true;
+          // @ts-ignore
+          controls.maxDistance = maxDistance.current;
+          // @ts-ignore
+          controls.update();
+        }
+
+        useViewportStore.setState({ revealScene: true });
+
         return apiObject;
       },
       fit() {
@@ -158,7 +138,7 @@ function Bounds({ children }: JSX.IntrinsicElements["group"]) {
     };
 
     return apiObject;
-  }, [box, camera, cameraSpringAPI]);
+  }, [box, camera, controls]);
 
   return (
     <group ref={ref}>

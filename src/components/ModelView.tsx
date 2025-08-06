@@ -1,12 +1,13 @@
-import { GizmoHelper, GizmoViewport, Html } from "@react-three/drei";
+import { GizmoHelper, GizmoViewport } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useEffect, useRef } from "react";
-import { Group } from "three";
+import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Group, Material, Plane, Vector3 } from "three";
 import { useShallow } from "zustand/react/shallow";
 
 import { useModelStore } from "@/stores/useModelStore";
 import { useViewportStore } from "@/stores/useViewportStore";
 
+import { easings, useSpring } from "@react-spring/web";
 import { Preload } from "@react-three/drei";
 import CameraControls from "./CameraControls";
 import Confetti from "./Confetti";
@@ -19,37 +20,10 @@ export default function ModelView() {
     useShallow((state) => [state.originalScene, state.modifiedScene])
   );
 
-  useEffect(() => {
-    if (!originalScene || !modifiedScene) {
-      return;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    originalScene.traverse((child: any) => {
-      if (
-        child.isMesh &&
-        child.material.name === "__DefaultMaterial" &&
-        !child.geometry.attributes.normal
-      ) {
-        child.geometry.computeVertexNormals();
-      }
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    modifiedScene.traverse((child: any) => {
-      if (
-        child.isMesh &&
-        child.material.name === "__DefaultMaterial" &&
-        !child.geometry.attributes.normal
-      ) {
-        child.geometry.computeVertexNormals();
-      }
-    });
-  }, [originalScene, modifiedScene]);
-
   const originalSceneRef = useRef<Group | null>(null);
   const modifiedSceneRef = useRef<Group | null>(null);
 
+  // Toggle the visibility of the original scene and the modified scene when the C key is pressed/released
   useEffect(() => {
     const unsubscribe = useViewportStore.subscribe(
       (state) => state.showModifiedDocument,
@@ -68,6 +42,123 @@ export default function ModelView() {
     };
   }, []);
 
+  const fallbackRef = useRef<HTMLDivElement>(null);
+
+  const originalSceneMaterialsRef = useRef<Material[]>([]);
+  const modifiedSceneMaterialsRef = useRef<Material[]>([]);
+  const modelHeightRef = useRef<number>(0);
+
+  const clippingPlane: Plane[] = useMemo(() => {
+    return [new Plane(new Vector3(0, -1, 0), 0.0)];
+  }, []);
+
+  const [revealSpring, revealSpringAPI] = useSpring(
+    () => ({
+      from: { progress: 0.0 },
+      config: {
+        easing: easings.easeOutCubic,
+        duration: 1000,
+      },
+      onStart: () => {
+        // Show the modified scene for the first time
+        if (modifiedSceneRef.current) {
+          modifiedSceneRef.current.visible = true;
+        }
+      },
+      onChange: () => {
+        if (!originalScene || !modifiedScene) {
+          return;
+        }
+
+        // Move the clipping plane from the bottom of the model to the top
+        const modelHeight = modelHeightRef.current * 1.1;
+        clippingPlane[0].constant =
+          -modelHeight * 0.5 + revealSpring.progress.get() * modelHeight;
+
+        // Apply the clipping plane to the original scene and the modified scene
+        originalSceneMaterialsRef.current.forEach((material) => {
+          material.clippingPlanes = clippingPlane;
+        });
+        modifiedSceneMaterialsRef.current.forEach((material) => {
+          material.clippingPlanes = clippingPlane;
+        });
+      },
+      onRest: () => {
+        if (!originalScene || !modifiedScene) {
+          return;
+        }
+
+        // Remove the clipping plane from the original scene and the modified scene
+        originalSceneMaterialsRef.current.forEach((material) => {
+          material.clippingPlanes = [];
+        });
+        modifiedSceneMaterialsRef.current.forEach((material) => {
+          material.clippingPlanes = [];
+        });
+      },
+    }),
+    [originalScene, modifiedScene, clippingPlane]
+  );
+
+  useEffect(() => {
+    const unsubscribe = useViewportStore.subscribe(
+      (state) => state.revealScene,
+      (revealScene) => {
+        if (revealScene) {
+          originalSceneMaterialsRef.current = [];
+          modifiedSceneMaterialsRef.current = [];
+
+          // Store the materials in refs so we don't have to traverse the scene every frame while the reveal spring is running
+          // Also compute vertex normals for models that don't have them and that use the default material of gltf-transform
+          // If we don't do this, those models render completely black
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          originalScene?.traverse((child: any) => {
+            if (child.isMesh && child.material) {
+              if (
+                child.material.name === "__DefaultMaterial" &&
+                !child.geometry.attributes.normal
+              ) {
+                child.geometry.computeVertexNormals();
+              }
+
+              originalSceneMaterialsRef.current.push(child.material);
+            }
+          });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          modifiedScene?.traverse((child: any) => {
+            if (child.isMesh && child.material) {
+              if (
+                child.material.name === "__DefaultMaterial" &&
+                !child.geometry.attributes.normal
+              ) {
+                child.geometry.computeVertexNormals();
+              }
+
+              modifiedSceneMaterialsRef.current.push(child.material);
+            }
+          });
+
+          modelHeightRef.current =
+            useViewportStore.getState().modelDimensions?.[1] ?? 0;
+
+          // Hide the fallback text
+          if (fallbackRef.current) {
+            fallbackRef.current.style.display = "none";
+          }
+
+          // Reveal the modified scene by animating a clipping plane from the bottom of the model to the top
+          revealSpringAPI.start({
+            to: { progress: 1.0 },
+          });
+        }
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [originalScene, modifiedScene, revealSpringAPI]);
+
   if (!originalScene || !modifiedScene) return null;
 
   return (
@@ -77,23 +168,22 @@ export default function ModelView() {
         gl={{
           powerPreference: "high-performance",
           antialias: true,
+          localClippingEnabled: true,
         }}
       >
         <color attach="background" args={["#444444"]} />
-        <Suspense
-          fallback={
-            <Html center>
-              <span id="model-view-fallback">Loading Model...</span>
-            </Html>
-          }
-        >
+        <Suspense fallback={null}>
           <Stage>
             <primitive
               ref={originalSceneRef}
               object={originalScene}
               visible={false}
             />
-            <primitive ref={modifiedSceneRef} object={modifiedScene} visible />
+            <primitive
+              ref={modifiedSceneRef}
+              object={modifiedScene}
+              visible={false}
+            />
           </Stage>
           <Grid />
           <Preload all />
@@ -108,6 +198,9 @@ export default function ModelView() {
         <MaterialHighlighter />
         <Confetti />
       </Canvas>
+      <div id="model-view-fallback" ref={fallbackRef}>
+        <span>Loading Model...</span>
+      </div>
     </div>
   );
 }

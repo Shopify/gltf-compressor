@@ -3,6 +3,7 @@ import { Color, DoubleSide, Mesh, ShaderMaterial } from "three";
 
 import { useViewportStore } from "@/stores/useViewportStore";
 
+import { easings, useSpring } from "@react-spring/web";
 import fragmentShader from "../../shaders/grid/fragment.glsl";
 import vertexShader from "../../shaders/grid/vertex.glsl";
 
@@ -17,6 +18,7 @@ export default function Grid() {
     fadeDistance: 4.5,
     fadeStrength: 1,
     infiniteGrid: true,
+    revealProgress: 0.0,
   });
 
   const gridMaterial = useMemo(() => {
@@ -31,6 +33,7 @@ export default function Grid() {
         fadeDistance: { value: gridSettings.current.fadeDistance },
         fadeStrength: { value: gridSettings.current.fadeStrength },
         infiniteGrid: { value: gridSettings.current.infiniteGrid },
+        revealProgress: { value: gridSettings.current.revealProgress },
       },
       vertexShader,
       fragmentShader,
@@ -90,6 +93,34 @@ export default function Grid() {
       unsubscribe();
     };
   }, []);
+
+  const [revealSpring, revealSpringAPI] = useSpring(() => ({
+    from: { progress: 0.0 },
+    config: {
+      easing: easings.easeOutCubic,
+      duration: 1000,
+    },
+    onChange: () => {
+      gridMaterial.uniforms.revealProgress.value = revealSpring.progress.get();
+    },
+  }));
+
+  useEffect(() => {
+    const unsubscribe = useViewportStore.subscribe(
+      (state) => state.revealScene,
+      (revealScene) => {
+        if (revealScene) {
+          revealSpringAPI.start({
+            to: { progress: 1.0 },
+          });
+        }
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [revealSpringAPI]);
 
   return (
     <mesh ref={gridRef} position={[0, 0, 0]} scale={[0, 0, 0]} renderOrder={0}>

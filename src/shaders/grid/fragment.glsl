@@ -9,6 +9,7 @@ uniform float fadeDistance;
 uniform float fadeStrength;
 uniform float cellThickness;
 uniform float sectionThickness;
+uniform float revealProgress;
 
 float getGrid(float size, float thickness) {
   vec2 r = localPosition.xz / size;
@@ -22,11 +23,11 @@ void main() {
   float g2 = getGrid(sectionSize, sectionThickness);
 
   float dist = distance(vec3(0.0, 0.0, 0.0), worldPosition.xyz);
-  float d = 1.0 - min(dist / fadeDistance, 1.0);
+  float d = (1.0 - min(dist / (fadeDistance * revealProgress), 1.0));
   vec3 color = mix(cellColor, sectionColor, min(1.0, sectionThickness * g2));
 
   gl_FragColor = vec4(color, (g1 + g2) * pow(d, fadeStrength));
-  gl_FragColor.a = mix(0.75 * gl_FragColor.a, gl_FragColor.a, g2);
+  gl_FragColor.a = mix(0.75 * gl_FragColor.a, gl_FragColor.a, g2) * revealProgress;
   if (gl_FragColor.a <= 0.0) discard;
 
   #include <tonemapping_fragment>

@@ -96,6 +96,7 @@
   }
 
   #model-view {
+    position: relative;
     width: 100%;
     height: 100%;
     display: flex;
@@ -105,6 +106,7 @@
   }
 
   #model-view-fallback {
+    position: absolute;
     color: white;
     font-family:
       ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
@@ -112,6 +114,7 @@
     font-size: 0.75rem;
     line-height: 1rem;
     white-space: nowrap;
+    pointer-events: none;
   }
 
   #texture-view-container {

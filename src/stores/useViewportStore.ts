@@ -4,6 +4,7 @@ import { subscribeWithSelector } from "zustand/middleware";
 
 interface ViewportStore {
   loadingFiles: boolean;
+  revealScene: boolean;
   lightingPreset: "soft" | "upfront" | "portrait" | "rembrandt";
   environmentPreset: PresetsType;
   lightIntensity: number;
@@ -21,6 +22,7 @@ export const useViewportStore = create<ViewportStore>()(
   subscribeWithSelector((set) => {
     return {
       loadingFiles: false,
+      revealScene: false,
       lightingPreset: "rembrandt",
       environmentPreset: "city",
       lightIntensity: 1,
