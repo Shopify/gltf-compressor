@@ -13,6 +13,7 @@ import CameraControls from "./CameraControls";
 import Confetti from "./Confetti";
 import { Grid } from "./drei/Grid";
 import { Stage } from "./drei/Stage";
+import { Hologram } from "./Hologram";
 import MaterialHighlighter from "./MaterialHighlighter";
 
 export default function ModelView() {
@@ -43,6 +44,8 @@ export default function ModelView() {
   }, []);
 
   const fallbackRef = useRef<HTMLDivElement>(null);
+  const hologramRef = useRef<{ playAnimation: () => void } | null>(null);
+  const gridRef = useRef<{ playAnimation: () => void } | null>(null);
 
   const originalSceneMaterialsRef = useRef<Material[]>([]);
   const modifiedSceneMaterialsRef = useRef<Material[]>([]);
@@ -71,7 +74,7 @@ export default function ModelView() {
         }
 
         // Move the clipping plane from the bottom of the model to the top
-        const modelHeight = modelHeightRef.current * 1.1;
+        const modelHeight = modelHeightRef.current;
         clippingPlane[0].constant =
           -modelHeight * 0.5 + revealSpring.progress.get() * modelHeight;
 
@@ -147,8 +150,15 @@ export default function ModelView() {
           }
 
           // Reveal the modified scene by animating a clipping plane from the bottom of the model to the top
+          if (hologramRef.current) {
+            hologramRef.current.playAnimation();
+          }
+          if (gridRef.current) {
+            gridRef.current.playAnimation();
+          }
           revealSpringAPI.start({
             to: { progress: 1.0 },
+            delay: 1000,
           });
         }
       }
@@ -185,18 +195,19 @@ export default function ModelView() {
               visible={false}
             />
           </Stage>
-          <Grid />
+          <Hologram ref={hologramRef} />
+          <Grid ref={gridRef} />
+          <CameraControls />
+          <MaterialHighlighter />
+          <Confetti />
           <Preload all />
         </Suspense>
-        <CameraControls />
         <GizmoHelper alignment="bottom-right" margin={[63.5, 63.5]}>
           <GizmoViewport
             axisColors={["#9d4b4b", "#2f7f4f", "#3b5b9d"]}
             labelColor="white"
           />
         </GizmoHelper>
-        <MaterialHighlighter />
-        <Confetti />
       </Canvas>
       <div id="model-view-fallback" ref={fallbackRef}>
         <span>Loading Model...</span>

@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useRef } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+} from "react";
 import { Color, DoubleSide, Mesh, ShaderMaterial } from "three";
 
 import { useViewportStore } from "@/stores/useViewportStore";
@@ -7,7 +13,7 @@ import { easings, useSpring } from "@react-spring/web";
 import fragmentShader from "../../shaders/grid/fragment.glsl";
 import vertexShader from "../../shaders/grid/vertex.glsl";
 
-export default function Grid() {
+export const Grid = forwardRef((_, ref) => {
   const gridSettings = useRef({
     cellColor: "#6f6f6f",
     sectionColor: "#7f7f7f",
@@ -105,22 +111,18 @@ export default function Grid() {
     },
   }));
 
-  useEffect(() => {
-    const unsubscribe = useViewportStore.subscribe(
-      (state) => state.revealScene,
-      (revealScene) => {
-        if (revealScene) {
-          revealSpringAPI.start({
-            to: { progress: 1.0 },
-          });
-        }
-      }
-    );
+  const playAnimation = (): void => {
+    revealSpringAPI.start({
+      to: {
+        progress: 1.0,
+      },
+      delay: 1000,
+    });
+  };
 
-    return () => {
-      unsubscribe();
-    };
-  }, [revealSpringAPI]);
+  useImperativeHandle(ref, () => ({
+    playAnimation,
+  }));
 
   return (
     <mesh ref={gridRef} position={[0, 0, 0]} scale={[0, 0, 0]} renderOrder={0}>
@@ -128,6 +130,6 @@ export default function Grid() {
       <primitive object={gridMaterial} />
     </mesh>
   );
-}
+});
 
-export { Grid };
+Grid.displayName = "Grid";

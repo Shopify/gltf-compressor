@@ -181,15 +181,15 @@ export default function Confetti() {
           if (meshRef.current) {
             meshRef.current.visible = true;
           }
-          scaleSpringAPI.start({ progress: 1.0 });
+          scaleSpringAPI.start({ to: { progress: 1.0 } });
 
           // Set timeout to hide confetti after 5 seconds
           hideTimeoutRef.current = setTimeout(() => {
-            scaleSpringAPI.start({ progress: 0.0 });
+            scaleSpringAPI.start({ to: { progress: 0.0 } });
           }, 5000);
         } else {
           // Hide confetti immediately
-          scaleSpringAPI.start({ progress: 0.0 });
+          scaleSpringAPI.start({ to: { progress: 0.0 } });
         }
       }
     );
