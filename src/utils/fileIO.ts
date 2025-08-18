@@ -515,7 +515,7 @@ export const exportDocument = async (
 
   const compressedArrayBuffer = await io.writeBinary(finalDocument);
 
-  const blob = new Blob([compressedArrayBuffer], {
+  const blob = new Blob([compressedArrayBuffer as BlobPart], {
     type: "application/octet-stream",
   });
   const url = URL.createObjectURL(blob);

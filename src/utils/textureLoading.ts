@@ -92,7 +92,7 @@ export const loadTexture = (
         }
 
         // Create a blob from the texture's data
-        const blob = new Blob([imageData], { type: mimeType });
+        const blob = new Blob([imageData as BlobPart], { type: mimeType });
         const blobUrl = URL.createObjectURL(blob);
 
         // Load the KTX2 texture into a Three.js texture
@@ -178,7 +178,7 @@ export const loadTexture = (
       }
     } else {
       // Handle regular textures (JPEG, PNG, WebP)
-      const blob = new Blob([imageData], {
+      const blob = new Blob([imageData as BlobPart], {
         type: mimeType,
       });
       const blobUrl = URL.createObjectURL(blob);

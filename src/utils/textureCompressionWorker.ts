@@ -61,7 +61,7 @@ async function compressImageInWorker(
     throw new Error("Quality must be between 0 and 1");
   }
 
-  const blob = new Blob([image]);
+  const blob = new Blob([image as BlobPart]);
   const imageBitmap = await createImageBitmap(blob);
 
   try {
