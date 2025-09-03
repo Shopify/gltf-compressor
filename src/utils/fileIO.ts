@@ -63,8 +63,34 @@ const createDocumentsAndSceneFromURL = async (url: string) => {
   // We render these live views in the ModelView component
   const originalDocumentView = new DocumentView(originalDocument);
   const modifiedDocumentView = new DocumentView(modifiedDocument);
-  const originalSceneDefinition = originalDocument.getRoot().getDefaultScene()!;
-  const modifiedSceneDefinition = modifiedDocument.getRoot().getDefaultScene()!;
+  const originalRoot = originalDocument.getRoot();
+  const modifiedRoot = modifiedDocument.getRoot();
+  let originalSceneDefinition = originalRoot.getDefaultScene();
+  let modifiedSceneDefinition = modifiedRoot.getDefaultScene();
+  if (!originalSceneDefinition) {
+    const originalScenes = originalRoot.listScenes();
+    if (originalScenes.length > 0) {
+      originalSceneDefinition = originalScenes[0];
+    }
+  }
+  if (!modifiedSceneDefinition) {
+    const modifiedScenes = modifiedRoot.listScenes();
+    if (modifiedScenes.length > 0) {
+      modifiedSceneDefinition = modifiedScenes[0];
+    }
+  }
+
+  if (!originalSceneDefinition || !modifiedSceneDefinition) {
+    return {
+      originalDocument,
+      modifiedDocument,
+      originalDocumentView,
+      modifiedDocumentView,
+      originalScene: null,
+      modifiedScene: null,
+    };
+  }
+
   const originalScene = originalDocumentView.view(originalSceneDefinition);
   const modifiedScene = modifiedDocumentView.view(modifiedSceneDefinition);
 
@@ -345,6 +371,12 @@ export const importFiles = async <T extends File>(acceptedFiles: T[]) => {
         originalScene,
         modifiedScene,
       } = await createDocumentsAndSceneFromURL(url);
+
+      if (!originalScene || !modifiedScene) {
+        toast.error("No scenes were found in the glTF file.");
+        useViewportStore.setState({ loadingFiles: false });
+        return;
+      }
 
       const textureCompressionSettingsMap = buildTextureCompressionSettingsMap(
         originalDocument,
