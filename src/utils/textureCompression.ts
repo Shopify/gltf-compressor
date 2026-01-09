@@ -92,7 +92,7 @@ export const compressTexture = async (
     compressionSettings.quality
   );
   if (compressionSettings.compressedTexture) {
-    compressionSettings.compressedTexture!.setImage(compressedImageData);
     compressionSettings.compressedTexture!.setMimeType(mimeType);
+    compressionSettings.compressedTexture!.setImage(compressedImageData);
   }
 };

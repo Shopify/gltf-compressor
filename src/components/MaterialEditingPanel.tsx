@@ -457,28 +457,20 @@ export default function MaterialEditingPanel() {
         </Label>
       </div>
 
-      <TooltipWrapper
-        content={
-          mimeType === "image/ktx2"
-            ? "Compression is currently not supported for KTX2 textures"
-            : ""
-        }
-      >
-        <div className="flex items-center space-x-2 pt-1">
-          <Switch
-            id="compress-texture-switch"
-            checked={compressionEnabled}
-            onCheckedChange={handleCompressionChange}
-            disabled={textureSlots.length === 0 || mimeType === "image/ktx2"}
-          />
-          <Label
-            htmlFor="compress-texture-switch"
-            className={textureSlots.length === 0 ? "text-muted-foreground" : ""}
-          >
-            Compress Texture
-          </Label>
-        </div>
-      </TooltipWrapper>
+      <div className="flex items-center space-x-2 pt-1">
+        <Switch
+          id="compress-texture-switch"
+          checked={compressionEnabled}
+          onCheckedChange={handleCompressionChange}
+          disabled={textureSlots.length === 0}
+        />
+        <Label
+          htmlFor="compress-texture-switch"
+          className={textureSlots.length === 0 ? "text-muted-foreground" : ""}
+        >
+          Compress Texture
+        </Label>
+      </div>
 
       <Label
         htmlFor="image-format-select"
@@ -509,11 +501,9 @@ export default function MaterialEditingPanel() {
             <SelectItem key="image-format-webp" value="image/webp">
               WebP
             </SelectItem>
-            {mimeType === "image/ktx2" && (
-              <SelectItem key="image-format-ktx2" value="image/ktx2">
-                KTX2
-              </SelectItem>
-            )}
+            <SelectItem key="image-format-ktx2" value="image/ktx2">
+              KTX2
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>

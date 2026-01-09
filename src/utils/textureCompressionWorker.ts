@@ -1,3 +1,5 @@
+import { encodeToKTX2 } from "ktx2-encoder";
+
 interface CompressionRequest {
   id: string;
   imageData: Uint8Array;
@@ -84,6 +86,23 @@ async function compressImageInWorker(
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(imageBitmap, 0, 0, newWidth, newHeight);
+
+    if (mimeType === "image/ktx2") {
+      const pngBlob = await canvas.convertToBlob({ type: "image/png" });
+      const pngArrayBuffer = await pngBlob.arrayBuffer();
+      const pngData = new Uint8Array(pngArrayBuffer);
+
+      const ktx2Data: Uint8Array = await encodeToKTX2(pngData, {
+        isUASTC: true,
+        generateMipmap: true,
+        qualityLevel: Math.round(quality * 255),
+        jsUrl: new URL("/basis/basis_encoder.js", self.location.origin).href,
+        wasmUrl: new URL("/basis/basis_encoder.wasm", self.location.origin)
+          .href,
+      });
+
+      return ktx2Data;
+    }
 
     const compressedBlob = await canvas.convertToBlob({
       type: mimeType,
