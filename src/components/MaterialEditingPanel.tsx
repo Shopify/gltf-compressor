@@ -14,6 +14,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useModelStore } from "@/stores/useModelStore";
 import { useViewportStore } from "@/stores/useViewportStore";
+import { defaultKTX2Options, KTX2Options, KTX2OutputType } from "@/types/types";
 import { formatSize } from "@/utils/displayUtils";
 import { compressTexture } from "@/utils/textureCompression";
 import { restoreOriginalTexture } from "@/utils/textureLoading";
@@ -65,11 +66,15 @@ export default function MaterialEditingPanel() {
   const [originalImageSize, setOriginalImageSize] = useState(0);
   const [compressedImageSize, setCompressedImageSize] = useState(0);
   const [percentChangeInImageSize, setPercentChangeInImageSize] = useState(0);
+  const [ktx2Options, setKtx2Options] = useState<KTX2Options>({
+    ...defaultKTX2Options,
+  });
 
   // The Shadcn slider component has a bug where it doesn't always call onValueCommit when you release the slider
   // See this issue for more details: https://github.com/radix-ui/primitives/issues/1760
   // This is a workaround to ensure that the quality is always updated correctly when the slider is released
   const lastQuality = useRef<number[]>([]);
+  const lastRdoQuality = useRef<number[]>([]);
 
   // Initialize panel
   useEffect(() => {
@@ -158,6 +163,9 @@ export default function MaterialEditingPanel() {
       setOriginalImageSize(originalSize);
       setCompressedImageSize(compressedSize);
       setPercentChangeInImageSize(percentChangeInImageSize);
+      setKtx2Options(
+        textureCompressionSettings?.ktx2Options ?? { ...defaultKTX2Options }
+      );
     } else {
       // Reset to default values when no texture is selected
       setCompressionEnabled(false);
@@ -168,6 +176,7 @@ export default function MaterialEditingPanel() {
       setOriginalImageSize(0);
       setCompressedImageSize(0);
       setPercentChangeInImageSize(0);
+      setKtx2Options({ ...defaultKTX2Options });
     }
   }, [selectedTexture, textureCompressionSettingsMap]);
 
@@ -349,6 +358,18 @@ export default function MaterialEditingPanel() {
 
   const handleQualityChange = async (value: number) => {
     await handleCompressionSettingChange(value, setQuality, "quality");
+  };
+
+  const handleKtx2OptionChange = async <K extends keyof KTX2Options>(
+    key: K,
+    value: KTX2Options[K]
+  ) => {
+    const newOptions = { ...ktx2Options, [key]: value };
+    await handleCompressionSettingChange(
+      newOptions,
+      setKtx2Options,
+      "ktx2Options"
+    );
   };
 
   useEffect(() => {
@@ -576,6 +597,119 @@ export default function MaterialEditingPanel() {
         disabled={!compressionEnabled || textureSlots.length === 0}
         className="pt-4 pb-1"
       />
+
+      {mimeType === "image/ktx2" && compressionEnabled && (
+        <>
+          <Label htmlFor="ktx2-output-type-select">Output Type</Label>
+          <div className="pt-1">
+            <Select
+              value={ktx2Options.outputType}
+              onValueChange={(value: KTX2OutputType) =>
+                handleKtx2OptionChange("outputType", value)
+              }
+            >
+              <SelectTrigger id="ktx2-output-type-select">
+                <SelectValue placeholder="Select Output Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="UASTC">UASTC</SelectItem>
+                <SelectItem value="ETC1S">ETC1S</SelectItem>
+                <SelectItem value="UASTC_HDR">UASTC HDR</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center space-x-2 pt-1">
+            <Switch
+              id="ktx2-generate-mipmaps"
+              checked={ktx2Options.generateMipmaps}
+              onCheckedChange={(value) =>
+                handleKtx2OptionChange("generateMipmaps", value)
+              }
+            />
+            <Label htmlFor="ktx2-generate-mipmaps">Generate Mipmaps</Label>
+          </div>
+
+          <div className="flex items-center space-x-2 pt-1">
+            <Switch
+              id="ktx2-normal-map"
+              checked={ktx2Options.isNormalMap}
+              onCheckedChange={(value) =>
+                handleKtx2OptionChange("isNormalMap", value)
+              }
+            />
+            <Label htmlFor="ktx2-normal-map">Normal Map</Label>
+          </div>
+
+          <div className="flex items-center space-x-2 pt-1">
+            <Switch
+              id="ktx2-srgb"
+              checked={ktx2Options.srgbTransferFunction}
+              onCheckedChange={(value) =>
+                handleKtx2OptionChange("srgbTransferFunction", value)
+              }
+            />
+            <Label htmlFor="ktx2-srgb">sRGB Transfer Function</Label>
+          </div>
+
+          <div className="flex items-center space-x-2 pt-1">
+            <Switch
+              id="ktx2-supercompression"
+              checked={ktx2Options.enableSupercompression}
+              onCheckedChange={(value) =>
+                handleKtx2OptionChange("enableSupercompression", value)
+              }
+            />
+            <Label htmlFor="ktx2-supercompression">
+              Enable Supercompression
+            </Label>
+          </div>
+
+          <div className="flex items-center space-x-2 pt-1">
+            <Switch
+              id="ktx2-rdo"
+              checked={ktx2Options.enableRDO}
+              onCheckedChange={(value) =>
+                handleKtx2OptionChange("enableRDO", value)
+              }
+            />
+            <Label htmlFor="ktx2-rdo">Enable RDO</Label>
+          </div>
+
+          {ktx2Options.enableRDO && (
+            <>
+              <Label htmlFor="ktx2-rdo-quality-slider">
+                RDO Quality Level: {ktx2Options.rdoQualityLevel.toFixed(1)}
+              </Label>
+              <Slider
+                id="ktx2-rdo-quality-slider"
+                min={0.1}
+                max={10}
+                step={0.1}
+                value={[ktx2Options.rdoQualityLevel]}
+                onValueChange={(value: number[]) => {
+                  lastRdoQuality.current = value;
+                  setKtx2Options({ ...ktx2Options, rdoQualityLevel: value[0] });
+                }}
+                onValueCommit={(value: number[]) => {
+                  const finalValue = lastRdoQuality.current.length
+                    ? lastRdoQuality.current[0]
+                    : value[0];
+                  lastRdoQuality.current = [];
+                  handleKtx2OptionChange("rdoQualityLevel", finalValue);
+                }}
+                onLostPointerCapture={() => {
+                  if (!lastRdoQuality.current.length) return;
+                  const finalValue = lastRdoQuality.current[0];
+                  lastRdoQuality.current = [];
+                  handleKtx2OptionChange("rdoQualityLevel", finalValue);
+                }}
+                className="pt-4 pb-1"
+              />
+            </>
+          )}
+        </>
+      )}
 
       <div className="space-y-2">
         <Label

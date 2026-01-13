@@ -1,6 +1,6 @@
 import { Texture } from "@gltf-transform/core";
 
-import { TextureCompressionSettings } from "@/types/types";
+import { KTX2Options, TextureCompressionSettings } from "@/types/types";
 
 import TextureCompressionWorker from "./textureCompressionWorker?worker&inline";
 
@@ -51,13 +51,15 @@ const getOrCreateWorker = (): Worker => {
  * @param mimeType - The desired MIME type of the image
  * @param maxResolution - The desired max width or height of the image (whichever is larger)
  * @param quality - The desired quality of the image (0-1)
+ * @param ktx2Options - The KTX2 options to use for the compression (optional)
  * @returns Promise<Uint8Array> - The compressed image data as a Uint8Array
  */
 const compressImage = async (
   image: Uint8Array,
   mimeType: string,
   maxResolution: number,
-  quality: number
+  quality: number,
+  ktx2Options?: KTX2Options
 ): Promise<Uint8Array> => {
   const requestId = `req_${++requestIdCounter}`;
   const worker = getOrCreateWorker();
@@ -74,6 +76,7 @@ const compressImage = async (
         mimeType,
         maxResolution,
         quality,
+        ktx2Options,
       },
       [imageDataCopy.buffer]
     );
@@ -89,7 +92,8 @@ export const compressTexture = async (
     originalTexture.getImage()!,
     mimeType,
     compressionSettings.maxResolution,
-    compressionSettings.quality
+    compressionSettings.quality,
+    mimeType === "image/ktx2" ? compressionSettings.ktx2Options : undefined
   );
   if (compressionSettings.compressedTexture) {
     compressionSettings.compressedTexture!.setMimeType(mimeType);

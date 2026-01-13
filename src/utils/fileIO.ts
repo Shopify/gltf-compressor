@@ -19,7 +19,7 @@ import { toast } from "sonner";
 
 import { useModelStore } from "@/stores/useModelStore";
 import { useViewportStore } from "@/stores/useViewportStore";
-import { TextureCompressionSettings } from "@/types/types";
+import { defaultKTX2Options, TextureCompressionSettings } from "@/types/types";
 import { getKTX2Loader } from "@/utils/ktxUtils";
 import { MeshoptDecoder, MeshoptEncoder } from "meshoptimizer";
 
@@ -310,6 +310,7 @@ function buildTextureCompressionSettingsMap(
       maxResolution,
       quality: 0.8,
       isBeingCompressed: false,
+      ktx2Options: { ...defaultKTX2Options },
     };
     textureCompressionSettingsMap.set(texture, textureCompressionSettings);
   });

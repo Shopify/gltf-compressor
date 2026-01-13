@@ -1,5 +1,27 @@
 import { Texture } from "@gltf-transform/core";
 
+export type KTX2OutputType = "UASTC" | "ETC1S" | "UASTC_HDR";
+
+export interface KTX2Options {
+  outputType: KTX2OutputType;
+  generateMipmaps: boolean;
+  isNormalMap: boolean;
+  srgbTransferFunction: boolean;
+  enableSupercompression: boolean;
+  enableRDO: boolean;
+  rdoQualityLevel: number;
+}
+
+export const defaultKTX2Options: KTX2Options = {
+  outputType: "UASTC",
+  generateMipmaps: true,
+  isNormalMap: false,
+  srgbTransferFunction: true,
+  enableSupercompression: true,
+  enableRDO: false,
+  rdoQualityLevel: 1.0,
+};
+
 export interface TextureCompressionSettings {
   compressedTexture: Texture | null;
   compressionEnabled: boolean;
@@ -7,6 +29,7 @@ export interface TextureCompressionSettings {
   maxResolution: number;
   quality: number;
   isBeingCompressed: boolean;
+  ktx2Options: KTX2Options;
 }
 
 export interface ModelStats {
