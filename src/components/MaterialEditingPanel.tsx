@@ -619,6 +619,7 @@ export default function MaterialEditingPanel() {
             </Select>
           </div>
 
+          {/* Generate Mipmaps - available for all formats */}
           <div className="flex items-center space-x-2 pt-1">
             <Switch
               id="ktx2-generate-mipmaps"
@@ -630,53 +631,66 @@ export default function MaterialEditingPanel() {
             <Label htmlFor="ktx2-generate-mipmaps">Generate Mipmaps</Label>
           </div>
 
-          <div className="flex items-center space-x-2 pt-1">
-            <Switch
-              id="ktx2-normal-map"
-              checked={ktx2Options.isNormalMap}
-              onCheckedChange={(value) =>
-                handleKtx2OptionChange("isNormalMap", value)
-              }
-            />
-            <Label htmlFor="ktx2-normal-map">Normal Map</Label>
-          </div>
+          {/* Normal Map - UASTC and ETC1S only (not HDR) */}
+          {ktx2Options.outputType !== "UASTC_HDR" && (
+            <div className="flex items-center space-x-2 pt-1">
+              <Switch
+                id="ktx2-normal-map"
+                checked={ktx2Options.isNormalMap}
+                onCheckedChange={(value) =>
+                  handleKtx2OptionChange("isNormalMap", value)
+                }
+              />
+              <Label htmlFor="ktx2-normal-map">Normal Map</Label>
+            </div>
+          )}
 
-          <div className="flex items-center space-x-2 pt-1">
-            <Switch
-              id="ktx2-srgb"
-              checked={ktx2Options.srgbTransferFunction}
-              onCheckedChange={(value) =>
-                handleKtx2OptionChange("srgbTransferFunction", value)
-              }
-            />
-            <Label htmlFor="ktx2-srgb">sRGB Transfer Function</Label>
-          </div>
+          {/* sRGB Transfer Function - UASTC and ETC1S only (not HDR) */}
+          {ktx2Options.outputType !== "UASTC_HDR" && (
+            <div className="flex items-center space-x-2 pt-1">
+              <Switch
+                id="ktx2-srgb"
+                checked={ktx2Options.srgbTransferFunction}
+                onCheckedChange={(value) =>
+                  handleKtx2OptionChange("srgbTransferFunction", value)
+                }
+              />
+              <Label htmlFor="ktx2-srgb">sRGB Transfer Function</Label>
+            </div>
+          )}
 
-          <div className="flex items-center space-x-2 pt-1">
-            <Switch
-              id="ktx2-supercompression"
-              checked={ktx2Options.enableSupercompression}
-              onCheckedChange={(value) =>
-                handleKtx2OptionChange("enableSupercompression", value)
-              }
-            />
-            <Label htmlFor="ktx2-supercompression">
-              Enable Supercompression
-            </Label>
-          </div>
+          {/* Supercompression - UASTC only (Zstandard compression) */}
+          {ktx2Options.outputType === "UASTC" && (
+            <div className="flex items-center space-x-2 pt-1">
+              <Switch
+                id="ktx2-supercompression"
+                checked={ktx2Options.enableSupercompression}
+                onCheckedChange={(value) =>
+                  handleKtx2OptionChange("enableSupercompression", value)
+                }
+              />
+              <Label htmlFor="ktx2-supercompression">
+                Enable Supercompression
+              </Label>
+            </div>
+          )}
 
-          <div className="flex items-center space-x-2 pt-1">
-            <Switch
-              id="ktx2-rdo"
-              checked={ktx2Options.enableRDO}
-              onCheckedChange={(value) =>
-                handleKtx2OptionChange("enableRDO", value)
-              }
-            />
-            <Label htmlFor="ktx2-rdo">Enable RDO</Label>
-          </div>
+          {/* RDO - UASTC LDR only */}
+          {ktx2Options.outputType === "UASTC" && (
+            <div className="flex items-center space-x-2 pt-1">
+              <Switch
+                id="ktx2-rdo"
+                checked={ktx2Options.enableRDO}
+                onCheckedChange={(value) =>
+                  handleKtx2OptionChange("enableRDO", value)
+                }
+              />
+              <Label htmlFor="ktx2-rdo">Enable RDO</Label>
+            </div>
+          )}
 
-          {ktx2Options.enableRDO && (
+          {/* RDO Quality Level - UASTC only when RDO enabled */}
+          {ktx2Options.outputType === "UASTC" && ktx2Options.enableRDO && (
             <>
               <Label htmlFor="ktx2-rdo-quality-slider">
                 RDO Quality Level: {ktx2Options.rdoQualityLevel.toFixed(1)}
