@@ -1,5 +1,6 @@
 import { Material } from "@gltf-transform/core";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
 
 import { Label } from "@/components/ui/label";
@@ -248,7 +249,13 @@ export default function MaterialEditingPanel() {
         });
 
         try {
-          await compressTexture(selectedTexture, textureCompressionSettings);
+          const result = await compressTexture(
+            selectedTexture,
+            textureCompressionSettings
+          );
+          if (result.warning) {
+            toast.warning(result.warning);
+          }
         } finally {
           // Flag texture as done compressing
           updateTextureCompressionSettings(selectedTexture, {
@@ -313,10 +320,13 @@ export default function MaterialEditingPanel() {
         });
 
         try {
-          await compressTexture(selectedTexture, {
+          const result = await compressTexture(selectedTexture, {
             ...textureCompressionSettings,
             [settingKey]: value,
           });
+          if (result.warning) {
+            toast.warning(result.warning);
+          }
         } finally {
           // Flag texture as done compressing
           updateTextureCompressionSettings(selectedTexture, {

@@ -1,4 +1,13 @@
-import { WebGLRenderer } from "three";
+import { read as readKTX2 } from "ktx-parse";
+import {
+  Mesh,
+  MeshBasicMaterial,
+  OrthographicCamera,
+  PlaneGeometry,
+  Scene,
+  SRGBColorSpace,
+  WebGLRenderer,
+} from "three";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
 
 let ktx2Loader: KTX2Loader | null = null;
@@ -12,4 +21,120 @@ export function getKTX2Loader(): KTX2Loader {
     renderer.dispose();
   }
   return ktx2Loader;
+}
+
+export interface KTX2Info {
+  isHDR: boolean;
+  mipLevels: number;
+  width: number;
+  height: number;
+}
+
+const KHR_DF_SAMPLE_DATATYPE_FLOAT = 128;
+const KHR_DF_TRANSFER_LINEAR = 1;
+
+export function getKTX2Info(ktx2Data: Uint8Array): KTX2Info {
+  const container = readKTX2(ktx2Data);
+
+  // Check if HDR by examining:
+  // 1. Linear transfer function (HDR uses linear, LDR uses sRGB)
+  // 2. Sample data type contains float flag
+  let isHDR = false;
+  if (container.dataFormatDescriptor?.length > 0) {
+    const dfd = container.dataFormatDescriptor[0];
+
+    // Linear transfer is a strong indicator of HDR
+    if (dfd.transferFunction === KHR_DF_TRANSFER_LINEAR) {
+      // Double-check with sample flags
+      if (dfd.samples?.length > 0) {
+        for (const sample of dfd.samples) {
+          // channelType upper bits contain data type flags
+          if ((sample.channelType & KHR_DF_SAMPLE_DATATYPE_FLOAT) !== 0) {
+            isHDR = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  return {
+    isHDR,
+    mipLevels: container.levels.length,
+    width: container.pixelWidth,
+    height: container.pixelHeight,
+  };
+}
+
+export function decodeKTX2ToPNG(
+  ktx2Data: Uint8Array,
+  width: number,
+  height: number
+): Promise<Uint8Array> {
+  return new Promise((resolve, reject) => {
+    const glCanvas = document.createElement("canvas");
+    glCanvas.width = width;
+    glCanvas.height = height;
+    const renderer = new WebGLRenderer({
+      canvas: glCanvas,
+      preserveDrawingBuffer: true,
+    });
+
+    const blob = new Blob([ktx2Data as BlobPart], { type: "image/ktx2" });
+    const blobUrl = URL.createObjectURL(blob);
+
+    getKTX2Loader().load(
+      blobUrl,
+      (texture) => {
+        texture.colorSpace = SRGBColorSpace;
+        const scene = new Scene();
+        const aspectRatio = width / height;
+        const camera = new OrthographicCamera(
+          -1 * aspectRatio,
+          aspectRatio,
+          1,
+          -1,
+          0,
+          1
+        );
+        const geometry = new PlaneGeometry(2 * aspectRatio, 2);
+        const material = new MeshBasicMaterial({ map: texture });
+        const mesh = new Mesh(geometry, material);
+        scene.add(mesh);
+        renderer.render(scene, camera);
+
+        // Flip the image vertically (WebGL origin is bottom-left, PNG is top-left)
+        const outputCanvas = document.createElement("canvas");
+        outputCanvas.width = width;
+        outputCanvas.height = height;
+        const ctx = outputCanvas.getContext("2d")!;
+        ctx.scale(1, -1);
+        ctx.drawImage(glCanvas, 0, -height);
+
+        outputCanvas.toBlob(
+          (pngBlob) => {
+            renderer.dispose();
+            URL.revokeObjectURL(blobUrl);
+
+            if (!pngBlob) {
+              reject(new Error("Failed to convert KTX2 to PNG"));
+              return;
+            }
+
+            pngBlob.arrayBuffer().then((buffer) => {
+              resolve(new Uint8Array(buffer));
+            });
+          },
+          "image/png",
+          1.0
+        );
+      },
+      undefined,
+      (error) => {
+        renderer.dispose();
+        URL.revokeObjectURL(blobUrl);
+        reject(error);
+      }
+    );
+  });
 }

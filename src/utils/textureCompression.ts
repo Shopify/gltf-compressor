@@ -2,6 +2,7 @@ import { Texture } from "@gltf-transform/core";
 
 import { KTX2Options, TextureCompressionSettings } from "@/types/types";
 
+import { decodeKTX2ToPNG, getKTX2Info } from "./ktxUtils";
 import TextureCompressionWorker from "./textureCompressionWorker?worker&inline";
 
 let compressionWorker: Worker | null = null;
@@ -83,13 +84,48 @@ const compressImage = async (
   });
 };
 
+export interface CompressionResult {
+  warning?: string;
+}
+
 export const compressTexture = async (
   originalTexture: Texture,
   compressionSettings: TextureCompressionSettings
-) => {
+): Promise<CompressionResult> => {
   const mimeType = compressionSettings.mimeType || "image/jpeg";
+  const originalMimeType = originalTexture.getMimeType();
+  let sourceImage = originalTexture.getImage()!;
+  let warning: string | undefined;
+
+  // If the source is KTX2, decode it first since createImageBitmap can't handle KTX2
+  if (originalMimeType === "image/ktx2") {
+    const size = originalTexture.getSize();
+    if (size) {
+      const ktx2Info = getKTX2Info(sourceImage);
+
+      // Warn if converting HDR to HDR (quality loss through 8-bit decode)
+      if (ktx2Info.isHDR) {
+        const targetIsHDR =
+          mimeType === "image/ktx2" &&
+          compressionSettings.ktx2Options?.outputType === "UASTC_HDR";
+        if (targetIsHDR) {
+          warning =
+            "Converting HDR KTX2 to HDR KTX2 will lose precision (decoded through 8-bit)";
+        }
+      }
+
+      // Warn about mipmap regeneration
+      if (ktx2Info.mipLevels > 1) {
+        const mipWarning = `Source has ${ktx2Info.mipLevels} mip levels that will be lost or regenerated`;
+        warning = warning ? `${warning}. ${mipWarning}` : mipWarning;
+      }
+
+      sourceImage = await decodeKTX2ToPNG(sourceImage, size[0], size[1]);
+    }
+  }
+
   const compressedImageData = await compressImage(
-    originalTexture.getImage()!,
+    sourceImage,
     mimeType,
     compressionSettings.maxResolution,
     compressionSettings.quality,
@@ -99,4 +135,6 @@ export const compressTexture = async (
     compressionSettings.compressedTexture!.setMimeType(mimeType);
     compressionSettings.compressedTexture!.setImage(compressedImageData);
   }
+
+  return { warning };
 };
