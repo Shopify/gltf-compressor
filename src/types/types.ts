@@ -1,6 +1,6 @@
 import { Texture } from "@gltf-transform/core";
 
-export type KTX2OutputType = "UASTC" | "ETC1S" | "UASTC_HDR";
+export type KTX2OutputType = "UASTC" | "ETC1S";
 
 export interface KTX2Options {
   outputType: KTX2OutputType;

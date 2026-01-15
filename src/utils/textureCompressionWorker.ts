@@ -98,13 +98,9 @@ async function compressImageInWorker(
       const pngArrayBuffer = await pngBlob.arrayBuffer();
       const pngData = new Uint8Array(pngArrayBuffer);
 
-      const isHDR = ktx2Options.outputType === "UASTC_HDR";
-      const isUASTC =
-        ktx2Options.outputType === "UASTC" ||
-        ktx2Options.outputType === "UASTC_HDR";
-
-      const baseOptions = {
-        isUASTC,
+      const ktx2Data: Uint8Array = await encodeToKTX2(pngData, {
+        isHDR: false as const,
+        isUASTC: ktx2Options.outputType === "UASTC",
         generateMipmap: ktx2Options.generateMipmaps,
         isNormalMap: ktx2Options.isNormalMap,
         isSetKTX2SRGBTransferFunc: ktx2Options.srgbTransferFunction,
@@ -115,18 +111,7 @@ async function compressImageInWorker(
         jsUrl: new URL("/basis/basis_encoder.js", self.location.origin).href,
         wasmUrl: new URL("/basis/basis_encoder.wasm", self.location.origin)
           .href,
-      };
-
-      const ktx2Data: Uint8Array = await encodeToKTX2(
-        pngData,
-        isHDR
-          ? {
-              ...baseOptions,
-              isHDR: true as const,
-              imageType: "raster" as const,
-            }
-          : { ...baseOptions, isHDR: false as const }
-      );
+      });
 
       return ktx2Data;
     }

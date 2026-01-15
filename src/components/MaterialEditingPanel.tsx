@@ -251,7 +251,8 @@ export default function MaterialEditingPanel() {
         try {
           const result = await compressTexture(
             selectedTexture,
-            textureCompressionSettings
+            textureCompressionSettings,
+            { isInitialCompression: true }
           );
           if (result.warning) {
             toast.warning(result.warning);
@@ -624,7 +625,6 @@ export default function MaterialEditingPanel() {
               <SelectContent>
                 <SelectItem value="UASTC">UASTC</SelectItem>
                 <SelectItem value="ETC1S">ETC1S</SelectItem>
-                <SelectItem value="UASTC_HDR">UASTC HDR</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -641,33 +641,27 @@ export default function MaterialEditingPanel() {
             <Label htmlFor="ktx2-generate-mipmaps">Generate Mipmaps</Label>
           </div>
 
-          {/* Normal Map - UASTC and ETC1S only (not HDR) */}
-          {ktx2Options.outputType !== "UASTC_HDR" && (
-            <div className="flex items-center space-x-2 pt-1">
-              <Switch
-                id="ktx2-normal-map"
-                checked={ktx2Options.isNormalMap}
-                onCheckedChange={(value) =>
-                  handleKtx2OptionChange("isNormalMap", value)
-                }
-              />
-              <Label htmlFor="ktx2-normal-map">Normal Map</Label>
-            </div>
-          )}
+          <div className="flex items-center space-x-2 pt-1">
+            <Switch
+              id="ktx2-normal-map"
+              checked={ktx2Options.isNormalMap}
+              onCheckedChange={(value) =>
+                handleKtx2OptionChange("isNormalMap", value)
+              }
+            />
+            <Label htmlFor="ktx2-normal-map">Normal Map</Label>
+          </div>
 
-          {/* sRGB Transfer Function - UASTC and ETC1S only (not HDR) */}
-          {ktx2Options.outputType !== "UASTC_HDR" && (
-            <div className="flex items-center space-x-2 pt-1">
-              <Switch
-                id="ktx2-srgb"
-                checked={ktx2Options.srgbTransferFunction}
-                onCheckedChange={(value) =>
-                  handleKtx2OptionChange("srgbTransferFunction", value)
-                }
-              />
-              <Label htmlFor="ktx2-srgb">sRGB Transfer Function</Label>
-            </div>
-          )}
+          <div className="flex items-center space-x-2 pt-1">
+            <Switch
+              id="ktx2-srgb"
+              checked={ktx2Options.srgbTransferFunction}
+              onCheckedChange={(value) =>
+                handleKtx2OptionChange("srgbTransferFunction", value)
+              }
+            />
+            <Label htmlFor="ktx2-srgb">sRGB Transfer Function</Label>
+          </div>
 
           {/* Supercompression - UASTC only (Zstandard compression) */}
           {ktx2Options.outputType === "UASTC" && (

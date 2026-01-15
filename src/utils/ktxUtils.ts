@@ -36,23 +36,17 @@ const KHR_DF_TRANSFER_LINEAR = 1;
 export function getKTX2Info(ktx2Data: Uint8Array): KTX2Info {
   const container = readKTX2(ktx2Data);
 
-  // Check if HDR by examining:
-  // 1. Linear transfer function (HDR uses linear, LDR uses sRGB)
-  // 2. Sample data type contains float flag
   let isHDR = false;
   if (container.dataFormatDescriptor?.length > 0) {
     const dfd = container.dataFormatDescriptor[0];
-
-    // Linear transfer is a strong indicator of HDR
-    if (dfd.transferFunction === KHR_DF_TRANSFER_LINEAR) {
-      // Double-check with sample flags
-      if (dfd.samples?.length > 0) {
-        for (const sample of dfd.samples) {
-          // channelType upper bits contain data type flags
-          if ((sample.channelType & KHR_DF_SAMPLE_DATATYPE_FLOAT) !== 0) {
-            isHDR = true;
-            break;
-          }
+    if (
+      dfd.transferFunction === KHR_DF_TRANSFER_LINEAR &&
+      dfd.samples?.length > 0
+    ) {
+      for (const sample of dfd.samples) {
+        if ((sample.channelType & KHR_DF_SAMPLE_DATATYPE_FLOAT) !== 0) {
+          isHDR = true;
+          break;
         }
       }
     }

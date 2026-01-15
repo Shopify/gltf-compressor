@@ -90,7 +90,8 @@ export interface CompressionResult {
 
 export const compressTexture = async (
   originalTexture: Texture,
-  compressionSettings: TextureCompressionSettings
+  compressionSettings: TextureCompressionSettings,
+  { isInitialCompression = false } = {}
 ): Promise<CompressionResult> => {
   const mimeType = compressionSettings.mimeType || "image/jpeg";
   const originalMimeType = originalTexture.getMimeType();
@@ -101,23 +102,15 @@ export const compressTexture = async (
   if (originalMimeType === "image/ktx2") {
     const size = originalTexture.getSize();
     if (size) {
-      const ktx2Info = getKTX2Info(sourceImage);
-
-      // Warn if converting HDR to HDR (quality loss through 8-bit decode)
-      if (ktx2Info.isHDR) {
-        const targetIsHDR =
-          mimeType === "image/ktx2" &&
-          compressionSettings.ktx2Options?.outputType === "UASTC_HDR";
-        if (targetIsHDR) {
-          warning =
-            "Converting HDR KTX2 to HDR KTX2 will lose precision (decoded through 8-bit)";
+      if (isInitialCompression) {
+        const ktx2Info = getKTX2Info(sourceImage);
+        if (ktx2Info.isHDR) {
+          warning = "HDR texture will be converted to LDR";
         }
-      }
-
-      // Warn about mipmap regeneration
-      if (ktx2Info.mipLevels > 1) {
-        const mipWarning = `Source has ${ktx2Info.mipLevels} mip levels that will be lost or regenerated`;
-        warning = warning ? `${warning}. ${mipWarning}` : mipWarning;
+        if (ktx2Info.mipLevels > 1) {
+          const mipWarning = `Source texture has ${ktx2Info.mipLevels} mip levels that will be lost or regenerated`;
+          warning = warning ? `${warning}. ${mipWarning}` : mipWarning;
+        }
       }
 
       sourceImage = await decodeKTX2ToPNG(sourceImage, size[0], size[1]);
