@@ -2,42 +2,13 @@ import { Material, Texture } from "@gltf-transform/core";
 import { useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
 
+import { useDotAnimation } from "@/hooks/useDotAnimation";
 import { useModelStore } from "@/stores/useModelStore";
 import { TextureBounds, TextureCompressionSettings } from "@/types/types";
 
 export default function TextureViewStatus() {
   const statusMessageRef = useRef<HTMLDivElement>(null);
-  const dotAnimationIntervalRef = useRef<number | null>(null);
-  const currentDotsRef = useRef<number>(0);
-
-  const startDotAnimation = (baseMessage: string) => {
-    if (dotAnimationIntervalRef.current !== null) {
-      clearInterval(dotAnimationIntervalRef.current);
-    }
-
-    currentDotsRef.current = 0;
-
-    const updateDots = () => {
-      if (!statusMessageRef.current) return;
-
-      const visibleDots = ".".repeat(currentDotsRef.current);
-      const invisibleDots = ".".repeat(3 - currentDotsRef.current);
-      statusMessageRef.current.innerHTML = `<span>${baseMessage}${visibleDots}<span style="visibility:hidden">${invisibleDots}</span></span>`;
-
-      currentDotsRef.current = (currentDotsRef.current + 1) % 4;
-    };
-
-    updateDots();
-
-    dotAnimationIntervalRef.current = window.setInterval(updateDots, 250);
-  };
-
-  const stopDotAnimation = () => {
-    if (dotAnimationIntervalRef.current !== null) {
-      clearInterval(dotAnimationIntervalRef.current);
-      dotAnimationIntervalRef.current = null;
-    }
-  };
+  const { startAnimation, stopAnimation } = useDotAnimation(250);
 
   useEffect(() => {
     const unsubscribe = useModelStore.subscribe(
@@ -92,25 +63,24 @@ export default function TextureViewStatus() {
         }
 
         if (isBulkProcessing && bulkProcessingProgress) {
-          startDotAnimation(
-            `Processing Texture ${bulkProcessingProgress.current}/${bulkProcessingProgress.total}`
-          );
+          stopAnimation();
+          statusMessageRef.current.innerHTML = `<span>Processing Texture ${bulkProcessingProgress.current}/${bulkProcessingProgress.total}</span>`;
           statusMessageRef.current.style.display = "block";
         } else if (isCompressing) {
-          startDotAnimation("Updating Texture");
+          startAnimation(statusMessageRef.current, "Updating Texture");
           statusMessageRef.current.style.display = "block";
         } else if (!selectedMaterial) {
-          stopDotAnimation();
+          stopAnimation();
           statusMessageRef.current.innerHTML =
             "<span>No Material Selected</span>";
           statusMessageRef.current.style.display = "block";
         } else if (selectedMaterial && !selectedTexture) {
-          stopDotAnimation();
+          stopAnimation();
           statusMessageRef.current.innerHTML =
             "<span>No Texture Selected</span>";
           statusMessageRef.current.style.display = "block";
         } else {
-          stopDotAnimation();
+          stopAnimation();
           statusMessageRef.current.style.display = "none";
         }
       },
@@ -119,9 +89,9 @@ export default function TextureViewStatus() {
 
     return () => {
       unsubscribe();
-      stopDotAnimation();
+      stopAnimation();
     };
-  }, []);
+  }, [startAnimation, stopAnimation]);
 
   return <div ref={statusMessageRef} id="texture-view-status" />;
 }

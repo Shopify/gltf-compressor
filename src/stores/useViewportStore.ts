@@ -26,7 +26,7 @@ export const useViewportStore = create<ViewportStore>()(
       lightingPreset: "rembrandt",
       environmentPreset: "city",
       lightIntensity: 1,
-      showContactShadows: true,
+      showContactShadows: false,
       showGrid: true,
       autoRotateCamera: false,
       modelDimensions: null,

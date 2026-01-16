@@ -118,10 +118,10 @@ export function decodeKTX2ToPNG(
   ktx2Data: Uint8Array,
   width: number,
   height: number
-): Promise<Uint8Array> {
+): Promise<Uint8Array<ArrayBuffer>> {
   return renderKTX2Image(ktx2Data, width, height).then(
     ({ canvas: glCanvas, renderer, blobUrl }) => {
-      return new Promise<Uint8Array>((resolve, reject) => {
+      return new Promise<Uint8Array<ArrayBuffer>>((resolve, reject) => {
         // Flip the image vertically (WebGL origin is bottom-left, PNG is top-left)
         const outputCanvas = document.createElement("canvas");
         outputCanvas.width = width;

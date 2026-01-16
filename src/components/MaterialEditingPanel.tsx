@@ -609,7 +609,7 @@ export default function MaterialEditingPanel() {
         className="pt-4 pb-1"
       />
 
-      {mimeType === "image/ktx2" && compressionEnabled && (
+      {mimeType === "image/ktx2" && (
         <>
           <Label htmlFor="ktx2-output-type-select">Output Type</Label>
           <div className="pt-1">
@@ -618,6 +618,7 @@ export default function MaterialEditingPanel() {
               onValueChange={(value: KTX2OutputType) =>
                 handleKtx2OptionChange("outputType", value)
               }
+              disabled={!compressionEnabled || textureSlots.length === 0}
             >
               <SelectTrigger id="ktx2-output-type-select">
                 <SelectValue placeholder="Select Output Type" />
@@ -637,6 +638,7 @@ export default function MaterialEditingPanel() {
               onCheckedChange={(value) =>
                 handleKtx2OptionChange("generateMipmaps", value)
               }
+              disabled={!compressionEnabled || textureSlots.length === 0}
             />
             <Label htmlFor="ktx2-generate-mipmaps">Generate Mipmaps</Label>
           </div>
@@ -648,6 +650,7 @@ export default function MaterialEditingPanel() {
               onCheckedChange={(value) =>
                 handleKtx2OptionChange("isNormalMap", value)
               }
+              disabled={!compressionEnabled || textureSlots.length === 0}
             />
             <Label htmlFor="ktx2-normal-map">Normal Map</Label>
           </div>
@@ -659,6 +662,7 @@ export default function MaterialEditingPanel() {
               onCheckedChange={(value) =>
                 handleKtx2OptionChange("srgbTransferFunction", value)
               }
+              disabled={!compressionEnabled || textureSlots.length === 0}
             />
             <Label htmlFor="ktx2-srgb">sRGB Transfer Function</Label>
           </div>
@@ -672,6 +676,7 @@ export default function MaterialEditingPanel() {
                 onCheckedChange={(value) =>
                   handleKtx2OptionChange("enableSupercompression", value)
                 }
+                disabled={!compressionEnabled || textureSlots.length === 0}
               />
               <Label htmlFor="ktx2-supercompression">
                 Enable Supercompression
@@ -688,6 +693,7 @@ export default function MaterialEditingPanel() {
                 onCheckedChange={(value) =>
                   handleKtx2OptionChange("enableRDO", value)
                 }
+                disabled={!compressionEnabled || textureSlots.length === 0}
               />
               <Label htmlFor="ktx2-rdo">Enable RDO</Label>
             </div>
@@ -722,6 +728,7 @@ export default function MaterialEditingPanel() {
                   lastRdoQuality.current = [];
                   handleKtx2OptionChange("rdoQualityLevel", finalValue);
                 }}
+                disabled={!compressionEnabled || textureSlots.length === 0}
                 className="pt-4 pb-1"
               />
             </>
