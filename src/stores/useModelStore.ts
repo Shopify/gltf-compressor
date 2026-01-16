@@ -26,6 +26,8 @@ interface ModelStore {
   selectedTexture: Texture | null;
   textureBounds: TextureBounds | null;
   modelStats: ModelStats;
+  isBulkProcessing: boolean;
+  bulkProcessingProgress: { current: number; total: number } | null;
 
   updateTextureCompressionSettings: (
     texture: Texture,
@@ -53,6 +55,8 @@ export const useModelStore = create<ModelStore>()(
       selectedTextureSlot: "",
       selectedTexture: null,
       textureBounds: null,
+      isBulkProcessing: false,
+      bulkProcessingProgress: null,
       modelStats: {
         numMeshes: 0,
         numVertices: 0,

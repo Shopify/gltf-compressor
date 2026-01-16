@@ -7,6 +7,37 @@ import { TextureBounds, TextureCompressionSettings } from "@/types/types";
 
 export default function TextureViewStatus() {
   const statusMessageRef = useRef<HTMLDivElement>(null);
+  const dotAnimationIntervalRef = useRef<number | null>(null);
+  const currentDotsRef = useRef<number>(0);
+
+  const startDotAnimation = (baseMessage: string) => {
+    if (dotAnimationIntervalRef.current !== null) {
+      clearInterval(dotAnimationIntervalRef.current);
+    }
+
+    currentDotsRef.current = 0;
+
+    const updateDots = () => {
+      if (!statusMessageRef.current) return;
+
+      const visibleDots = ".".repeat(currentDotsRef.current);
+      const invisibleDots = ".".repeat(3 - currentDotsRef.current);
+      statusMessageRef.current.innerHTML = `<span>${baseMessage}${visibleDots}<span style="visibility:hidden">${invisibleDots}</span></span>`;
+
+      currentDotsRef.current = (currentDotsRef.current + 1) % 4;
+    };
+
+    updateDots();
+
+    dotAnimationIntervalRef.current = window.setInterval(updateDots, 250);
+  };
+
+  const stopDotAnimation = () => {
+    if (dotAnimationIntervalRef.current !== null) {
+      clearInterval(dotAnimationIntervalRef.current);
+      dotAnimationIntervalRef.current = null;
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = useModelStore.subscribe(
@@ -15,6 +46,8 @@ export default function TextureViewStatus() {
         state.selectedTexture,
         state.textureCompressionSettingsMap,
         state.textureBounds,
+        state.isBulkProcessing,
+        state.bulkProcessingProgress,
       ],
       (newState) => {
         if (!statusMessageRef.current) {
@@ -28,6 +61,11 @@ export default function TextureViewStatus() {
           TextureCompressionSettings
         >;
         const textureBounds = newState[3] as TextureBounds | null;
+        const isBulkProcessing = newState[4] as boolean;
+        const bulkProcessingProgress = newState[5] as {
+          current: number;
+          total: number;
+        } | null;
 
         const isCompressing =
           selectedTexture !== null &&
@@ -53,19 +91,26 @@ export default function TextureViewStatus() {
           statusMessageRef.current.style.transform = "translate(-50%, -50%)";
         }
 
-        if (isCompressing) {
-          statusMessageRef.current.innerHTML =
-            "<span>Updating Texture...</span>";
+        if (isBulkProcessing && bulkProcessingProgress) {
+          startDotAnimation(
+            `Processing Texture ${bulkProcessingProgress.current}/${bulkProcessingProgress.total}`
+          );
+          statusMessageRef.current.style.display = "block";
+        } else if (isCompressing) {
+          startDotAnimation("Updating Texture");
           statusMessageRef.current.style.display = "block";
         } else if (!selectedMaterial) {
+          stopDotAnimation();
           statusMessageRef.current.innerHTML =
             "<span>No Material Selected</span>";
           statusMessageRef.current.style.display = "block";
         } else if (selectedMaterial && !selectedTexture) {
+          stopDotAnimation();
           statusMessageRef.current.innerHTML =
             "<span>No Texture Selected</span>";
           statusMessageRef.current.style.display = "block";
         } else {
+          stopDotAnimation();
           statusMessageRef.current.style.display = "none";
         }
       },
@@ -74,6 +119,7 @@ export default function TextureViewStatus() {
 
     return () => {
       unsubscribe();
+      stopDotAnimation();
     };
   }, []);
 

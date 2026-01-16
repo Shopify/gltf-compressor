@@ -1,16 +1,7 @@
 import { Texture } from "@gltf-transform/core";
-import {
-  Mesh,
-  MeshBasicMaterial,
-  OrthographicCamera,
-  PlaneGeometry,
-  Scene,
-  SRGBColorSpace,
-  WebGLRenderer,
-} from "three";
 
 import { TextureCompressionSettings } from "@/types/types";
-import { getKTX2Loader } from "@/utils/ktxUtils";
+import { renderKTX2Image } from "@/utils/ktxUtils";
 
 let currentLoadId = 0;
 let activeLoadId = 0;
@@ -73,98 +64,66 @@ export const loadTexture = (
 
     if (mimeType === "image/ktx2") {
       // Handle KTX2 textures
-      try {
-        // Create a temporary canvas with a WebGL context
-        const tempCanvas = document.createElement("canvas");
-        tempCanvas.width = resolution[0];
-        tempCanvas.height = resolution[1];
-        const renderer = new WebGLRenderer({ canvas: tempCanvas });
+      renderKTX2Image(new Uint8Array(imageData), resolution[0], resolution[1])
+        .then(({ canvas: glCanvas, renderer, blobUrl }) => {
+          // Check if this load is still active
+          if (!isLoadActive()) {
+            renderer.dispose();
+            URL.revokeObjectURL(blobUrl);
+            resolve();
+            return;
+          }
 
-        // Create a blob from the texture's data
-        const blob = new Blob([imageData as BlobPart], { type: mimeType });
-        const blobUrl = URL.createObjectURL(blob);
+          // Convert the rendered texture to a data URL
+          const renderedImageData = glCanvas.toDataURL();
 
-        // Load the KTX2 texture into a Three.js texture
-        getKTX2Loader().load(
-          blobUrl,
-          (threeTexture) => {
+          const img = new Image();
+          img.onload = () => {
             // Check if this load is still active
             if (!isLoadActive()) {
               renderer.dispose();
               URL.revokeObjectURL(blobUrl);
+              resolve();
               return;
             }
 
-            // Render the texture on a plane using an orthographic camera
-            threeTexture.colorSpace = SRGBColorSpace;
-            const scene = new Scene();
-            const aspectRatio = resolution[0] / resolution[1];
-            const camera = new OrthographicCamera(
-              -1 * aspectRatio,
-              aspectRatio,
-              1,
-              -1,
+            // Clear the off-screen canvas and draw the texture on it
+            offscreenCtx.clearRect(
               0,
-              1
+              0,
+              offscreenCanvas.width,
+              offscreenCanvas.height
             );
-            const geometry = new PlaneGeometry(2 * aspectRatio, 2);
-            const material = new MeshBasicMaterial({
-              map: threeTexture,
-            });
-            const mesh = new Mesh(geometry, material);
-            scene.add(mesh);
-            renderer.render(scene, camera);
+            offscreenCtx.save();
+            // Flip the image vertically by scaling Y by -1
+            offscreenCtx.scale(1, -1);
+            offscreenCtx.drawImage(img, 0, -offscreenCanvas.height);
+            offscreenCtx.restore();
 
-            // Convert the rendered texture to a data URL
-            const renderedImageData = renderer.domElement.toDataURL();
+            // Swap from the off-screen canvas to the visible canvas after the texture is fully loaded
+            // This prevents a visible flicker in the UI
+            canvas.width = resolution[0];
+            canvas.height = resolution[1];
+            ctx.drawImage(offscreenCanvas, 0, 0);
 
-            const img = new Image();
-            img.onload = () => {
-              // Check if this load is still active
-              if (!isLoadActive()) {
-                renderer.dispose();
-                URL.revokeObjectURL(blobUrl);
-                resolve();
-                return;
-              }
+            renderer.dispose();
+            URL.revokeObjectURL(blobUrl);
+            resolve();
+          };
 
-              // Clear the off-screen canvas and draw the texture on it
-              offscreenCtx.clearRect(
-                0,
-                0,
-                offscreenCanvas.width,
-                offscreenCanvas.height
-              );
-              offscreenCtx.save();
-              // Flip the image vertically by scaling Y by -1
-              offscreenCtx.scale(1, -1);
-              offscreenCtx.drawImage(img, 0, -offscreenCanvas.height);
-              offscreenCtx.restore();
-
-              // Swap from the off-screen canvas to the visible canvas after the texture is fully loaded
-              // This prevents a visible flicker in the UI
-              canvas.width = resolution[0];
-              canvas.height = resolution[1];
-              ctx.drawImage(offscreenCanvas, 0, 0);
-
-              renderer.dispose();
-              URL.revokeObjectURL(blobUrl);
-              resolve();
-            };
-            img.src = renderedImageData;
-          },
-          undefined,
-          (error) => {
+          img.onerror = (error) => {
             console.error("Failed to load KTX2 texture: ", error);
             renderer.dispose();
             URL.revokeObjectURL(blobUrl);
             reject(error);
-          }
-        );
-      } catch (error) {
-        console.error("Failed to load KTX2 texture: ", error);
-        reject(error);
-      }
+          };
+
+          img.src = renderedImageData;
+        })
+        .catch((error) => {
+          console.error("Failed to load KTX2 texture: ", error);
+          reject(error);
+        });
     } else {
       // Handle regular textures (JPEG, PNG, WebP)
       const blob = new Blob([imageData as BlobPart], {
