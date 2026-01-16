@@ -3,6 +3,7 @@ import {
   ALL_EXTENSIONS,
   EXTTextureWebP,
   KHRDracoMeshCompression,
+  KHRTextureBasisu,
 } from "@gltf-transform/extensions";
 import {
   cloneDocument,
@@ -13,13 +14,24 @@ import {
   resample,
   weld,
 } from "@gltf-transform/functions";
-import { DocumentView } from "@gltf-transform/view";
+import { DocumentView, ImageProvider } from "@gltf-transform/view";
 import { toast } from "sonner";
 
 import { useModelStore } from "@/stores/useModelStore";
 import { useViewportStore } from "@/stores/useViewportStore";
-import { TextureCompressionSettings } from "@/types/types";
+import { defaultKTX2Options, TextureCompressionSettings } from "@/types/types";
+import { getKTX2Loader } from "@/utils/ktxUtils";
 import { MeshoptDecoder, MeshoptEncoder } from "meshoptimizer";
+
+let imageProvider: ImageProvider | null = null;
+
+function getImageProvider(): ImageProvider {
+  if (!imageProvider) {
+    imageProvider = new ImageProvider();
+    imageProvider.setKTX2Loader(getKTX2Loader());
+  }
+  return imageProvider;
+}
 
 const isGLBFile = (path: string): boolean => /\.glb$/i.test(path);
 
@@ -61,8 +73,12 @@ const createDocumentsAndSceneFromURL = async (url: string) => {
 
   // Create live views of the original and modified documents
   // We render these live views in the ModelView component
-  const originalDocumentView = new DocumentView(originalDocument);
-  const modifiedDocumentView = new DocumentView(modifiedDocument);
+  const originalDocumentView = new DocumentView(originalDocument, {
+    imageProvider: getImageProvider(),
+  });
+  const modifiedDocumentView = new DocumentView(modifiedDocument, {
+    imageProvider: getImageProvider(),
+  });
   const originalRoot = originalDocument.getRoot();
   const modifiedRoot = modifiedDocument.getRoot();
   let originalSceneDefinition = originalRoot.getDefaultScene();
@@ -207,6 +223,7 @@ const createDocumentsAndSceneFromBuffers = async (
             jpeg: "image/jpeg",
             png: "image/png",
             webp: "image/webp",
+            ktx2: "image/ktx2",
           };
           const mimeType = mimeTypeMap[ext || ""] || "application/octet-stream";
 
@@ -248,8 +265,12 @@ const createDocumentsAndSceneFromBuffers = async (
 
   // Create live views of the original and modified documents
   // We render these live views in the ModelView component
-  const originalDocumentView = new DocumentView(originalDocument);
-  const modifiedDocumentView = new DocumentView(modifiedDocument);
+  const originalDocumentView = new DocumentView(originalDocument, {
+    imageProvider: getImageProvider(),
+  });
+  const modifiedDocumentView = new DocumentView(modifiedDocument, {
+    imageProvider: getImageProvider(),
+  });
   const originalSceneDefinition = originalDocument.getRoot().getDefaultScene()!;
   const modifiedSceneDefinition = modifiedDocument.getRoot().getDefaultScene()!;
   const originalScene = originalDocumentView.view(originalSceneDefinition);
@@ -289,6 +310,7 @@ function buildTextureCompressionSettingsMap(
       maxResolution,
       quality: 0.8,
       isBeingCompressed: false,
+      ktx2Options: { ...defaultKTX2Options },
     };
     textureCompressionSettingsMap.set(texture, textureCompressionSettings);
   });
@@ -540,6 +562,24 @@ export const exportDocument = async (
       .getRoot()
       .listExtensionsUsed()
       .find((ext) => ext.extensionName === "EXT_texture_webp");
+    if (ext) {
+      ext.dispose();
+    }
+  }
+
+  const documentHasKTX2Texture = finalDocument
+    .getRoot()
+    .listTextures()
+    .some((texture) => texture.getMimeType() === "image/ktx2");
+  if (documentHasKTX2Texture) {
+    // Add KHR_texture_basisu
+    finalDocument.createExtension(KHRTextureBasisu).setRequired(true);
+  } else {
+    // Remove KHR_texture_basisu if it exists
+    const ext = finalDocument
+      .getRoot()
+      .listExtensionsUsed()
+      .find((ext) => ext.extensionName === "KHR_texture_basisu");
     if (ext) {
       ext.dispose();
     }

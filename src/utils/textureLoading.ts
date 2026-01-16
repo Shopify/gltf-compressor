@@ -1,5 +1,4 @@
 import { Texture } from "@gltf-transform/core";
-import { RefObject } from "react";
 import {
   Mesh,
   MeshBasicMaterial,
@@ -9,9 +8,9 @@ import {
   SRGBColorSpace,
   WebGLRenderer,
 } from "three";
-import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
 
 import { TextureCompressionSettings } from "@/types/types";
+import { getKTX2Loader } from "@/utils/ktxUtils";
 
 let currentLoadId = 0;
 let activeLoadId = 0;
@@ -21,8 +20,7 @@ export const loadTexture = (
   textureCompressionSettingsMap: Map<Texture, TextureCompressionSettings>,
   showModifiedDocument: boolean,
   canvas: HTMLCanvasElement,
-  offscreenCanvas: HTMLCanvasElement,
-  ktx2LoaderRef: RefObject<KTX2Loader | null>
+  offscreenCanvas: HTMLCanvasElement
 ): Promise<void> => {
   return new Promise<void>((resolve, reject) => {
     // Generate a unique ID for this load operation
@@ -82,21 +80,12 @@ export const loadTexture = (
         tempCanvas.height = resolution[1];
         const renderer = new WebGLRenderer({ canvas: tempCanvas });
 
-        // Create or reuse KTX2Loader
-        if (!ktx2LoaderRef.current) {
-          ktx2LoaderRef.current = new KTX2Loader();
-          ktx2LoaderRef.current.setTranscoderPath(
-            "https://unpkg.com/three@0.178.0/examples/jsm/libs/basis/"
-          );
-          ktx2LoaderRef.current.detectSupport(renderer);
-        }
-
         // Create a blob from the texture's data
         const blob = new Blob([imageData as BlobPart], { type: mimeType });
         const blobUrl = URL.createObjectURL(blob);
 
         // Load the KTX2 texture into a Three.js texture
-        ktx2LoaderRef.current.load(
+        getKTX2Loader().load(
           blobUrl,
           (threeTexture) => {
             // Check if this load is still active

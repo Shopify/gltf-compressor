@@ -1,6 +1,5 @@
 import { Texture } from "@gltf-transform/core";
 import { useEffect, useRef } from "react";
-import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
 import { shallow } from "zustand/shallow";
 
 import { useModelStore } from "@/stores/useModelStore";
@@ -14,7 +13,6 @@ export default function TextureView() {
   const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(
     document.createElement("canvas")
   );
-  const ktx2LoaderRef = useRef<KTX2Loader | null>(null);
 
   useEffect(() => {
     const unsubscribe = useModelStore.subscribe(
@@ -45,8 +43,7 @@ export default function TextureView() {
             textureCompressionSettingsMap,
             showModifiedDocument,
             canvasRef.current,
-            offscreenCanvasRef.current,
-            ktx2LoaderRef
+            offscreenCanvasRef.current
           ).then(() => {
             updateTextureBounds(canvasRef.current, selectedTexture);
           });
@@ -93,8 +90,7 @@ export default function TextureView() {
             textureCompressionSettingsMap,
             showModifiedDocument,
             canvasRef.current,
-            offscreenCanvasRef.current,
-            ktx2LoaderRef
+            offscreenCanvasRef.current
           );
         } else if (!selectedTexture) {
           canvasRef.current

@@ -1,9 +1,14 @@
+import { encodeToKTX2 } from "ktx2-encoder";
+
+import { defaultKTX2Options, type KTX2Options } from "@/types/types";
+
 interface CompressionRequest {
   id: string;
   imageData: Uint8Array;
   mimeType: string;
   maxResolution: number;
   quality: number;
+  ktx2Options?: KTX2Options;
 }
 
 interface CompressionResponse {
@@ -15,14 +20,16 @@ interface CompressionResponse {
 self.addEventListener(
   "message",
   async (event: MessageEvent<CompressionRequest>) => {
-    const { id, imageData, mimeType, maxResolution, quality } = event.data;
+    const { id, imageData, mimeType, maxResolution, quality, ktx2Options } =
+      event.data;
 
     try {
       const compressedData = await compressImageInWorker(
         imageData,
         mimeType,
         maxResolution,
-        quality
+        quality,
+        ktx2Options
       );
 
       const response: CompressionResponse = {
@@ -49,7 +56,8 @@ async function compressImageInWorker(
   image: Uint8Array,
   mimeType: string,
   maxResolution: number,
-  quality: number
+  quality: number,
+  ktx2Options: KTX2Options = defaultKTX2Options
 ): Promise<Uint8Array> {
   if (!image || image.length === 0) {
     throw new Error("Invalid image data provided");
@@ -84,6 +92,29 @@ async function compressImageInWorker(
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(imageBitmap, 0, 0, newWidth, newHeight);
+
+    if (mimeType === "image/ktx2") {
+      const pngBlob = await canvas.convertToBlob({ type: "image/png" });
+      const pngArrayBuffer = await pngBlob.arrayBuffer();
+      const pngData = new Uint8Array(pngArrayBuffer);
+
+      const ktx2Data: Uint8Array = await encodeToKTX2(pngData, {
+        isHDR: false as const,
+        isUASTC: ktx2Options.outputType === "UASTC",
+        generateMipmap: ktx2Options.generateMipmaps,
+        isNormalMap: ktx2Options.isNormalMap,
+        isSetKTX2SRGBTransferFunc: ktx2Options.srgbTransferFunction,
+        needSupercompression: ktx2Options.enableSupercompression,
+        enableRDO: ktx2Options.enableRDO,
+        rdoQualityLevel: ktx2Options.rdoQualityLevel,
+        qualityLevel: Math.round(quality * 255),
+        jsUrl: new URL("/basis/basis_encoder.js", self.location.origin).href,
+        wasmUrl: new URL("/basis/basis_encoder.wasm", self.location.origin)
+          .href,
+      });
+
+      return ktx2Data;
+    }
 
     const compressedBlob = await canvas.convertToBlob({
       type: mimeType,

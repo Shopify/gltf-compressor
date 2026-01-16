@@ -1,7 +1,8 @@
 import { Texture } from "@gltf-transform/core";
 
-import { TextureCompressionSettings } from "@/types/types";
+import { KTX2Options, TextureCompressionSettings } from "@/types/types";
 
+import { decodeKTX2ToPNG, getKTX2Info } from "./ktxUtils";
 import TextureCompressionWorker from "./textureCompressionWorker?worker&inline";
 
 let compressionWorker: Worker | null = null;
@@ -51,13 +52,15 @@ const getOrCreateWorker = (): Worker => {
  * @param mimeType - The desired MIME type of the image
  * @param maxResolution - The desired max width or height of the image (whichever is larger)
  * @param quality - The desired quality of the image (0-1)
+ * @param ktx2Options - The KTX2 options to use for the compression (optional)
  * @returns Promise<Uint8Array> - The compressed image data as a Uint8Array
  */
 const compressImage = async (
   image: Uint8Array,
   mimeType: string,
   maxResolution: number,
-  quality: number
+  quality: number,
+  ktx2Options?: KTX2Options
 ): Promise<Uint8Array> => {
   const requestId = `req_${++requestIdCounter}`;
   const worker = getOrCreateWorker();
@@ -74,25 +77,57 @@ const compressImage = async (
         mimeType,
         maxResolution,
         quality,
+        ktx2Options,
       },
       [imageDataCopy.buffer]
     );
   });
 };
 
+export interface CompressionResult {
+  warning?: string;
+}
+
 export const compressTexture = async (
   originalTexture: Texture,
-  compressionSettings: TextureCompressionSettings
-) => {
+  compressionSettings: TextureCompressionSettings,
+  { isInitialCompression = false } = {}
+): Promise<CompressionResult> => {
   const mimeType = compressionSettings.mimeType || "image/jpeg";
+  const originalMimeType = originalTexture.getMimeType();
+  let sourceImage = originalTexture.getImage()!;
+  let warning: string | undefined;
+
+  // If the source is KTX2, decode it first since createImageBitmap can't handle KTX2
+  if (originalMimeType === "image/ktx2") {
+    const size = originalTexture.getSize();
+    if (size) {
+      if (isInitialCompression) {
+        const ktx2Info = getKTX2Info(sourceImage);
+        if (ktx2Info.isHDR) {
+          warning = "HDR texture will be converted to LDR";
+        }
+        if (ktx2Info.mipLevels > 1) {
+          const mipWarning = `Source texture has ${ktx2Info.mipLevels} mip levels that will be lost or regenerated`;
+          warning = warning ? `${warning}. ${mipWarning}` : mipWarning;
+        }
+      }
+
+      sourceImage = await decodeKTX2ToPNG(sourceImage, size[0], size[1]);
+    }
+  }
+
   const compressedImageData = await compressImage(
-    originalTexture.getImage()!,
+    sourceImage,
     mimeType,
     compressionSettings.maxResolution,
-    compressionSettings.quality
+    compressionSettings.quality,
+    mimeType === "image/ktx2" ? compressionSettings.ktx2Options : undefined
   );
   if (compressionSettings.compressedTexture) {
-    compressionSettings.compressedTexture!.setImage(compressedImageData);
     compressionSettings.compressedTexture!.setMimeType(mimeType);
+    compressionSettings.compressedTexture!.setImage(compressedImageData);
   }
+
+  return { warning };
 };
