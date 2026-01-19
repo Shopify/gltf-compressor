@@ -18,7 +18,7 @@ It offers a simple but powerful workflow that we frequently use at Shopify to op
 
 To achieve that, the tool exposes all the textures of your glTF file and allows you to change their:
 
-- Image format (JPEG, PNG and WebP).
+- Image format (JPEG, PNG, WebP and KTX2).
 - Resolution.
 - Quality.
 
@@ -47,7 +47,7 @@ npm run dev
 
 ## Acknowledgments
 
-This tool relies heavily on Don McCurdy's fantastic [glTF Transform](https://gltf-transform.dev/) library.
+This tool relies heavily on Don McCurdy's fantastic [glTF Transform](https://gltf-transform.dev/) library and Hu Song's [KTX2-Encoder](https://husong.me/ktx2-encoder/) library.
 
 It also borrows ideas and snippets of code from pmndrs' [glTF to JSX converter](https://gltf.pmnd.rs/) and various other pmndrs libraries like [drei](https://drei.docs.pmnd.rs/getting-started/introduction).
 

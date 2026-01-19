@@ -80,5 +80,5 @@ export {
   AccordionContent,
   AccordionContentWithForceMount,
   AccordionItem,
-  AccordionTrigger,
+  AccordionTrigger
 };

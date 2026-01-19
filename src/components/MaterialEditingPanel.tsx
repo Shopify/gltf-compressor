@@ -1,4 +1,5 @@
 import { Material } from "@gltf-transform/core";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
@@ -39,6 +40,7 @@ export default function MaterialEditingPanel() {
     textureCompressionSettingsMap,
     updateTextureCompressionSettings,
     updateModelStats,
+    isBulkProcessing,
   ] = useModelStore(
     useShallow((state) => [
       state.originalDocument,
@@ -49,6 +51,7 @@ export default function MaterialEditingPanel() {
       state.textureCompressionSettingsMap,
       state.updateTextureCompressionSettings,
       state.updateModelStats,
+      state.isBulkProcessing,
     ])
   );
 
@@ -70,6 +73,7 @@ export default function MaterialEditingPanel() {
   const [ktx2Options, setKtx2Options] = useState<KTX2Options>({
     ...defaultKTX2Options,
   });
+  const [showKtx2Advanced, setShowKtx2Advanced] = useState(false);
 
   // The Shadcn slider component has a bug where it doesn't always call onValueCommit when you release the slider
   // See this issue for more details: https://github.com/radix-ui/primitives/issues/1760
@@ -422,7 +426,7 @@ export default function MaterialEditingPanel() {
             materials.find((m) => m.material === selectedMaterial)?.id ?? ""
           }
           onValueChange={handleMaterialChange}
-          disabled={materials.length === 0}
+          disabled={materials.length === 0 || isBulkProcessing}
         >
           <SelectTrigger id="material-select">
             <SelectValue
@@ -453,7 +457,7 @@ export default function MaterialEditingPanel() {
         <Select
           value={selectedTextureSlot}
           onValueChange={handleTextureChange}
-          disabled={textureSlots.length === 0}
+          disabled={textureSlots.length === 0 || isBulkProcessing}
         >
           <SelectTrigger id="texture-select">
             <SelectValue
@@ -479,7 +483,7 @@ export default function MaterialEditingPanel() {
           id="double-sided-material-switch"
           checked={doubleSided}
           onCheckedChange={handleDoubleSidedChange}
-          disabled={materials.length === 0}
+          disabled={materials.length === 0 || isBulkProcessing}
         />
         <Label
           htmlFor="double-sided-material-switch"
@@ -494,7 +498,7 @@ export default function MaterialEditingPanel() {
           id="compress-texture-switch"
           checked={compressionEnabled}
           onCheckedChange={handleCompressionChange}
-          disabled={textureSlots.length === 0}
+          disabled={textureSlots.length === 0 || isBulkProcessing}
         />
         <Label
           htmlFor="compress-texture-switch"
@@ -518,7 +522,7 @@ export default function MaterialEditingPanel() {
         <Select
           value={mimeType}
           onValueChange={handleMimeTypeChange}
-          disabled={!compressionEnabled || textureSlots.length === 0}
+          disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
         >
           <SelectTrigger id="image-format-select">
             <SelectValue placeholder="Select Image Format" />
@@ -554,7 +558,7 @@ export default function MaterialEditingPanel() {
         <Select
           value={maxResolution.toString()}
           onValueChange={handleMaxResolutionChange}
-          disabled={!compressionEnabled || textureSlots.length === 0}
+          disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
         >
           <SelectTrigger id="resolution-select">
             <SelectValue placeholder="Select Resolution" />
@@ -605,135 +609,185 @@ export default function MaterialEditingPanel() {
           lastQuality.current = [];
           handleQualityChange(finalValue);
         }}
-        disabled={!compressionEnabled || textureSlots.length === 0}
+        disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
         className="pt-4 pb-1"
       />
 
       {mimeType === "image/ktx2" && (
-        <>
-          <Label htmlFor="ktx2-output-type-select">Output Type</Label>
-          <div className="pt-1">
-            <Select
-              value={ktx2Options.outputType}
-              onValueChange={(value: KTX2OutputType) =>
-                handleKtx2OptionChange("outputType", value)
+        <div>
+          <div
+            className="flex items-center space-x-2 cursor-pointer select-none hover:underline"
+            onClick={() => setShowKtx2Advanced(!showKtx2Advanced)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                setShowKtx2Advanced(!showKtx2Advanced);
               }
-              disabled={!compressionEnabled || textureSlots.length === 0}
-            >
-              <SelectTrigger id="ktx2-output-type-select">
-                <SelectValue placeholder="Select Output Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="UASTC">UASTC</SelectItem>
-                <SelectItem value="ETC1S">ETC1S</SelectItem>
-              </SelectContent>
-            </Select>
+            }}
+            tabIndex={0}
+            role="button"
+          >
+            {showKtx2Advanced ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+            <span className="text-sm text-muted-foreground">
+              Advanced KTX2 Options
+            </span>
           </div>
-
-          {/* Generate Mipmaps - available for all formats */}
-          <div className="flex items-center space-x-2 pt-1">
-            <Switch
-              id="ktx2-generate-mipmaps"
-              checked={ktx2Options.generateMipmaps}
-              onCheckedChange={(value) =>
-                handleKtx2OptionChange("generateMipmaps", value)
-              }
-              disabled={!compressionEnabled || textureSlots.length === 0}
-            />
-            <Label htmlFor="ktx2-generate-mipmaps">Generate Mipmaps</Label>
-          </div>
-
-          <div className="flex items-center space-x-2 pt-1">
-            <Switch
-              id="ktx2-normal-map"
-              checked={ktx2Options.isNormalMap}
-              onCheckedChange={(value) =>
-                handleKtx2OptionChange("isNormalMap", value)
-              }
-              disabled={!compressionEnabled || textureSlots.length === 0}
-            />
-            <Label htmlFor="ktx2-normal-map">Normal Map</Label>
-          </div>
-
-          <div className="flex items-center space-x-2 pt-1">
-            <Switch
-              id="ktx2-srgb"
-              checked={ktx2Options.srgbTransferFunction}
-              onCheckedChange={(value) =>
-                handleKtx2OptionChange("srgbTransferFunction", value)
-              }
-              disabled={!compressionEnabled || textureSlots.length === 0}
-            />
-            <Label htmlFor="ktx2-srgb">sRGB Transfer Function</Label>
-          </div>
-
-          {/* Supercompression - UASTC only (Zstandard compression) */}
-          {ktx2Options.outputType === "UASTC" && (
-            <div className="flex items-center space-x-2 pt-1">
-              <Switch
-                id="ktx2-supercompression"
-                checked={ktx2Options.enableSupercompression}
-                onCheckedChange={(value) =>
-                  handleKtx2OptionChange("enableSupercompression", value)
-                }
-                disabled={!compressionEnabled || textureSlots.length === 0}
-              />
-              <Label htmlFor="ktx2-supercompression">
-                Enable Supercompression
-              </Label>
+          {showKtx2Advanced && (
+            <div className="pl-1.5 pt-1">
+              <span className="text-xs text-muted-foreground">
+                Hover over the options to see details
+              </span>
             </div>
           )}
+        </div>
+      )}
 
-          {/* RDO - UASTC LDR only */}
-          {ktx2Options.outputType === "UASTC" && (
-            <div className="flex items-center space-x-2 pt-1">
-              <Switch
-                id="ktx2-rdo"
-                checked={ktx2Options.enableRDO}
-                onCheckedChange={(value) =>
-                  handleKtx2OptionChange("enableRDO", value)
-                }
-                disabled={!compressionEnabled || textureSlots.length === 0}
-              />
-              <Label htmlFor="ktx2-rdo">Enable RDO</Label>
-            </div>
-          )}
+      {showKtx2Advanced && mimeType === "image/ktx2" && (
+        <div className="pl-1.5 pb-1">
+          <div className="space-y-3 pl-3 border-l-2 border-muted">
+            <TooltipWrapper content="UASTC provides higher quality for detail-sensitive textures. ETC1S offers better compression ratios at lower quality.">
+              <div>
+                <Label htmlFor="ktx2-output-type-select">Output Type</Label>
+                <div className="pt-1">
+                  <Select
+                    value={ktx2Options.outputType}
+                    onValueChange={(value: KTX2OutputType) =>
+                      handleKtx2OptionChange("outputType", value)
+                    }
+                    disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+                  >
+                    <SelectTrigger id="ktx2-output-type-select">
+                      <SelectValue placeholder="Select Output Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="UASTC">UASTC</SelectItem>
+                      <SelectItem value="ETC1S">ETC1S</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </TooltipWrapper>
 
-          {/* RDO Quality Level - UASTC only when RDO enabled */}
-          {ktx2Options.outputType === "UASTC" && ktx2Options.enableRDO && (
-            <>
-              <Label htmlFor="ktx2-rdo-quality-slider">
-                RDO Quality Level: {ktx2Options.rdoQualityLevel.toFixed(1)}
-              </Label>
-              <Slider
-                id="ktx2-rdo-quality-slider"
-                min={0.1}
-                max={10}
-                step={0.1}
-                value={[ktx2Options.rdoQualityLevel]}
-                onValueChange={(value: number[]) => {
-                  lastRdoQuality.current = value;
-                  setKtx2Options({ ...ktx2Options, rdoQualityLevel: value[0] });
-                }}
-                onValueCommit={(value: number[]) => {
-                  const finalValue = lastRdoQuality.current.length
-                    ? lastRdoQuality.current[0]
-                    : value[0];
-                  lastRdoQuality.current = [];
-                  handleKtx2OptionChange("rdoQualityLevel", finalValue);
-                }}
-                onLostPointerCapture={() => {
-                  if (!lastRdoQuality.current.length) return;
-                  const finalValue = lastRdoQuality.current[0];
-                  lastRdoQuality.current = [];
-                  handleKtx2OptionChange("rdoQualityLevel", finalValue);
-                }}
-                disabled={!compressionEnabled || textureSlots.length === 0}
-                className="pt-4 pb-1"
-              />
-            </>
-          )}
-        </>
+            {/* Generate Mipmaps - available for all formats */}
+            <TooltipWrapper content="Automatically creates smaller image levels from the source, improving rendering performance at distance.">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="ktx2-generate-mipmaps"
+                  checked={ktx2Options.generateMipmaps}
+                  onCheckedChange={(value) =>
+                    handleKtx2OptionChange("generateMipmaps", value)
+                  }
+                  disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+                />
+                <Label htmlFor="ktx2-generate-mipmaps">Generate Mipmaps</Label>
+              </div>
+            </TooltipWrapper>
+
+            <TooltipWrapper content="Optimizes compression parameters specifically for normal maps rather than color data.">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="ktx2-normal-map"
+                  checked={ktx2Options.isNormalMap}
+                  onCheckedChange={(value) =>
+                    handleKtx2OptionChange("isNormalMap", value)
+                  }
+                  disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+                />
+                <Label htmlFor="ktx2-normal-map">Normal Map</Label>
+              </div>
+            </TooltipWrapper>
+
+            <TooltipWrapper content="Indicates whether the source texture uses sRGB color space. Enable for color/albedo textures, disable for data textures like normal or roughness maps.">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="ktx2-srgb"
+                  checked={ktx2Options.srgbTransferFunction}
+                  onCheckedChange={(value) =>
+                    handleKtx2OptionChange("srgbTransferFunction", value)
+                  }
+                  disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+                />
+                <Label htmlFor="ktx2-srgb">sRGB Transfer Function</Label>
+              </div>
+            </TooltipWrapper>
+
+            {/* Supercompression - UASTC only (Zstandard compression) */}
+            {ktx2Options.outputType === "UASTC" && (
+              <TooltipWrapper content="Applies Zstandard compression on top of UASTC texture compression for smaller file sizes with no additional quality loss.">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="ktx2-supercompression"
+                    checked={ktx2Options.enableSupercompression}
+                    onCheckedChange={(value) =>
+                      handleKtx2OptionChange("enableSupercompression", value)
+                    }
+                    disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+                  />
+                  <Label htmlFor="ktx2-supercompression">
+                    Enable Supercompression
+                  </Label>
+                </div>
+              </TooltipWrapper>
+            )}
+
+            {/* RDO - UASTC LDR only */}
+            {ktx2Options.outputType === "UASTC" && (
+              <TooltipWrapper content="Rate Distortion Optimization reduces file size by allowing controlled quality loss. Works best with supercompression enabled.">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="ktx2-rdo"
+                    checked={ktx2Options.enableRDO}
+                    onCheckedChange={(value) =>
+                      handleKtx2OptionChange("enableRDO", value)
+                    }
+                    disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+                  />
+                  <Label htmlFor="ktx2-rdo">Enable RDO</Label>
+                </div>
+              </TooltipWrapper>
+            )}
+
+            {/* RDO Quality Level - UASTC only when RDO enabled */}
+            {ktx2Options.outputType === "UASTC" && ktx2Options.enableRDO && (
+              <TooltipWrapper content="Controls the quality vs. file size tradeoff. Lower values (0.1-2) prioritize quality, higher values (2-10) prioritize smaller file sizes.">
+                <div>
+                  <Label htmlFor="ktx2-rdo-quality-slider">
+                    RDO Quality Level: {ktx2Options.rdoQualityLevel.toFixed(1)}
+                  </Label>
+                  <Slider
+                    id="ktx2-rdo-quality-slider"
+                    min={0.1}
+                    max={10}
+                    step={0.1}
+                    value={[ktx2Options.rdoQualityLevel]}
+                    onValueChange={(value: number[]) => {
+                      lastRdoQuality.current = value;
+                      setKtx2Options({ ...ktx2Options, rdoQualityLevel: value[0] });
+                    }}
+                    onValueCommit={(value: number[]) => {
+                      const finalValue = lastRdoQuality.current.length
+                        ? lastRdoQuality.current[0]
+                        : value[0];
+                      lastRdoQuality.current = [];
+                      handleKtx2OptionChange("rdoQualityLevel", finalValue);
+                    }}
+                    onLostPointerCapture={() => {
+                      if (!lastRdoQuality.current.length) return;
+                      const finalValue = lastRdoQuality.current[0];
+                      lastRdoQuality.current = [];
+                      handleKtx2OptionChange("rdoQualityLevel", finalValue);
+                    }}
+                    disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+                    className="pt-4 pb-1"
+                  />
+                </div>
+              </TooltipWrapper>
+            )}
+          </div>
+        </div>
       )}
 
       <div className="space-y-2">

@@ -3,12 +3,25 @@ import { useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
 
 import { useDotAnimation } from "@/hooks/useDotAnimation";
+import { useDynamicDotAnimation } from "@/hooks/useDynamicDotAnimation";
 import { useModelStore } from "@/stores/useModelStore";
 import { TextureBounds, TextureCompressionSettings } from "@/types/types";
+
+enum AnimationState {
+  IDLE = 0,
+  BULK_PROCESSING = 1,
+  COMPRESSING = 2,
+}
 
 export default function TextureViewStatus() {
   const statusMessageRef = useRef<HTMLDivElement>(null);
   const { startAnimation, stopAnimation } = useDotAnimation(250);
+  const {
+    startAnimation: startBulkAnimation,
+    updateMessage: updateBulkMessage,
+    stopAnimation: stopBulkAnimation,
+  } = useDynamicDotAnimation(250);
+  const currentStateRef = useRef<AnimationState>(AnimationState.IDLE);
 
   useEffect(() => {
     const unsubscribe = useModelStore.subscribe(
@@ -63,24 +76,44 @@ export default function TextureViewStatus() {
         }
 
         if (isBulkProcessing && bulkProcessingProgress) {
-          stopAnimation();
-          statusMessageRef.current.innerHTML = `<span>Processing Texture ${bulkProcessingProgress.current}/${bulkProcessingProgress.total}</span>`;
+          if (currentStateRef.current !== AnimationState.BULK_PROCESSING) {
+            currentStateRef.current = AnimationState.BULK_PROCESSING;
+            stopAnimation();
+            startBulkAnimation(
+              statusMessageRef.current,
+              `Processing Texture ${bulkProcessingProgress.current}/${bulkProcessingProgress.total}`
+            );
+          } else {
+            updateBulkMessage(
+              `Processing Texture ${bulkProcessingProgress.current}/${bulkProcessingProgress.total}`
+            );
+          }
           statusMessageRef.current.style.display = "block";
         } else if (isCompressing) {
-          startAnimation(statusMessageRef.current, "Updating Texture");
+          if (currentStateRef.current !== AnimationState.COMPRESSING) {
+            currentStateRef.current = AnimationState.COMPRESSING;
+            stopBulkAnimation();
+            startAnimation(statusMessageRef.current, "Updating Texture");
+          }
           statusMessageRef.current.style.display = "block";
         } else if (!selectedMaterial) {
+          currentStateRef.current = AnimationState.IDLE;
           stopAnimation();
+          stopBulkAnimation();
           statusMessageRef.current.innerHTML =
             "<span>No Material Selected</span>";
           statusMessageRef.current.style.display = "block";
         } else if (selectedMaterial && !selectedTexture) {
+          currentStateRef.current = AnimationState.IDLE;
           stopAnimation();
+          stopBulkAnimation();
           statusMessageRef.current.innerHTML =
             "<span>No Texture Selected</span>";
           statusMessageRef.current.style.display = "block";
         } else {
+          currentStateRef.current = AnimationState.IDLE;
           stopAnimation();
+          stopBulkAnimation();
           statusMessageRef.current.style.display = "none";
         }
       },
@@ -90,8 +123,9 @@ export default function TextureViewStatus() {
     return () => {
       unsubscribe();
       stopAnimation();
+      stopBulkAnimation();
     };
-  }, [startAnimation, stopAnimation]);
+  }, [startAnimation, stopAnimation, startBulkAnimation, updateBulkMessage, stopBulkAnimation]);
 
   return <div ref={statusMessageRef} id="texture-view-status" />;
 }

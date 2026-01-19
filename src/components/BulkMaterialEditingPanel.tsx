@@ -1,5 +1,4 @@
-import { Texture } from "@gltf-transform/core";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
 
@@ -14,8 +13,8 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useModelStore } from "@/stores/useModelStore";
-import { TextureCompressionSettings } from "@/types/types";
 import { compressTexture } from "@/utils/textureCompression";
+import { getMaxResolutionOptions } from "@/utils/textureUtils";
 
 export default function BulkMaterialEditingPanel() {
   const [
@@ -32,40 +31,49 @@ export default function BulkMaterialEditingPanel() {
     ])
   );
 
-  const [bulkFormat, setBulkFormat] = useState<string>("image/webp");
-  const [bulkResolution, setBulkResolution] = useState<string>("1024");
+  const [bulkFormat, setBulkFormat] = useState<string>("image/jpeg");
+  const [bulkResolution, setBulkResolution] = useState<string>("0");
   const [bulkQuality, setBulkQuality] = useState<number>(0.8);
+  const [maxResolutionOptions, setMaxResolutionOptions] = useState<string[]>(
+    []
+  );
 
   // The Shadcn slider component has a bug where it doesn't always call onValueCommit when you release the slider
   // See this issue for more details: https://github.com/radix-ui/primitives/issues/1760
   // This is a workaround to ensure that the quality is always updated correctly when the slider is released
   const lastQuality = useRef<number[]>([]);
+  const hasInitializedResolution = useRef(false);
 
-  // Filter functions to determine which textures can be modified
-  const canChangeFormat = (
-    _texture: Texture,
-    settings: TextureCompressionSettings
-  ): boolean => {
-    return settings.mimeType !== "image/ktx2";
-  };
+  // Compute max resolution options based on the largest texture in the model
+  // and set the default bulk resolution to the largest option
+  useEffect(() => {
+    if (hasInitializedResolution.current || textureCompressionSettingsMap.size === 0) {
+      return;
+    }
 
-  const canChangeResolution = (
-    texture: Texture,
-    settings: TextureCompressionSettings,
-    targetResolution: number
-  ): boolean => {
-    if (settings.mimeType === "image/ktx2") return false;
-    const resolution = texture.getSize() ?? [0, 0];
-    const currentMaxResolution = Math.max(resolution[0], resolution[1]);
-    return currentMaxResolution >= targetResolution;
-  };
+    // Find the maximum resolution among all textures
+    let globalMaxResolution = 0;
+    const textures = Array.from(textureCompressionSettingsMap.keys());
 
-  const canChangeQuality = (
-    _texture: Texture,
-    settings: TextureCompressionSettings
-  ): boolean => {
-    return settings.mimeType !== "image/ktx2";
-  };
+    for (const texture of textures) {
+      const resolution = texture.getSize() ?? [0, 0];
+      const maxRes = Math.max(resolution[0], resolution[1]);
+      if (maxRes > globalMaxResolution) {
+        globalMaxResolution = maxRes;
+      }
+    }
+
+    // Set the resolution options based on the global max
+    const options = getMaxResolutionOptions(globalMaxResolution);
+    setMaxResolutionOptions(options);
+
+    // Set bulk resolution to the largest option
+    if (options.length > 0) {
+      setBulkResolution(options[0]);
+    }
+
+    hasInitializedResolution.current = true;
+  }, [textureCompressionSettingsMap]);
 
   // Bulk format conversion handler
   const handleBulkFormatChange = async () => {
@@ -75,25 +83,21 @@ export default function BulkMaterialEditingPanel() {
       useModelStore.setState({ isBulkProcessing: true });
 
       const textures = Array.from(textureCompressionSettingsMap.keys());
-      const qualifyingTextures = textures.filter((texture) => {
-        const settings = textureCompressionSettingsMap.get(texture);
-        return settings && canChangeFormat(texture, settings);
-      });
 
-      if (qualifyingTextures.length === 0) {
-        toast.info("No textures can be converted to this format.");
+      if (textures.length === 0) {
+        toast.info("No textures available to convert.");
         return;
       }
 
-      for (let i = 0; i < qualifyingTextures.length; i++) {
-        const texture = qualifyingTextures[i];
+      for (let i = 0; i < textures.length; i++) {
+        const texture = textures[i];
         const settings = textureCompressionSettingsMap.get(texture)!;
 
         // Update progress
         useModelStore.setState({
           bulkProcessingProgress: {
             current: i + 1,
-            total: qualifyingTextures.length,
+            total: textures.length,
           },
         });
 
@@ -118,7 +122,7 @@ export default function BulkMaterialEditingPanel() {
       // Update stats
       updateModelStats();
       toast.success(
-        `Successfully converted ${qualifyingTextures.length} texture${qualifyingTextures.length !== 1 ? "s" : ""} to ${bulkFormat === "image/jpeg" ? "JPEG" : bulkFormat === "image/png" ? "PNG" : "WebP"}.`
+        `Successfully converted ${textures.length} texture${textures.length !== 1 ? "s" : ""} to ${bulkFormat === "image/jpeg" ? "JPEG" : bulkFormat === "image/png" ? "PNG" : bulkFormat === "image/webp" ? "WebP" : "KTX2"}.`
       );
     } catch (error) {
       console.error("Error during bulk format conversion:", error);
@@ -141,35 +145,38 @@ export default function BulkMaterialEditingPanel() {
       useModelStore.setState({ isBulkProcessing: true });
 
       const textures = Array.from(textureCompressionSettingsMap.keys());
-      const qualifyingTextures = textures.filter((texture) => {
-        const settings = textureCompressionSettingsMap.get(texture);
-        return (
-          settings && canChangeResolution(texture, settings, targetResolution)
-        );
-      });
 
-      if (qualifyingTextures.length === 0) {
-        toast.info(
-          "No textures can be changed to this resolution (textures must be at least this size)."
-        );
+      if (textures.length === 0) {
+        toast.info("No textures available to resize.");
         return;
       }
 
-      for (let i = 0; i < qualifyingTextures.length; i++) {
-        const texture = qualifyingTextures[i];
+      for (let i = 0; i < textures.length; i++) {
+        const texture = textures[i];
         const settings = textureCompressionSettingsMap.get(texture)!;
+
+        // Get the texture's original maximum resolution
+        const resolution = texture.getSize() ?? [0, 0];
+        const textureMaxResolution = Math.max(resolution[0], resolution[1]);
+
+        // Use the minimum of the target resolution and the texture's original resolution
+        // This ensures textures can't be upscaled beyond their original size
+        const effectiveResolution = Math.min(
+          targetResolution,
+          textureMaxResolution
+        );
 
         // Update progress
         useModelStore.setState({
           bulkProcessingProgress: {
             current: i + 1,
-            total: qualifyingTextures.length,
+            total: textures.length,
           },
         });
 
         // Update settings
         updateTextureCompressionSettings(texture, {
-          maxResolution: targetResolution,
+          maxResolution: effectiveResolution,
           compressionEnabled: true,
           isBeingCompressed: true,
         });
@@ -177,7 +184,7 @@ export default function BulkMaterialEditingPanel() {
         // Compress
         await compressTexture(texture, {
           ...settings,
-          maxResolution: targetResolution,
+          maxResolution: effectiveResolution,
           compressionEnabled: true,
         });
 
@@ -188,7 +195,7 @@ export default function BulkMaterialEditingPanel() {
       // Update stats
       updateModelStats();
       toast.success(
-        `Successfully set resolution to ${targetResolution}px for ${qualifyingTextures.length} texture${qualifyingTextures.length !== 1 ? "s" : ""}.`
+        `Successfully set max resolution of all textures to ${targetResolution} pixels.`
       );
     } catch (error) {
       console.error("Error during bulk resolution change:", error);
@@ -209,25 +216,21 @@ export default function BulkMaterialEditingPanel() {
       useModelStore.setState({ isBulkProcessing: true });
 
       const textures = Array.from(textureCompressionSettingsMap.keys());
-      const qualifyingTextures = textures.filter((texture) => {
-        const settings = textureCompressionSettingsMap.get(texture);
-        return settings && canChangeQuality(texture, settings);
-      });
 
-      if (qualifyingTextures.length === 0) {
-        toast.info("No textures can have their quality changed.");
+      if (textures.length === 0) {
+        toast.info("No textures available to change quality.");
         return;
       }
 
-      for (let i = 0; i < qualifyingTextures.length; i++) {
-        const texture = qualifyingTextures[i];
+      for (let i = 0; i < textures.length; i++) {
+        const texture = textures[i];
         const settings = textureCompressionSettingsMap.get(texture)!;
 
         // Update progress
         useModelStore.setState({
           bulkProcessingProgress: {
             current: i + 1,
-            total: qualifyingTextures.length,
+            total: textures.length,
           },
         });
 
@@ -252,7 +255,7 @@ export default function BulkMaterialEditingPanel() {
       // Update stats
       updateModelStats();
       toast.success(
-        `Successfully set quality to ${bulkQuality.toFixed(2)} for ${qualifyingTextures.length} texture${qualifyingTextures.length !== 1 ? "s" : ""}.`
+        `Successfully set quality to ${Number(bulkQuality.toFixed(2))} for ${textures.length} texture${textures.length !== 1 ? "s" : ""}.`
       );
     } catch (error) {
       console.error("Error during bulk quality change:", error);
@@ -284,6 +287,7 @@ export default function BulkMaterialEditingPanel() {
               <SelectItem value="image/jpeg">JPEG</SelectItem>
               <SelectItem value="image/png">PNG</SelectItem>
               <SelectItem value="image/webp">WebP</SelectItem>
+              <SelectItem value="image/ktx2">KTX2</SelectItem>
             </SelectContent>
           </Select>
           <Button
@@ -295,7 +299,7 @@ export default function BulkMaterialEditingPanel() {
         </div>
       </div>
 
-      <Label htmlFor="bulk-resolution-select">Set All Resolutions To:</Label>
+      <Label htmlFor="bulk-resolution-select">Set Max Resolution Of All Textures To:</Label>
       <div className="pt-1">
         <div className="flex gap-2">
           <Select
@@ -307,13 +311,20 @@ export default function BulkMaterialEditingPanel() {
               <SelectValue placeholder="Select Resolution" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="8192">8192</SelectItem>
-              <SelectItem value="4096">4096</SelectItem>
-              <SelectItem value="2048">2048</SelectItem>
-              <SelectItem value="1024">1024</SelectItem>
-              <SelectItem value="512">512</SelectItem>
-              <SelectItem value="256">256</SelectItem>
-              <SelectItem value="128">128</SelectItem>
+              {maxResolutionOptions.length > 0 ? (
+                maxResolutionOptions.map((option) => (
+                  <SelectItem
+                    key={`resolution-${option}`}
+                    value={option.toString()}
+                  >
+                    {option}
+                  </SelectItem>
+                ))
+              ) : (
+                <SelectItem key="resolution-0" value="0">
+                  0
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
           <Button
@@ -328,39 +339,41 @@ export default function BulkMaterialEditingPanel() {
       <Label htmlFor="bulk-quality-slider">
         Set Quality of All Textures To: {bulkQuality.toFixed(2)}
       </Label>
-      <Slider
-        id="bulk-quality-slider"
-        min={0}
-        max={1}
-        step={0.01}
-        value={[bulkQuality]}
-        onValueChange={(value: number[]) => {
-          lastQuality.current = value;
-          setBulkQuality(value[0]);
-        }}
-        onValueCommit={(value: number[]) => {
-          const finalValue = lastQuality.current.length
-            ? lastQuality.current[0]
-            : value[0];
-          lastQuality.current = [];
-          setBulkQuality(finalValue);
-        }}
-        onLostPointerCapture={() => {
-          if (!lastQuality.current.length) return;
-          const finalValue = lastQuality.current[0];
-          lastQuality.current = [];
-          setBulkQuality(finalValue);
-        }}
-        disabled={!hasTextures || isBulkProcessing}
-        className="pt-4 pb-1"
-      />
-      <Button
-        onClick={handleBulkQualityChange}
-        disabled={!hasTextures || isBulkProcessing}
-        className="w-full"
-      >
-        Apply Quality
-      </Button>
+      <div className="pt-1">
+        <div className="flex gap-2">
+          <Slider
+            id="bulk-quality-slider"
+            min={0}
+            max={1}
+            step={0.01}
+            value={[bulkQuality]}
+            onValueChange={(value: number[]) => {
+              lastQuality.current = value;
+              setBulkQuality(value[0]);
+            }}
+            onValueCommit={(value: number[]) => {
+              const finalValue = lastQuality.current.length
+                ? lastQuality.current[0]
+                : value[0];
+              lastQuality.current = [];
+              setBulkQuality(finalValue);
+            }}
+            onLostPointerCapture={() => {
+              if (!lastQuality.current.length) return;
+              const finalValue = lastQuality.current[0];
+              lastQuality.current = [];
+              setBulkQuality(finalValue);
+            }}
+            disabled={!hasTextures || isBulkProcessing}
+          />
+          <Button
+            onClick={handleBulkQualityChange}
+            disabled={!hasTextures || isBulkProcessing}
+          >
+            Apply
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
+import BulkMaterialEditingPanel from "./BulkMaterialEditingPanel";
 import { ExportPanel } from "./ExportPanel";
 import MaterialEditingPanel from "./MaterialEditingPanel";
 import ViewportSettingsPanel from "./ViewportSettingsPanel";
@@ -19,7 +20,7 @@ export default function SettingsView() {
         <Accordion
           type="multiple"
           className="w-full"
-          defaultValue={["material-editing", "export"]}
+          defaultValue={["bulk-material-editing", "export"]}
         >
           <AccordionItem value="viewport-settings" className="border-b">
             <AccordionTrigger className="bg-secondary px-4 py-2">
@@ -29,9 +30,17 @@ export default function SettingsView() {
               <ViewportSettingsPanel />
             </AccordionContentWithForceMount>
           </AccordionItem>
-          <AccordionItem value="material-editing" className="border-b">
+          <AccordionItem value="bulk-material-editing" className="border-b">
             <AccordionTrigger className="bg-secondary px-4 py-2">
-              Material Editing
+              Bulk Material Editing
+            </AccordionTrigger>
+            <AccordionContentWithForceMount className="px-2 py-1 bg-background">
+              <BulkMaterialEditingPanel />
+            </AccordionContentWithForceMount>
+          </AccordionItem>
+          <AccordionItem value="advanced-material-editing" className="border-b">
+            <AccordionTrigger className="bg-secondary px-4 py-2">
+              Advanced Material Editing
             </AccordionTrigger>
             <AccordionContentWithForceMount className="px-2 py-1 bg-background">
               <MaterialEditingPanel />
