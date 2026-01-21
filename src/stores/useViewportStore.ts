@@ -16,6 +16,7 @@ interface ViewportStore {
   showModifiedDocument: boolean;
   confettiCounter: number;
   triggerConfetti: () => void;
+  isPanelResizing: boolean;
 }
 
 export const useViewportStore = create<ViewportStore>()(
@@ -35,6 +36,7 @@ export const useViewportStore = create<ViewportStore>()(
       confettiCounter: 0,
       triggerConfetti: () =>
         set((state) => ({ confettiCounter: state.confettiCounter + 1 })),
+      isPanelResizing: false,
     };
   })
 );

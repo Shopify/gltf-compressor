@@ -1,4 +1,4 @@
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Group, Panel, Separator } from "react-resizable-panels";
 
 import { Dropzone } from "./components/Dropzone";
 import Footer from "./components/Footer";
@@ -20,28 +20,36 @@ function App() {
       {originalDocument ? (
         <div className="flex h-full">
           <div className="w-[80%] h-full">
-            <PanelGroup direction="horizontal">
+            <Group
+              orientation="horizontal"
+              onLayoutChange={() => {
+                useViewportStore.setState({ isPanelResizing: true });
+              }}
+              onLayoutChanged={() => {
+                useViewportStore.setState({ isPanelResizing: false });
+              }}
+            >
               <Panel
                 defaultSize={66}
                 minSize={0}
                 onResize={(size) => {
-                  useViewportStore.setState({ modelViewPanelSize: size });
+                  useViewportStore.setState({ modelViewPanelSize: size.asPercentage });
                 }}
               >
                 <ModelView />
               </Panel>
-              <PanelResizeHandle className="ResizeHandle">
+              <Separator className="ResizeHandle">
                 <div className="ResizeHandleThumb" data-direction="horizontal">
                   ⋮
                 </div>
-              </PanelResizeHandle>
+              </Separator>
               <Panel defaultSize={34} minSize={0}>
                 <div id="texture-view-container">
                   <TextureView />
                   <TextureViewStatus />
                 </div>
               </Panel>
-            </PanelGroup>
+            </Group>
           </div>
           <div className="w-[20%] h-full overflow-y-auto">
             <SettingsView />

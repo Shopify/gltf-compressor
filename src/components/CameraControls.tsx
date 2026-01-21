@@ -22,6 +22,21 @@ export default function CameraControls() {
     };
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = useViewportStore.subscribe(
+      (state) => state.isPanelResizing,
+      (isPanelResizing) => {
+        if (orbitControlsRef.current) {
+          orbitControlsRef.current.enabled = !isPanelResizing;
+        }
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   return (
     <OrbitControls
       ref={orbitControlsRef}
