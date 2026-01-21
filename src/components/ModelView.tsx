@@ -1,7 +1,7 @@
 import { GizmoHelper, GizmoViewport } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef } from "react";
-import { Group, Material, Plane, Vector3 } from "three";
+import { Group, Material, Plane, PointsMaterial, Vector3 } from "three";
 import { useShallow } from "zustand/react/shallow";
 
 import { useModelStore } from "@/stores/useModelStore";
@@ -116,6 +116,13 @@ export default function ModelView() {
           // If we don't do this, those models render completely black
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           originalScene?.traverse((child: any) => {
+            // The ContactShadows component uses scene.overrideMaterial to render the shadows using a MeshDepthMaterial
+            // That material doesn't render points correctly, which results in flickering artifacts in the shadow plane
+            // We disable the override material for points materials to avoid this issue
+            if (child.material instanceof PointsMaterial) {
+              child.material.allowOverride = false;
+            }
+
             if (child.isMesh && child.material) {
               if (
                 child.material.name === "__DefaultMaterial" &&
@@ -129,6 +136,13 @@ export default function ModelView() {
           });
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           modifiedScene?.traverse((child: any) => {
+            // The ContactShadows component uses scene.overrideMaterial to render the shadows using a MeshDepthMaterial
+            // That material doesn't render points correctly, which results in flickering artifacts in the shadow plane
+            // We disable the override material for points materials to avoid this issue
+            if (child.material instanceof PointsMaterial) {
+              child.material.allowOverride = false;
+            }
+
             if (child.isMesh && child.material) {
               if (
                 child.material.name === "__DefaultMaterial" &&

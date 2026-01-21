@@ -109,6 +109,8 @@ const eslintConfig = [
             "clippingPlanes",
             "penumbra",
             "frustumCulled",
+            "rotation-x",
+            "depthWrite",
           ],
         },
       ],

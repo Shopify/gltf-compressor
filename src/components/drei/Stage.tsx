@@ -1,6 +1,7 @@
-import { ContactShadows, Environment } from "@react-three/drei";
+import { Environment } from "@react-three/drei";
 import { JSX, useCallback, useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
+import { ContactShadows } from "./ContactShadows";
 
 import { useViewportStore } from "@/stores/useViewportStore";
 
