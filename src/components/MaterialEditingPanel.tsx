@@ -671,7 +671,6 @@ export default function MaterialEditingPanel() {
               </div>
             </TooltipWrapper>
 
-            {/* Generate Mipmaps - available for all formats */}
             <TooltipWrapper content="Automatically creates smaller image levels from the source, improving rendering performance at distance.">
               <div className="flex items-center space-x-2">
                 <Switch
@@ -714,7 +713,6 @@ export default function MaterialEditingPanel() {
               </div>
             </TooltipWrapper>
 
-            {/* Supercompression - UASTC only (Zstandard compression) */}
             {ktx2Options.outputType === "UASTC" && (
               <TooltipWrapper content="Applies Zstandard compression on top of UASTC texture compression for smaller file sizes with no additional quality loss.">
                 <div className="flex items-center space-x-2">
@@ -733,7 +731,6 @@ export default function MaterialEditingPanel() {
               </TooltipWrapper>
             )}
 
-            {/* RDO - UASTC LDR only */}
             {ktx2Options.outputType === "UASTC" && (
               <TooltipWrapper content="Rate Distortion Optimization reduces file size by allowing controlled quality loss. Works best with supercompression enabled.">
                 <div className="flex items-center space-x-2">
@@ -750,7 +747,6 @@ export default function MaterialEditingPanel() {
               </TooltipWrapper>
             )}
 
-            {/* RDO Quality Level - UASTC only when RDO enabled */}
             {ktx2Options.outputType === "UASTC" && ktx2Options.enableRDO && (
               <TooltipWrapper content="Controls the quality vs. file size tradeoff. Lower values (0.1-2) prioritize quality, higher values (2-10) prioritize smaller file sizes.">
                 <div>
