@@ -28,6 +28,7 @@ interface ModelStore {
   modelStats: ModelStats;
   isBulkProcessing: boolean;
   bulkProcessingProgress: { current: number; total: number } | null;
+  modifyingKTX2Texture: boolean;
 
   updateTextureCompressionSettings: (
     texture: Texture,
@@ -57,6 +58,7 @@ export const useModelStore = create<ModelStore>()(
       textureBounds: null,
       isBulkProcessing: false,
       bulkProcessingProgress: null,
+      modifyingKTX2Texture: false,
       modelStats: {
         numMeshes: 0,
         numVertices: 0,

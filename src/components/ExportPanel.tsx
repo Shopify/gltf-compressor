@@ -27,6 +27,7 @@ export function ExportPanel() {
     (state) => state.modelStats
   );
   const isBulkProcessing = useModelStore((state) => state.isBulkProcessing);
+  const modifyingKTX2Texture = useModelStore((state) => state.modifyingKTX2Texture);
 
   useEffect(() => {
     if (optimizeMeshes && !showAdvanced) {
@@ -112,7 +113,7 @@ export function ExportPanel() {
             id="draco-compress-switch"
             checked={dracoCompress}
             onCheckedChange={setDracoCompress}
-            disabled={isBulkProcessing}
+            disabled={isBulkProcessing || modifyingKTX2Texture}
           />
           <Label htmlFor="draco-compress-switch">Draco Compress</Label>
         </div>
@@ -124,7 +125,7 @@ export function ExportPanel() {
             id="optimize-meshes-and-animations-switch"
             checked={optimizeMeshes}
             onCheckedChange={handleOptimizeMeshesChange}
-            disabled={isBulkProcessing}
+            disabled={isBulkProcessing || modifyingKTX2Texture}
           />
           <Label htmlFor="optimize-meshes-and-animations-switch">
             Optimize Meshes & Animations
@@ -173,7 +174,7 @@ export function ExportPanel() {
                   id="deduplicate-switch"
                   checked={deduplicate}
                   onCheckedChange={setDeduplicate}
-                  disabled={isBulkProcessing}
+                  disabled={isBulkProcessing || modifyingKTX2Texture}
                 />
                 <Label htmlFor="deduplicate-switch">Deduplicate</Label>
               </div>
@@ -185,7 +186,7 @@ export function ExportPanel() {
                   id="flatten-and-join-switch"
                   checked={flattenAndJoin}
                   onCheckedChange={setFlattenAndJoin}
-                  disabled={isBulkProcessing}
+                  disabled={isBulkProcessing || modifyingKTX2Texture}
                 />
                 <Label htmlFor="flatten-and-join-switch">Flatten & Join</Label>
               </div>
@@ -197,7 +198,7 @@ export function ExportPanel() {
                   id="weld-switch"
                   checked={weld}
                   onCheckedChange={setWeld}
-                  disabled={isBulkProcessing}
+                  disabled={isBulkProcessing || modifyingKTX2Texture}
                 />
                 <Label htmlFor="weld-switch">Weld</Label>
               </div>
@@ -209,7 +210,7 @@ export function ExportPanel() {
                   id="resample-switch"
                   checked={resample}
                   onCheckedChange={setResample}
-                  disabled={isBulkProcessing}
+                  disabled={isBulkProcessing || modifyingKTX2Texture}
                 />
                 <Label htmlFor="resample-switch">Resample</Label>
               </div>
@@ -221,7 +222,7 @@ export function ExportPanel() {
                   id="prune-switch"
                   checked={prune}
                   onCheckedChange={setPrune}
-                  disabled={isBulkProcessing}
+                  disabled={isBulkProcessing || modifyingKTX2Texture}
                 />
                 <Label htmlFor="prune-switch">Prune</Label>
               </div>
@@ -231,7 +232,7 @@ export function ExportPanel() {
       )}
 
       <div className="pt-1">
-        <Button onClick={handleExport} className="w-full" disabled={isBulkProcessing}>
+        <Button onClick={handleExport} className="w-full" disabled={isBulkProcessing || modifyingKTX2Texture}>
           Export
         </Button>
       </div>

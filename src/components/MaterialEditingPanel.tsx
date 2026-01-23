@@ -41,6 +41,7 @@ export default function MaterialEditingPanel() {
     updateTextureCompressionSettings,
     updateModelStats,
     isBulkProcessing,
+    modifyingKTX2Texture,
   ] = useModelStore(
     useShallow((state) => [
       state.originalDocument,
@@ -52,6 +53,7 @@ export default function MaterialEditingPanel() {
       state.updateTextureCompressionSettings,
       state.updateModelStats,
       state.isBulkProcessing,
+      state.modifyingKTX2Texture,
     ])
   );
 
@@ -246,11 +248,19 @@ export default function MaterialEditingPanel() {
       const textureCompressionSettings =
         textureCompressionSettingsMap.get(selectedTexture);
       if (textureCompressionSettings) {
+        // Check if we're working with a KTX2 texture
+        const isKTX2 = mimeType === "image/ktx2";
+
         // Update compression setting and flag texture as compressing
         updateTextureCompressionSettings(selectedTexture, {
           compressionEnabled: true,
           isBeingCompressed: true,
         });
+
+        // Set global flag if working with KTX2
+        if (isKTX2) {
+          useModelStore.setState({ modifyingKTX2Texture: true });
+        }
 
         try {
           const result = await compressTexture(
@@ -266,6 +276,11 @@ export default function MaterialEditingPanel() {
           updateTextureCompressionSettings(selectedTexture, {
             isBeingCompressed: false,
           });
+
+          // Clear global flag if it was set
+          if (isKTX2) {
+            useModelStore.setState({ modifyingKTX2Texture: false });
+          }
 
           // Update user interface
           const compressedSize = getTextureSizeInKB(
@@ -318,11 +333,21 @@ export default function MaterialEditingPanel() {
       const textureCompressionSettings =
         textureCompressionSettingsMap.get(selectedTexture);
       if (textureCompressionSettings) {
+        // Check if we're working with a KTX2 texture (either current or changing to)
+        const isKTX2 =
+          mimeType === "image/ktx2" ||
+          (settingKey === "mimeType" && value === "image/ktx2");
+
         // Update compression setting and flag texture as compressing
         updateTextureCompressionSettings(selectedTexture, {
           [settingKey]: value,
           isBeingCompressed: true,
         });
+
+        // Set global flag if working with KTX2
+        if (isKTX2) {
+          useModelStore.setState({ modifyingKTX2Texture: true });
+        }
 
         try {
           const result = await compressTexture(selectedTexture, {
@@ -337,6 +362,11 @@ export default function MaterialEditingPanel() {
           updateTextureCompressionSettings(selectedTexture, {
             isBeingCompressed: false,
           });
+
+          // Clear global flag if it was set
+          if (isKTX2) {
+            useModelStore.setState({ modifyingKTX2Texture: false });
+          }
 
           // Update user interface
           const compressedSize = getTextureSizeInKB(
@@ -426,7 +456,7 @@ export default function MaterialEditingPanel() {
             materials.find((m) => m.material === selectedMaterial)?.id ?? ""
           }
           onValueChange={handleMaterialChange}
-          disabled={materials.length === 0 || isBulkProcessing}
+          disabled={materials.length === 0 || isBulkProcessing || modifyingKTX2Texture}
         >
           <SelectTrigger id="material-select">
             <SelectValue
@@ -457,7 +487,7 @@ export default function MaterialEditingPanel() {
         <Select
           value={selectedTextureSlot}
           onValueChange={handleTextureChange}
-          disabled={textureSlots.length === 0 || isBulkProcessing}
+          disabled={textureSlots.length === 0 || isBulkProcessing || modifyingKTX2Texture}
         >
           <SelectTrigger id="texture-select">
             <SelectValue
@@ -483,7 +513,7 @@ export default function MaterialEditingPanel() {
           id="double-sided-material-switch"
           checked={doubleSided}
           onCheckedChange={handleDoubleSidedChange}
-          disabled={materials.length === 0 || isBulkProcessing}
+          disabled={materials.length === 0 || isBulkProcessing || modifyingKTX2Texture}
         />
         <Label
           htmlFor="double-sided-material-switch"
@@ -498,7 +528,7 @@ export default function MaterialEditingPanel() {
           id="compress-texture-switch"
           checked={compressionEnabled}
           onCheckedChange={handleCompressionChange}
-          disabled={textureSlots.length === 0 || isBulkProcessing}
+          disabled={textureSlots.length === 0 || isBulkProcessing || modifyingKTX2Texture}
         />
         <Label
           htmlFor="compress-texture-switch"
@@ -522,7 +552,7 @@ export default function MaterialEditingPanel() {
         <Select
           value={mimeType}
           onValueChange={handleMimeTypeChange}
-          disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+          disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing || modifyingKTX2Texture}
         >
           <SelectTrigger id="image-format-select">
             <SelectValue placeholder="Select Image Format" />
@@ -558,7 +588,7 @@ export default function MaterialEditingPanel() {
         <Select
           value={maxResolution.toString()}
           onValueChange={handleMaxResolutionChange}
-          disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+          disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing || modifyingKTX2Texture}
         >
           <SelectTrigger id="resolution-select">
             <SelectValue placeholder="Select Resolution" />
@@ -609,7 +639,7 @@ export default function MaterialEditingPanel() {
           lastQuality.current = [];
           handleQualityChange(finalValue);
         }}
-        disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+        disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing || modifyingKTX2Texture}
         className="pt-4 pb-1"
       />
 
@@ -657,7 +687,7 @@ export default function MaterialEditingPanel() {
                     onValueChange={(value: KTX2OutputType) =>
                       handleKtx2OptionChange("outputType", value)
                     }
-                    disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+                    disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing || modifyingKTX2Texture}
                   >
                     <SelectTrigger id="ktx2-output-type-select">
                       <SelectValue placeholder="Select Output Type" />
@@ -679,7 +709,7 @@ export default function MaterialEditingPanel() {
                   onCheckedChange={(value) =>
                     handleKtx2OptionChange("generateMipmaps", value)
                   }
-                  disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+                  disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing || modifyingKTX2Texture}
                 />
                 <Label htmlFor="ktx2-generate-mipmaps">Generate Mipmaps</Label>
               </div>
@@ -693,7 +723,7 @@ export default function MaterialEditingPanel() {
                   onCheckedChange={(value) =>
                     handleKtx2OptionChange("isNormalMap", value)
                   }
-                  disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+                  disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing || modifyingKTX2Texture}
                 />
                 <Label htmlFor="ktx2-normal-map">Normal Map</Label>
               </div>
@@ -707,7 +737,7 @@ export default function MaterialEditingPanel() {
                   onCheckedChange={(value) =>
                     handleKtx2OptionChange("srgbTransferFunction", value)
                   }
-                  disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+                  disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing || modifyingKTX2Texture}
                 />
                 <Label htmlFor="ktx2-srgb">sRGB Transfer Function</Label>
               </div>
@@ -722,7 +752,7 @@ export default function MaterialEditingPanel() {
                     onCheckedChange={(value) =>
                       handleKtx2OptionChange("enableSupercompression", value)
                     }
-                    disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+                    disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing || modifyingKTX2Texture}
                   />
                   <Label htmlFor="ktx2-supercompression">
                     Enable Supercompression
@@ -740,7 +770,7 @@ export default function MaterialEditingPanel() {
                     onCheckedChange={(value) =>
                       handleKtx2OptionChange("enableRDO", value)
                     }
-                    disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+                    disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing || modifyingKTX2Texture}
                   />
                   <Label htmlFor="ktx2-rdo">Enable RDO</Label>
                 </div>
@@ -776,7 +806,7 @@ export default function MaterialEditingPanel() {
                       lastRdoQuality.current = [];
                       handleKtx2OptionChange("rdoQualityLevel", finalValue);
                     }}
-                    disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing}
+                    disabled={!compressionEnabled || textureSlots.length === 0 || isBulkProcessing || modifyingKTX2Texture}
                     className="pt-4 pb-1"
                   />
                 </div>

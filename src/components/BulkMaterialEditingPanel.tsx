@@ -27,12 +27,14 @@ export default function BulkMaterialEditingPanel() {
     updateTextureCompressionSettings,
     updateModelStats,
     isBulkProcessing,
+    modifyingKTX2Texture,
   ] = useModelStore(
     useShallow((state) => [
       state.textureCompressionSettingsMap,
       state.updateTextureCompressionSettings,
       state.updateModelStats,
       state.isBulkProcessing,
+      state.modifyingKTX2Texture,
     ])
   );
 
@@ -645,7 +647,7 @@ export default function BulkMaterialEditingPanel() {
           <Select
             value={bulkFormat}
             onValueChange={setBulkFormat}
-            disabled={!hasTextures || isBulkProcessing}
+            disabled={!hasTextures || isBulkProcessing || modifyingKTX2Texture}
           >
             <SelectTrigger id="bulk-format-select">
               <SelectValue placeholder="Select Format" />
@@ -659,7 +661,7 @@ export default function BulkMaterialEditingPanel() {
           </Select>
           <Button
             onClick={handleBulkFormatChange}
-            disabled={!hasTextures || isBulkProcessing}
+            disabled={!hasTextures || isBulkProcessing || modifyingKTX2Texture}
           >
             Apply
           </Button>
@@ -672,7 +674,7 @@ export default function BulkMaterialEditingPanel() {
           <Select
             value={bulkResolution}
             onValueChange={setBulkResolution}
-            disabled={!hasTextures || isBulkProcessing}
+            disabled={!hasTextures || isBulkProcessing || modifyingKTX2Texture}
           >
             <SelectTrigger id="bulk-resolution-select">
               <SelectValue placeholder="Select Resolution" />
@@ -696,7 +698,7 @@ export default function BulkMaterialEditingPanel() {
           </Select>
           <Button
             onClick={handleBulkResolutionChange}
-            disabled={!hasTextures || isBulkProcessing}
+            disabled={!hasTextures || isBulkProcessing || modifyingKTX2Texture}
           >
             Apply
           </Button>
@@ -730,11 +732,11 @@ export default function BulkMaterialEditingPanel() {
             lastQuality.current = [];
             setBulkQuality(finalValue);
           }}
-          disabled={!hasTextures || isBulkProcessing}
+          disabled={!hasTextures || isBulkProcessing || modifyingKTX2Texture}
         />
         <Button
           onClick={handleBulkQualityChange}
-          disabled={!hasTextures || isBulkProcessing}
+          disabled={!hasTextures || isBulkProcessing || modifyingKTX2Texture}
         >
           Apply
         </Button>
@@ -787,7 +789,7 @@ export default function BulkMaterialEditingPanel() {
                       onValueChange={(value: KTX2OutputType) =>
                         setBulkKtx2OutputType(value)
                       }
-                      disabled={!hasKtx2Textures || isBulkProcessing}
+                      disabled={!hasKtx2Textures || isBulkProcessing || modifyingKTX2Texture}
                     >
                       <SelectTrigger id="bulk-ktx2-output-type-select">
                         <SelectValue placeholder="Select Output Type" />
@@ -799,7 +801,7 @@ export default function BulkMaterialEditingPanel() {
                     </Select>
                     <Button
                       onClick={handleBulkKtx2OutputTypeChange}
-                      disabled={!hasKtx2Textures || isBulkProcessing}
+                      disabled={!hasKtx2Textures || isBulkProcessing || modifyingKTX2Texture}
                     >
                       Apply
                     </Button>
@@ -814,14 +816,14 @@ export default function BulkMaterialEditingPanel() {
                   id="bulk-ktx2-generate-mipmaps"
                   checked={bulkGenerateMipmaps}
                   onCheckedChange={setBulkGenerateMipmaps}
-                  disabled={!hasKtx2Textures || isBulkProcessing}
+                  disabled={!hasKtx2Textures || isBulkProcessing || modifyingKTX2Texture}
                 />
                 <Label htmlFor="bulk-ktx2-generate-mipmaps">
                   Generate Mipmaps
                 </Label>
                 <Button
                   onClick={handleBulkGenerateMipmapsChange}
-                  disabled={!hasKtx2Textures || isBulkProcessing}
+                  disabled={!hasKtx2Textures || isBulkProcessing || modifyingKTX2Texture}
                   className="ml-auto"
                 >
                   Apply
@@ -836,14 +838,14 @@ export default function BulkMaterialEditingPanel() {
                     id="bulk-ktx2-supercompression"
                     checked={bulkEnableSupercompression}
                     onCheckedChange={setBulkEnableSupercompression}
-                    disabled={!hasUastcTextures || isBulkProcessing}
+                    disabled={!hasUastcTextures || isBulkProcessing || modifyingKTX2Texture}
                   />
                   <Label htmlFor="bulk-ktx2-supercompression">
                     Enable Supercompression
                   </Label>
                   <Button
                     onClick={handleBulkSupercompressionChange}
-                    disabled={!hasUastcTextures || isBulkProcessing}
+                    disabled={!hasUastcTextures || isBulkProcessing || modifyingKTX2Texture}
                     className="ml-auto"
                   >
                     Apply
@@ -859,14 +861,14 @@ export default function BulkMaterialEditingPanel() {
                     id="bulk-ktx2-rdo"
                     checked={bulkEnableRDO}
                     onCheckedChange={setBulkEnableRDO}
-                    disabled={!hasUastcTextures || isBulkProcessing}
+                    disabled={!hasUastcTextures || isBulkProcessing || modifyingKTX2Texture}
                   />
                   <Label htmlFor="bulk-ktx2-rdo">
                     Enable RDO
                   </Label>
                   <Button
                     onClick={handleBulkRDOChange}
-                    disabled={!hasUastcTextures || isBulkProcessing}
+                    disabled={!hasUastcTextures || isBulkProcessing || modifyingKTX2Texture}
                     className="ml-auto"
                   >
                     Apply
@@ -905,11 +907,11 @@ export default function BulkMaterialEditingPanel() {
                         lastRdoQuality.current = [];
                         setBulkRdoQualityLevel(finalValue);
                       }}
-                      disabled={!hasUastcWithRDO || isBulkProcessing}
+                      disabled={!hasUastcWithRDO || isBulkProcessing || modifyingKTX2Texture}
                     />
                     <Button
                       onClick={handleBulkRdoQualityLevelChange}
-                      disabled={!hasUastcWithRDO || isBulkProcessing}
+                      disabled={!hasUastcWithRDO || isBulkProcessing || modifyingKTX2Texture}
                     >
                       Apply
                     </Button>
