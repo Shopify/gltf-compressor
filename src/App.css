@@ -50,14 +50,17 @@
     from {
       height: 0;
     }
+
     to {
       height: var(--radix-accordion-content-height);
     }
   }
+
   @keyframes accordion-up {
     from {
       height: var(--radix-accordion-content-height);
     }
+
     to {
       height: 0;
     }
@@ -73,6 +76,7 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+
   *,
   ::after,
   ::before,
@@ -83,6 +87,7 @@
 }
 
 @layer utilities {
+
   body,
   html,
   #root {
@@ -180,6 +185,7 @@
     --color-resize-bar: #777777;
     --color-resize-bar-active: #999999;
   }
+
   .dark {
     --background: 0 0% 10.1961%;
     --foreground: 0 0% 85.098%;
@@ -216,6 +222,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }

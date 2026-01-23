@@ -61,9 +61,9 @@ export default function TextureViewStatus() {
         if (textureBounds) {
           const top = textureBounds.statusShouldBeAboveBottomEdge
             ? // 32px above bottom edge of canvas
-              window.innerHeight - 32
+            window.innerHeight - 32
             : // 16px below bottom edge of texture
-              textureBounds.bottom + 16;
+            textureBounds.bottom + 16;
 
           statusMessageRef.current.style.left = `${textureBounds.left + textureBounds.width / 2}px`;
           statusMessageRef.current.style.top = `${top}px`;

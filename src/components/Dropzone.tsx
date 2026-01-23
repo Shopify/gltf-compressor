@@ -82,10 +82,9 @@ export function Dropzone() {
             <div
               className={`
                 relative border-2 border-dashed rounded-xl p-12 transition-all duration-300 cursor-pointer
-                ${
-                  isDragActive
-                    ? "border-blue-500 bg-blue-50 dark:bg-blue-950/50 scale-105"
-                    : "border-border hover:border-blue-400 dark:hover:border-blue-500 hover:bg-muted/50"
+                ${isDragActive
+                  ? "border-blue-500 bg-blue-50 dark:bg-blue-950/50 scale-105"
+                  : "border-border hover:border-blue-400 dark:hover:border-blue-500 hover:bg-muted/50"
                 }
               `}
               tabIndex={0}
@@ -129,11 +128,10 @@ export function Dropzone() {
                 <div
                   className={`
                   p-4 rounded-full transition-colors duration-300
-                  ${
-                    isDragActive
+                  ${isDragActive
                       ? "bg-blue-600 text-white"
                       : "bg-muted text-muted-foreground"
-                  }
+                    }
                 `}
                 >
                   <Upload className="w-8 h-8" />

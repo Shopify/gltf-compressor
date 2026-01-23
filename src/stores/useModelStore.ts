@@ -170,15 +170,15 @@ export const useModelStore = create<ModelStore>()(
         const percentChangeInTextures =
           modelStats.initialSizeOfTextures > 0
             ? ((modelStats.initialSizeOfTextures - sizeOfTextures) /
-                modelStats.initialSizeOfTextures) *
-              100
+              modelStats.initialSizeOfTextures) *
+            100
             : 0;
 
         const percentChangeInTotalSize =
           modelStats.initialTotalSize > 0
             ? ((modelStats.initialTotalSize - totalSize) /
-                modelStats.initialTotalSize) *
-              100
+              modelStats.initialTotalSize) *
+            100
             : 0;
 
         set({

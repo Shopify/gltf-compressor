@@ -40,13 +40,11 @@ function Stage({ children, ...props }: JSX.IntrinsicElements["group"]) {
     lightingPreset,
     environmentPreset,
     lightIntensity,
-    showContactShadows,
   ] = useViewportStore(
     useShallow((state) => [
       state.lightingPreset,
       state.environmentPreset,
       state.lightIntensity,
-      state.showContactShadows,
     ])
   );
   const config = presets[lightingPreset];
@@ -90,14 +88,13 @@ function Stage({ children, ...props }: JSX.IntrinsicElements["group"]) {
         <Center onCentered={onCentered}>{children}</Center>
       </Bounds>
       <group position={[0, -height / 2 - 0.0005, 0]}>
-        {showContactShadows && (
-          <ContactShadows
-            scale={radius * 4}
-            far={radius}
-            blur={2}
-            renderOrder={1}
-          />
-        )}
+        <ContactShadows
+          scale={radius * 4}
+          far={radius}
+          blur={2}
+          renderOrder={1}
+          frames={1}
+        />
       </group>
       <Environment preset={environmentPreset} />
     </>

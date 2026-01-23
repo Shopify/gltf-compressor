@@ -40,8 +40,8 @@ export const loadTexture = (
       textureCompressionSettingsMap.get(selectedTexture);
     const texture =
       textureCompressionSettings?.compressionEnabled &&
-      textureCompressionSettings?.compressedTexture &&
-      showModifiedDocument
+        textureCompressionSettings?.compressedTexture &&
+        showModifiedDocument
         ? textureCompressionSettings.compressedTexture
         : selectedTexture;
     if (!texture) {

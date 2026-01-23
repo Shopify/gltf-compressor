@@ -1,5 +1,7 @@
+import { useModelStore } from "@/stores/useModelStore";
+import { useViewportStore } from "@/stores/useViewportStore";
 import { ThreeElements, useFrame, useThree } from '@react-three/fiber';
-import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import { Color, ColorRepresentation, CubeTexture, DoubleSide, Group, Material, Mesh, MeshDepthMaterial, OrthographicCamera, PlaneGeometry, ShaderMaterial, Texture, WebGLRenderTarget } from 'three';
 import { HorizontalBlurShader, VerticalBlurShader } from 'three-stdlib';
 
@@ -39,6 +41,7 @@ export const ContactShadows = forwardRef<Group, ContactShadowsProps>(
     fref
   ) => {
     const ref = useRef<Group>(null);
+    const shadowPlaneRef = useRef<Mesh>(null);
     const scene = useThree((state) => state.scene);
     const gl = useThree((state) => state.gl);
     const shadowCamera = useRef<OrthographicCamera>(null);
@@ -59,7 +62,7 @@ export const ContactShadows = forwardRef<Group, ContactShadowsProps>(
       renderTargetBlur.texture.generateMipmaps = renderTarget.texture.generateMipmaps = false;
       const planeGeometry = new PlaneGeometry(width, height).rotateX(Math.PI / 2);
       const blurPlane = new Mesh(planeGeometry);
-      const depthMaterial = new MeshDepthMaterial({side: DoubleSide});
+      const depthMaterial = new MeshDepthMaterial({ side: DoubleSide });
       depthMaterial.depthTest = depthMaterial.depthWrite = false;
       depthMaterial.onBeforeCompile = (shader) => {
         shader.uniforms = {
@@ -124,8 +127,16 @@ export const ContactShadows = forwardRef<Group, ContactShadowsProps>(
         ref.current!.visible = false;
         scene.background = null;
         scene.overrideMaterial = depthMaterial;
+        const modifiedScene = useModelStore.getState().modifiedScene;
+        const modifiedSceneVisibility = modifiedScene?.visible ?? false;
+        if (modifiedScene) {
+          modifiedScene.visible = true;
+        }
         gl.setRenderTarget(renderTarget);
         gl.render(scene, shadowCamera.current);
+        if (modifiedScene) {
+          modifiedScene.visible = modifiedSceneVisibility;
+        }
         blurShadows(blur);
         if (smooth) blurShadows(blur * 0.4);
         gl.setRenderTarget(null);
@@ -137,13 +148,36 @@ export const ContactShadows = forwardRef<Group, ContactShadowsProps>(
 
     useImperativeHandle(fref, () => ref.current!, []);
 
+    useEffect(() => {
+      if (shadowPlaneRef.current) {
+        useViewportStore.setState({ shadowPlane: shadowPlaneRef.current });
+      }
+    }, []);
+
+    useEffect(() => {
+      const unsubscribe = useViewportStore.subscribe(
+        (state) => state.showContactShadows,
+        (showContactShadows) => {
+          if (shadowPlaneRef.current) {
+            shadowPlaneRef.current.visible = showContactShadows;
+          }
+        }
+      );
+
+      return () => {
+        unsubscribe();
+      };
+    }, []);
+
     return (
       <group rotation-x={Math.PI / 2} {...props} ref={ref}>
         <mesh
+          ref={shadowPlaneRef}
           renderOrder={renderOrder}
           geometry={planeGeometry}
           scale={[1, -1, 1]}
           rotation={[-Math.PI / 2, 0, 0]}
+          visible={false}
         >
           <meshBasicMaterial
             transparent

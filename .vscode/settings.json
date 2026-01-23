@@ -3,7 +3,7 @@
   "window.title": "${activeEditorMedium}${separator}${rootName}",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   },
   "javascript.validate.enable": false,
   "scss.validate": false,
@@ -32,5 +32,25 @@
   },
   "typescript.tsserver.maxTsServerMemory": 8192,
   "editor.formatOnSave": true,
-  "stylelint.validate": ["scss"]
+  "stylelint.validate": [
+    "scss"
+  ],
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "vscode.css-language-features"
+  }
 }

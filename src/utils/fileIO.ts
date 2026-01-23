@@ -497,22 +497,22 @@ export const exportDocument = async (
   if (deduplicate || flattenAndJoin || doWeld || doResample || doPrune) {
     await finalDocument.transform(
       // Remove duplicate meshes, materials, textures, etc.
-      deduplicate ? dedup() : () => {},
+      deduplicate ? dedup() : () => { },
 
       // Reduce nesting of the scene graph; required for join()
-      flattenAndJoin ? flatten() : () => {},
+      flattenAndJoin ? flatten() : () => { },
 
       // Join compatible meshes
-      flattenAndJoin ? join() : () => {},
+      flattenAndJoin ? join() : () => { },
 
       // Weld (index) all mesh geometry, removing duplicate vertices
-      doWeld ? weld() : () => {},
+      doWeld ? weld() : () => { },
 
       // Losslessly resample animation frames
-      doResample ? resample() : () => {},
+      doResample ? resample() : () => { },
 
       // Remove unused nodes, textures, materials, etc.
-      doPrune ? prune() : () => {}
+      doPrune ? prune() : () => { }
     );
   }
 

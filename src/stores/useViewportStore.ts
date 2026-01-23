@@ -1,4 +1,5 @@
 import { PresetsType } from "@react-three/drei/helpers/environment-assets";
+import { Mesh } from "three";
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
@@ -17,6 +18,7 @@ interface ViewportStore {
   confettiCounter: number;
   triggerConfetti: () => void;
   isPanelResizing: boolean;
+  shadowPlane: Mesh | null;
 }
 
 export const useViewportStore = create<ViewportStore>()(
@@ -37,6 +39,7 @@ export const useViewportStore = create<ViewportStore>()(
       triggerConfetti: () =>
         set((state) => ({ confettiCounter: state.confettiCounter + 1 })),
       isPanelResizing: false,
+      shadowPlane: null,
     };
   })
 );

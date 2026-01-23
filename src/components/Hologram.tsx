@@ -262,7 +262,7 @@ export const Hologram = forwardRef((_, ref) => {
             hologramRef.current.position.set(
               0,
               -modelHeightRef.current / 2 +
-                modelHeightRef.current * easeOutCubicProgress,
+              modelHeightRef.current * easeOutCubicProgress,
               0
             );
           }

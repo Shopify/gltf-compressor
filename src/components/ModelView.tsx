@@ -67,6 +67,11 @@ export default function ModelView() {
         if (modifiedSceneRef.current) {
           modifiedSceneRef.current.visible = true;
         }
+
+        const shadowPlane = useViewportStore.getState().shadowPlane;
+        if (shadowPlane) {
+          shadowPlane.visible = true;
+        }
       },
       onChange: () => {
         if (!originalScene || !modifiedScene) {
