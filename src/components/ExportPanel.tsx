@@ -26,6 +26,7 @@ export function ExportPanel() {
   const { totalSize, percentChangeInTotalSize } = useModelStore(
     (state) => state.modelStats
   );
+  const isBulkProcessing = useModelStore((state) => state.isBulkProcessing);
 
   useEffect(() => {
     if (optimizeMeshes && !showAdvanced) {
@@ -111,6 +112,7 @@ export function ExportPanel() {
             id="draco-compress-switch"
             checked={dracoCompress}
             onCheckedChange={setDracoCompress}
+            disabled={isBulkProcessing}
           />
           <Label htmlFor="draco-compress-switch">Draco Compress</Label>
         </div>
@@ -122,6 +124,7 @@ export function ExportPanel() {
             id="optimize-meshes-and-animations-switch"
             checked={optimizeMeshes}
             onCheckedChange={handleOptimizeMeshesChange}
+            disabled={isBulkProcessing}
           />
           <Label htmlFor="optimize-meshes-and-animations-switch">
             Optimize Meshes & Animations
@@ -170,6 +173,7 @@ export function ExportPanel() {
                   id="deduplicate-switch"
                   checked={deduplicate}
                   onCheckedChange={setDeduplicate}
+                  disabled={isBulkProcessing}
                 />
                 <Label htmlFor="deduplicate-switch">Deduplicate</Label>
               </div>
@@ -181,6 +185,7 @@ export function ExportPanel() {
                   id="flatten-and-join-switch"
                   checked={flattenAndJoin}
                   onCheckedChange={setFlattenAndJoin}
+                  disabled={isBulkProcessing}
                 />
                 <Label htmlFor="flatten-and-join-switch">Flatten & Join</Label>
               </div>
@@ -192,6 +197,7 @@ export function ExportPanel() {
                   id="weld-switch"
                   checked={weld}
                   onCheckedChange={setWeld}
+                  disabled={isBulkProcessing}
                 />
                 <Label htmlFor="weld-switch">Weld</Label>
               </div>
@@ -203,6 +209,7 @@ export function ExportPanel() {
                   id="resample-switch"
                   checked={resample}
                   onCheckedChange={setResample}
+                  disabled={isBulkProcessing}
                 />
                 <Label htmlFor="resample-switch">Resample</Label>
               </div>
@@ -214,6 +221,7 @@ export function ExportPanel() {
                   id="prune-switch"
                   checked={prune}
                   onCheckedChange={setPrune}
+                  disabled={isBulkProcessing}
                 />
                 <Label htmlFor="prune-switch">Prune</Label>
               </div>
@@ -223,7 +231,7 @@ export function ExportPanel() {
       )}
 
       <div className="pt-1">
-        <Button onClick={handleExport} className="w-full">
+        <Button onClick={handleExport} className="w-full" disabled={isBulkProcessing}>
           Export
         </Button>
       </div>
