@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 
 import { Dropzone } from "./components/Dropzone";
@@ -11,9 +12,20 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import { Toaster } from "./components/ui/sonner";
 import { useModelStore } from "./stores/useModelStore";
 import { useViewportStore } from "./stores/useViewportStore";
+import { importFromURL } from "./utils/fileIO";
 
 function App() {
   const originalDocument = useModelStore((state) => state.originalDocument);
+  const hasLoadedURLModel = useRef(false);
+
+  useEffect(() => {
+    if (hasLoadedURLModel.current) return;
+    const modelURL = new URLSearchParams(window.location.search).get("url");
+    if (modelURL) {
+      hasLoadedURLModel.current = true;
+      importFromURL(modelURL);
+    }
+  }, []);
 
   return (
     <ThemeProvider>

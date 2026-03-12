@@ -318,6 +318,60 @@ function buildTextureCompressionSettingsMap(
   return textureCompressionSettingsMap;
 }
 
+function initializeModel(
+  fileName: string,
+  result: Awaited<ReturnType<typeof createDocumentsAndSceneFromURL>>
+): boolean {
+  const {
+    originalDocument,
+    modifiedDocument,
+    originalDocumentView,
+    modifiedDocumentView,
+    originalScene,
+    modifiedScene,
+  } = result;
+
+  if (!originalScene || !modifiedScene) {
+    toast.error("No scenes were found in the glTF file.");
+    return false;
+  }
+
+  const textureCompressionSettingsMap = buildTextureCompressionSettingsMap(
+    originalDocument,
+    modifiedDocument
+  );
+
+  useModelStore.setState({
+    fileName,
+    originalDocument,
+    modifiedDocument,
+    originalDocumentView,
+    modifiedDocumentView,
+    originalScene,
+    modifiedScene,
+    textureCompressionSettingsMap,
+  });
+
+  useModelStore.getState().setInitialModelStats();
+  return true;
+}
+
+export const importFromURL = async (url: string) => {
+  useViewportStore.setState({ loadingFiles: true });
+
+  try {
+    const parsedURL = new URL(url);
+    const fileName = parsedURL.pathname.split("/").pop()?.replace(/\.[^.]+$/, "") || "model";
+    const result = await createDocumentsAndSceneFromURL(url);
+    initializeModel(fileName, result);
+  } catch (error) {
+    console.error("Error loading model from URL:", error);
+    toast.error("Failed to load model from URL.");
+  } finally {
+    useViewportStore.setState({ loadingFiles: false });
+  }
+};
+
 export const importFiles = async <T extends File>(acceptedFiles: T[]) => {
   useViewportStore.setState({ loadingFiles: true });
 
@@ -379,46 +433,14 @@ export const importFiles = async <T extends File>(acceptedFiles: T[]) => {
   // If it is, create the documents and scene from it
   if (acceptedFiles.length === 1 && isGLBFile(acceptedFiles[0].name)) {
     const url = URL.createObjectURL(acceptedFiles[0]);
-    if (url) {
-      const fileName = acceptedFiles[0].name.substring(
-        0,
-        acceptedFiles[0].name.lastIndexOf(".")
-      );
+    const fileName = acceptedFiles[0].name.substring(
+      0,
+      acceptedFiles[0].name.lastIndexOf(".")
+    );
 
-      const {
-        originalDocument,
-        modifiedDocument,
-        originalDocumentView,
-        modifiedDocumentView,
-        originalScene,
-        modifiedScene,
-      } = await createDocumentsAndSceneFromURL(url);
-
-      if (!originalScene || !modifiedScene) {
-        toast.error("No scenes were found in the glTF file.");
-        useViewportStore.setState({ loadingFiles: false });
-        return;
-      }
-
-      const textureCompressionSettingsMap = buildTextureCompressionSettingsMap(
-        originalDocument,
-        modifiedDocument
-      );
-
-      useModelStore.setState({
-        fileName,
-        originalDocument,
-        modifiedDocument,
-        originalDocumentView,
-        modifiedDocumentView,
-        originalScene,
-        modifiedScene,
-        textureCompressionSettingsMap,
-      });
-
-      useModelStore.getState().setInitialModelStats();
-      URL.revokeObjectURL(url);
-    }
+    const result = await createDocumentsAndSceneFromURL(url);
+    initializeModel(fileName, result);
+    URL.revokeObjectURL(url);
 
     useViewportStore.setState({ loadingFiles: false });
     return;
@@ -447,33 +469,8 @@ export const importFiles = async <T extends File>(acceptedFiles: T[]) => {
 
   try {
     const fileName = mainFilePath.substring(0, mainFilePath.lastIndexOf("."));
-
-    const {
-      originalDocument,
-      modifiedDocument,
-      originalDocumentView,
-      modifiedDocumentView,
-      originalScene,
-      modifiedScene,
-    } = await createDocumentsAndSceneFromBuffers(buffers, mainFilePath);
-
-    const textureCompressionSettingsMap = buildTextureCompressionSettingsMap(
-      originalDocument,
-      modifiedDocument
-    );
-
-    useModelStore.setState({
-      fileName,
-      originalDocument,
-      modifiedDocument,
-      originalDocumentView,
-      modifiedDocumentView,
-      originalScene,
-      modifiedScene,
-      textureCompressionSettingsMap,
-    });
-
-    useModelStore.getState().setInitialModelStats();
+    const result = await createDocumentsAndSceneFromBuffers(buffers, mainFilePath);
+    initializeModel(fileName, result);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     toast.error(error.message);
